@@ -4,20 +4,28 @@ using System.Collections.Generic;
 using SharpDX.DirectWrite;
 using DWriteFactory = SharpDX.DirectWrite.Factory;
 using D2DFactory = SharpDX.Direct2D1.Factory;
-using Stride.Rendering;
+
+using Stride.Core.Mathematics;
+
 using Stride.Graphics;
 using Buffer = Stride.Graphics.Buffer;
-using Stride.Core.Mathematics;
-using VL.Lib.Collections;
 
-namespace VL.Stride.Models.Meshes.Text3d
+using Stride.Rendering;
+using Stride.Rendering.ProceduralModels;
+
+//using VL.Lib.Collections;
+
+
+namespace VL.Stride.Text3d
 {
-    public unsafe class TextMesh
+    public unsafe class Text3d: PrimitiveProceduralModelBase
     {
 
         public string Text { get; set; } = "hello world";
 
-        public VL.Lib.Text.FontList Font { get; set; }
+        //public VL.Lib.Text.FontList Font { get; set; }
+
+        public string Font { get; set; } = "Arial";
 
         public int FontSize { get; set; } = 32;
 
@@ -33,20 +41,21 @@ namespace VL.Stride.Models.Meshes.Text3d
         private static SharpDX.Direct2D1.Factory d2dFactory;
         private static SharpDX.DirectWrite.Factory dwFactory;
 
-        private List<Pos3Norm3VertexSDX> vertexList;
+        private List<VertexPositionNormalTexture> vertexList;
 
 
-        public TextMesh()
+        public Text3d()
         {
-            vertexList = new List<Pos3Norm3VertexSDX>(1024);
+            vertexList = new List<VertexPositionNormalTexture>(1024);
 
             if (d2dFactory == null)
             {
                 d2dFactory = new D2DFactory();
-                dwFactory = new DWriteFactory(SharpDX.DirectWrite.FactoryType.Shared);
+                dwFactory = new DWriteFactory(FactoryType.Shared);
             }
         }
 
+        [Obsolete("Upddate is deprecated, please use GeometricMeshData instead.")]
         public Mesh Upddate(GraphicsDevice device, GraphicsContext context)
         {
 
@@ -55,12 +64,13 @@ namespace VL.Stride.Models.Meshes.Text3d
 
             //TextFormat fmt = new TextFormat(dwFactory, (Font as IDynamicEnum).Value, FontSize);
 
-            TextFormat fmt = new TextFormat(dwFactory, "Arial", FontSize);
-            TextLayout tl = new TextLayout(dwFactory, Text, fmt, 0.0f, 32.0f);
-
-            tl.WordWrapping = WordWrap;
-            tl.TextAlignment = HorizontalAlignment;
-            tl.ParagraphAlignment = VerticalAlignment;
+            TextFormat fmt = new TextFormat(dwFactory, Font, FontSize);
+            TextLayout tl = new TextLayout(dwFactory, Text, fmt, 0.0f, 32.0f)
+            {
+                WordWrapping = WordWrap,
+                TextAlignment = HorizontalAlignment,
+                ParagraphAlignment = VerticalAlignment
+            };
 
             OutlineRenderer renderer = new OutlineRenderer(d2dFactory);
             Extruder ex = new Extruder(d2dFactory);
@@ -75,19 +85,19 @@ namespace VL.Stride.Models.Meshes.Text3d
             Buffer vbuffer = Buffer.New(device, new BufferDescription()
             {
                 BufferFlags = BufferFlags.VertexBuffer, //| BufferFlags.ShaderResource,
-                SizeInBytes = vertexList.Count * Pos3Norm3VertexSDX.VertexSize,
+                SizeInBytes = vertexList.Count * VertexPositionNormalTexture.Size,
                 Usage = GraphicsResourceUsage.Dynamic
             },
             PixelFormat.R32G32B32A32_Float);
 
             var varray = vertexList.ToArray();
 
-            vbuffer.SetData<Pos3Norm3VertexSDX>(context.CommandList, varray);
+            vbuffer.SetData<VertexPositionNormalTexture>(context.CommandList, varray);
 
             VertexDeclaration Pos3Norm3Tex2 = CreatePos3Norm3Tex2();
             int vertexcount = vbuffer.SizeInBytes / Pos3Norm3Tex2.VertexStride;
 
-            VertexBufferBinding vbb = new VertexBufferBinding(vbuffer, , vertexcount);
+            VertexBufferBinding vbb = new VertexBufferBinding(vbuffer, Pos3Norm3Tex2, vertexcount);
             VertexBufferBinding[] buffers = new VertexBufferBinding[] { vbb };
 
             MeshDraw md = new MeshDraw();
@@ -101,7 +111,7 @@ namespace VL.Stride.Models.Meshes.Text3d
 
             for (int i = 0; i < vertexList.Count; i++)
             {
-                Pos3Norm3VertexSDX pn = vertexList[i];
+                VertexPositionNormalTexture pn = vertexList[i];
 
                 min.X = pn.Position.X < min.X ? pn.Position.X : min.X;
                 min.Y = pn.Position.Y < min.Y ? pn.Position.Y : min.Y;
@@ -127,6 +137,38 @@ namespace VL.Stride.Models.Meshes.Text3d
             tl.Dispose();
 
             return textmesh;
+        }
+
+
+
+        protected override GeometricMeshData<VertexPositionNormalTexture> CreatePrimitiveMeshData()
+        {
+
+            TextFormat fmt = new TextFormat(dwFactory, Font, FontSize);
+            TextLayout tl = new TextLayout(dwFactory, Text, fmt, 0.0f, 32.0f)
+            {
+                WordWrapping = WordWrap,
+                TextAlignment = HorizontalAlignment,
+                ParagraphAlignment = VerticalAlignment
+            };
+
+            OutlineRenderer renderer = new OutlineRenderer(d2dFactory);
+            Extruder ex = new Extruder(d2dFactory);
+
+            tl.Draw(renderer, 0.0f, 0.0f);
+
+            var outlinedGeometry = renderer.GetGeometry();
+            ex.GetVertices(outlinedGeometry, vertexList, ExtrudeAmount);
+            outlinedGeometry.Dispose();
+
+
+            renderer.Dispose();
+            fmt.Dispose();
+            tl.Dispose();
+
+            var vertices = vertexList.ToArray();
+
+            return new GeometricMeshData<VertexPositionNormalTexture>(vertices, null, isLeftHanded: false) { Name = "Text3d" };
         }
 
         private VertexDeclaration CreatePos3Norm3Tex2()
