@@ -1,39 +1,33 @@
 ﻿using SharpDX.Direct2D1;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using D2DFactory = SharpDX.Direct2D1.Factory;
 using D2DGeometry = SharpDX.Direct2D1.Geometry;
 using SharpDX.DirectWrite;
 using SharpDX;
-
 using RawMat = SharpDX.Mathematics.Interop.RawMatrix3x2;
 
 
 
-namespace VL.Stride.Models.Meshes.Text3d
+namespace VL.Stride.Text3d
 {
-    public unsafe class OutlineRenderer : SharpDX.DirectWrite.TextRendererBase
+    public unsafe class OutlineRenderer : TextRendererBase
     {
         private readonly D2DFactory factory;
-        private SharpDX.Direct2D1.Geometry geometry = null;
+        private D2DGeometry geometry = null;
 
         public OutlineRenderer(D2DFactory factory)
         {
             this.factory = factory;
         }
 
-        public override SharpDX.Result DrawGlyphRun(object clientDrawingContext, float baselineOriginX, float baselineOriginY, MeasuringMode measuringMode, GlyphRun glyphRun, GlyphRunDescription glyphRunDescription, SharpDX.ComObject clientDrawingEffect)
+        public override Result DrawGlyphRun(object clientDrawingContext, float baselineOriginX, float baselineOriginY, MeasuringMode measuringMode, GlyphRun glyphRun, GlyphRunDescription glyphRunDescription, SharpDX.ComObject clientDrawingEffect)
         {
             Color4 c = Color4.White;
             if (clientDrawingEffect != null)
             {
-                if (clientDrawingEffect is SharpDX.Direct2D1.SolidColorBrush)
+                if (clientDrawingEffect is SolidColorBrush)
                 {
-                    var sb = (SharpDX.Direct2D1.SolidColorBrush)clientDrawingEffect;
+                    var sb = (SolidColorBrush)clientDrawingEffect;
                     SharpDX.Mathematics.Interop.RawColor4 brushColor = sb.Color;
                     c = *(Color4*)&brushColor;
                 }
@@ -53,11 +47,11 @@ namespace VL.Stride.Models.Meshes.Text3d
                         this.AddGeometry(tg);
                     }
                 }
-                return SharpDX.Result.Ok;
+                return Result.Ok;
             }
             else
             {
-                return SharpDX.Result.Ok;
+                return Result.Ok;
             }
 
         }
@@ -114,9 +108,9 @@ namespace VL.Stride.Models.Meshes.Text3d
             }
         }
 
-        public override SharpDX.Mathematics.Interop.RawMatrix3x2 GetCurrentTransform(object clientDrawingContext)
+        public override RawMat GetCurrentTransform(object clientDrawingContext)
         {
-            return new SharpDX.Mathematics.Interop.RawMatrix3x2()
+            return new RawMat()
             {
                 M11 = 1.0f,
                 M12 = 0.0f,
@@ -137,7 +131,7 @@ namespace VL.Stride.Models.Meshes.Text3d
             return 1.0f;
         }
 
-        public SharpDX.Direct2D1.Geometry GetGeometry()
+        public Geometry GetGeometry()
         {
             return this.geometry;
         }
