@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
-using DWriteFactory = SharpDX.DirectWrite.Factory;
 using D2DFactory = SharpDX.Direct2D1.Factory;
 using D2DGeometry = SharpDX.Direct2D1.Geometry;
 using SharpDX.Direct2D1;
 
-namespace VL.Stride.Models.Meshes.Text3d
+using Stride.Graphics;
+
+namespace VL.Stride.Text3d
 {
     public class Extruder
     {
@@ -48,13 +45,13 @@ namespace VL.Stride.Models.Meshes.Text3d
         }
 
 
-        public void GetVertices(D2DGeometry geometry, List<Pos3Norm3VertexSDX> vertices, float height = 24.0f)
+        public void GetVertices(D2DGeometry geometry, List<VertexPositionNormalTexture> vertices, float height = 24.0f)
         {
             vertices.Clear();
             //Empty mesh
             if (geometry == null)
             {
-                Pos3Norm3VertexSDX zero = new Pos3Norm3VertexSDX();
+                VertexPositionNormalTexture zero = new VertexPositionNormalTexture();
                 vertices.Add(zero);
                 vertices.Add(zero);
                 vertices.Add(zero);
