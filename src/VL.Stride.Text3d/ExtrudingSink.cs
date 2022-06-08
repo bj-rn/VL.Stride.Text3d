@@ -1,16 +1,19 @@
 ﻿using SharpDX;
-using SharpDX.Direct2D1;
 using System;
 using System.Collections.Generic;
+using SharpDX.Direct2D1;
+using Stride.Graphics;
+using Vector3 = Stride.Core.Mathematics.Vector3;
+using Vector2 = Stride.Core.Mathematics.Vector2;
 
 
-namespace VL.Stride.Models.Meshes.Text3d
+namespace VL.Stride.Text3d
 {
     public unsafe class ExtrudingSink : GeometrySink, TessellationSink
     {
-        private List<Pos3Norm3VertexSDX> vertices;
+        private List<VertexPositionNormalTexture> vertices;
 
-        public ExtrudingSink(List<Pos3Norm3VertexSDX> vertices, float height)
+        public ExtrudingSink(List<VertexPositionNormalTexture> vertices, float height)
         {
             this.vertices = vertices;
             this.m_height = height;
@@ -126,7 +129,11 @@ namespace VL.Stride.Models.Meshes.Text3d
                     m_figureVertices[i] = v;
                 }
 
+
+
                 //Output triangles
+                Vector2 faketc = Vector2.Zero;
+
                 for (int i = 0; i < m_figureVertices.Count; i++)
                 {
                     int j = (i + 1) % m_figureVertices.Count;
@@ -137,18 +144,18 @@ namespace VL.Stride.Models.Meshes.Text3d
                     Vector2 ptNorm3 = m_figureVertices[i].inter2;
                     Vector2 nextPtNorm2 = m_figureVertices[j].inter1;
 
-                    vertices.Add(new Pos3Norm3VertexSDX() { Position = new Vector3(pt.X, pt.Y, m_height / 2), Normals = new Vector3(ptNorm3.X, ptNorm3.Y, 0.0f), TextureCoords = new Vector2(0.0f, 0.0f) });
-                    vertices.Add(new Pos3Norm3VertexSDX() { Position = new Vector3(pt.X, pt.Y, -m_height / 2), Normals = new Vector3(ptNorm3.X, ptNorm3.Y, 0.0f), TextureCoords = new Vector2(0.0f, 0.0f) });
-                    vertices.Add(new Pos3Norm3VertexSDX() { Position = new Vector3(nextPt.X, nextPt.Y, -m_height / 2), Normals = new Vector3(nextPtNorm2.X, nextPtNorm2.Y, 0.0f), TextureCoords = new Vector2(0.0f, 0.0f) });
-                    vertices.Add(new Pos3Norm3VertexSDX() { Position = new Vector3(nextPt.X, nextPt.Y, -m_height / 2), Normals = new Vector3(nextPtNorm2.X, nextPtNorm2.Y, 0.0f), TextureCoords = new Vector2(0.0f, 0.0f) });
-                    vertices.Add(new Pos3Norm3VertexSDX() { Position = new Vector3(nextPt.X, nextPt.Y, m_height / 2), Normals = new Vector3(nextPtNorm2.X, nextPtNorm2.Y, 0.0f), TextureCoords = new Vector2(0.0f, 0.0f) });
-                    vertices.Add(new Pos3Norm3VertexSDX() { Position = new Vector3(pt.X, pt.Y, m_height / 2), Normals = new Vector3(ptNorm3.X, ptNorm3.Y, 0.0f), TextureCoords = new Vector2(0.0f, 0.0f) });
+                    vertices.Add(new VertexPositionNormalTexture() { Position = new Vector3(pt.X, pt.Y, m_height / 2), Normal = new Vector3(ptNorm3.X, ptNorm3.Y, 0.0f), TextureCoordinate = faketc });
+                    vertices.Add(new VertexPositionNormalTexture() { Position = new Vector3(pt.X, pt.Y, -m_height / 2), Normal = new Vector3(ptNorm3.X, ptNorm3.Y, 0.0f), TextureCoordinate = faketc });
+                    vertices.Add(new VertexPositionNormalTexture() { Position = new Vector3(nextPt.X, nextPt.Y, -m_height / 2), Normal = new Vector3(nextPtNorm2.X, nextPtNorm2.Y, 0.0f), TextureCoordinate = faketc });
+                    vertices.Add(new VertexPositionNormalTexture() { Position = new Vector3(nextPt.X, nextPt.Y, -m_height / 2), Normal = new Vector3(nextPtNorm2.X, nextPtNorm2.Y, 0.0f), TextureCoordinate = faketc });
+                    vertices.Add(new VertexPositionNormalTexture() { Position = new Vector3(nextPt.X, nextPt.Y, m_height / 2), Normal = new Vector3(nextPtNorm2.X, nextPtNorm2.Y, 0.0f), TextureCoordinate = faketc });
+                    vertices.Add(new VertexPositionNormalTexture() { Position = new Vector3(pt.X, pt.Y, m_height / 2), Normal = new Vector3(ptNorm3.X, ptNorm3.Y, 0.0f), TextureCoordinate = faketc });
 
                 }
             }
         }
 
-        public void SetFillMode(FillMode fillMode)
+        public void SetFillMode(SharpDX.Direct2D1.FillMode fillMode)
         {
 
         }
@@ -171,6 +178,9 @@ namespace VL.Stride.Models.Meshes.Text3d
 
         public void AddTriangles(Triangle[] triangles)
         {
+
+            Vector2 faketc = Vector2.Zero;
+
             for (int i = 0; i < triangles.Length; i++)
             {
                 Triangle tri = triangles[i];
@@ -178,12 +188,12 @@ namespace VL.Stride.Models.Meshes.Text3d
                 Vector2 d1 = new Vector2(tri.Point2.X - tri.Point1.Y, tri.Point2.Y - tri.Point1.Y);
                 Vector2 d2 = new Vector2(tri.Point3.X - tri.Point2.Y, tri.Point3.Y - tri.Point2.Y);
 
-                vertices.Add(new Pos3Norm3VertexSDX() { Position = new Vector3(tri.Point1.X, tri.Point1.Y, m_height / 2), Normals = new Vector3(0.0f, 0.0f, 1.0f), TextureCoords = new Vector2(0.0f, 0.0f) });
-                vertices.Add(new Pos3Norm3VertexSDX() { Position = new Vector3(tri.Point2.X, tri.Point2.Y, m_height / 2), Normals = new Vector3(0.0f, 0.0f, 1.0f), TextureCoords = new Vector2(0.0f, 0.0f) });
-                vertices.Add(new Pos3Norm3VertexSDX() { Position = new Vector3(tri.Point3.X, tri.Point3.Y, m_height / 2), Normals = new Vector3(0.0f, 0.0f, 1.0f), TextureCoords = new Vector2(0.0f, 0.0f) });
-                vertices.Add(new Pos3Norm3VertexSDX() { Position = new Vector3(tri.Point2.X, tri.Point2.Y, -m_height / 2), Normals = new Vector3(0.0f, 0.0f, -1.0f), TextureCoords = new Vector2(0.0f, 0.0f) });
-                vertices.Add(new Pos3Norm3VertexSDX() { Position = new Vector3(tri.Point1.X, tri.Point1.Y, -m_height / 2), Normals = new Vector3(0.0f, 0.0f, -1.0f), TextureCoords = new Vector2(0.0f, 0.0f) });
-                vertices.Add(new Pos3Norm3VertexSDX() { Position = new Vector3(tri.Point3.X, tri.Point3.Y, -m_height / 2), Normals = new Vector3(0.0f, 0.0f, -1.0f), TextureCoords = new Vector2(0.0f, 0.0f) });
+                vertices.Add(new VertexPositionNormalTexture() { Position = new Vector3(tri.Point1.X, tri.Point1.Y, m_height / 2), Normal = new Vector3(0.0f, 0.0f, 1.0f), TextureCoordinate = faketc });
+                vertices.Add(new VertexPositionNormalTexture() { Position = new Vector3(tri.Point2.X, tri.Point2.Y, m_height / 2), Normal = new Vector3(0.0f, 0.0f, 1.0f), TextureCoordinate = faketc });
+                vertices.Add(new VertexPositionNormalTexture() { Position = new Vector3(tri.Point3.X, tri.Point3.Y, m_height / 2), Normal = new Vector3(0.0f, 0.0f, 1.0f), TextureCoordinate = faketc });
+                vertices.Add(new VertexPositionNormalTexture() { Position = new Vector3(tri.Point2.X, tri.Point2.Y, -m_height / 2), Normal = new Vector3(0.0f, 0.0f, -1.0f), TextureCoordinate = faketc });
+                vertices.Add(new VertexPositionNormalTexture() { Position = new Vector3(tri.Point1.X, tri.Point1.Y, -m_height / 2), Normal = new Vector3(0.0f, 0.0f, -1.0f), TextureCoordinate = faketc });
+                vertices.Add(new VertexPositionNormalTexture() { Position = new Vector3(tri.Point3.X, tri.Point3.Y, -m_height / 2), Normal = new Vector3(0.0f, 0.0f, -1.0f), TextureCoordinate = faketc });
             }
 
 
