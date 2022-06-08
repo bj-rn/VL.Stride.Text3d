@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32519.379
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VL.Stride.Models.Meshes.Text3d", "VL.Stride.Models.Meshes.Text3d\VL.Stride.Models.Meshes.Text3d.csproj", "{CA2B7DB0-BDD2-4F1C-9C5A-BD8B930549F0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VL.Stride.Text3d", "VL.Stride.Text3d\VL.Stride.Text3d.csproj", "{CA2B7DB0-BDD2-4F1C-9C5A-BD8B930549F0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -7,16 +7,12 @@
 
   <ItemGroup>
     <PackageReference Include="SharpDX" Version="4.2.0" />
-    <PackageReference Include="SharpDX.D3DCompiler" Version="4.2.0" />
     <PackageReference Include="SharpDX.Direct2D1" Version="4.2.0" />
-    <PackageReference Include="SharpDX.Direct3D11" Version="4.2.0" />
     <PackageReference Include="SharpDX.DXGI" Version="4.2.0" />
     <PackageReference Include="SharpDX.Mathematics" Version="4.2.0" />
-    <PackageReference Include="Stride" Version="4.0.1.1428" />
+    <PackageReference Include="Stride.Core.Mathematics" Version="4.0.1.1428" />
     <PackageReference Include="Stride.Graphics" Version="4.0.1.1428" />
     <PackageReference Include="Stride.Rendering" Version="4.0.1.1428" />
-    <PackageReference Include="VL.CoreLib" Version="2021.4.9" />
-    <PackageReference Include="VL.Stride.Runtime" Version="2021.4.9" />
   </ItemGroup>
 
 </Project>
