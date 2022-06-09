@@ -33,7 +33,7 @@ namespace VL.Stride.Text3d
 
         public ParagraphAlignment VerticalAlignment { get; set; } = ParagraphAlignment.Near;
 
-        public WordWrapping WordWrap { get; set; } = WordWrapping.NoWrap;
+        //public WordWrapping WordWrap { get; set; } = WordWrapping.NoWrap;
 
         public float ExtrudeAmount { get; set; } = 1.0f;
 
@@ -67,7 +67,7 @@ namespace VL.Stride.Text3d
             TextFormat fmt = new TextFormat(dwFactory, Font, FontSize);
             TextLayout tl = new TextLayout(dwFactory, Text, fmt, 0.0f, 32.0f)
             {
-                WordWrapping = WordWrap,
+                WordWrapping = WordWrapping.NoWrap,
                 TextAlignment = HorizontalAlignment,
                 ParagraphAlignment = VerticalAlignment
             };
@@ -147,7 +147,7 @@ namespace VL.Stride.Text3d
             TextFormat fmt = new TextFormat(dwFactory, Font, FontSize);
             TextLayout tl = new TextLayout(dwFactory, Text, fmt, 0.0f, 32.0f)
             {
-                WordWrapping = WordWrap,
+                WordWrapping = WordWrapping.NoWrap,
                 TextAlignment = HorizontalAlignment,
                 ParagraphAlignment = VerticalAlignment
             };
@@ -168,7 +168,20 @@ namespace VL.Stride.Text3d
 
             var vertices = vertexList.ToArray();
 
-            return new GeometricMeshData<VertexPositionNormalTexture>(vertices, null, isLeftHanded: false) { Name = "Text3d" };
+            int[] TmpIndices = GetDefaultIndicesArray(vertices.Length);
+
+            return new GeometricMeshData<VertexPositionNormalTexture>(vertices, TmpIndices, isLeftHanded: false) { Name = "Text3d" };
+        }
+
+
+        private static int[] GetDefaultIndicesArray(int size)
+        {
+            int[] result = new int[size];
+            for (int i = 0; i < size; ++i)
+            {
+                result[i] = i;
+            }
+            return result;
         }
 
         private VertexDeclaration CreatePos3Norm3Tex2()
