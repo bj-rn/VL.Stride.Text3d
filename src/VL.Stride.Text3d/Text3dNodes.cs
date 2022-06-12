@@ -18,16 +18,15 @@ using Stride.Rendering.ProceduralModels;
 
 namespace VL.Stride.Text3d
 {
-
     public unsafe abstract class Text3dBase: PrimitiveProceduralModelBase
     {
 
-        protected static SharpDX.Direct2D1.Factory d2dFactory;
-        protected static SharpDX.DirectWrite.Factory dwFactory;
+        protected static D2DFactory d2dFactory;
+        protected static DWriteFactory dwFactory;
 
         protected List<VertexPositionNormalTexture> vertexList;
 
-
+        public float ExtrudeAmount { get; set; } = 1.0f;
         protected Text3dBase()
         {
             vertexList = new List<VertexPositionNormalTexture>(1024);
@@ -55,7 +54,6 @@ namespace VL.Stride.Text3d
             VertexElement normal = new VertexElement("NORMAL", PixelFormat.R32G32B32_Float);
             VertexElement texcoord = new VertexElement("TEXCOORD0", PixelFormat.R32G32_Float);
 
-
             VertexElement[] elements = new VertexElement[] { pos, normal, texcoord };
 
             VertexDeclaration vd = new VertexDeclaration(elements);
@@ -65,8 +63,6 @@ namespace VL.Stride.Text3d
 
        
     }
-
-
 
     public unsafe class Text3d : Text3dBase
     {
@@ -83,16 +79,12 @@ namespace VL.Stride.Text3d
 
         public ParagraphAlignment VerticalAlignment { get; set; } = ParagraphAlignment.Near;
 
-        //public WordWrapping WordWrap { get; set; } = WordWrapping.NoWrap;
-
-        public float ExtrudeAmount { get; set; } = 1.0f;
-
 
         public Text3d() : base()
         {
            
         }
-        
+
 
         protected override GeometricMeshData<VertexPositionNormalTexture> CreatePrimitiveMeshData()
         {
@@ -213,4 +205,46 @@ namespace VL.Stride.Text3d
 
 
     }
+
+    public unsafe class Text3dAdvanced : Text3dBase
+    {
+
+        public TextLayout TextLayout { get; set; }
+
+
+        public Text3dAdvanced() : base()
+        {
+
+        }
+
+
+        protected override GeometricMeshData<VertexPositionNormalTexture> CreatePrimitiveMeshData()
+        {
+
+            if (this.TextLayout == null)
+                return null;
+
+            TextLayout tl = new TextLayout(this.TextLayout.NativePointer);
+
+            OutlineRenderer renderer = new OutlineRenderer(d2dFactory);
+            Extruder ex = new Extruder(d2dFactory);
+
+            tl.Draw(renderer, 0.0f, 0.0f);
+
+            var outlinedGeometry = renderer.GetGeometry();
+            ex.GetVertices(outlinedGeometry, vertexList, ExtrudeAmount);
+            outlinedGeometry.Dispose();
+
+
+            renderer.Dispose();
+         
+            var vertices = vertexList.ToArray();
+
+            int[] TmpIndices = GetDefaultIndicesArray(vertices.Length);
+
+            return new GeometricMeshData<VertexPositionNormalTexture>(vertices, TmpIndices, isLeftHanded: false) { Name = "Text3dAdvanced" };
+        }
+
+    }
+
 }
