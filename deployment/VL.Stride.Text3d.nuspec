@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>VL.Stride.Text3d</id>
+    <version>0.1.0</version>
+    <title>VL.Stride.Text3d</title>
+    <authors>bj-rn, mrvux</authors>
+    <owners>bj-rn</owners>
+    <license type="expression">MIT</license>
+    <licenseUrl>https://github.com/bj-rn/VL.Stride.Text3d/blob/master/LICENSE</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <readme>README.md</readme>
+    <projectUrl>https://github.com/bj-rn/VL.Stride.Text3d</projectUrl>
+    <summary>Render 3d text in VL.Stride</summary>
+    <description>Set of nodes to create and render (extruded) 3d text in VL.Stride</description>
+    <copyright>Copyright © 2022 bj-rn</copyright>
+    <tags>VL, vvvv, stride, 3d, extrude, text, model, mesh, directwrite</tags>
+    <dependencies>
+        <dependency id="SharpDX" version="4.2.0" />
+        <dependency id="SharpDX.DXGI" version="4.2.0" />
+        <dependency id="SharpDX.Direct2D1" version="4.2.0" />
+        <dependency id="SharpDX.Mathematics" version="4.2.0" />
+        <dependency id="Stride.Core.Mathematics" version="4.0.1.1428" />
+        <dependency id="Stride.Engine" version="4.0.1.1428" />
+        <dependency id="Stride.Games" version="4.0.1.1428" />
+        <dependency id="Stride.Graphics" version="4.0.1.1428" />
+        <dependency id="Stride.Rendering" version="4.0.1.1428" />
+    </dependencies>
+    <frameworkAssemblies>
+      <frameworkAssembly assemblyName="System.IO.Pipes" targetFramework=".NETFramework4.7.2" />
+    </frameworkAssemblies>
+  </metadata>
+   <files>
+    <file src="..\lib\net472\VL.Stride.Text3d.dll" target="lib\net472" />
+    <file src="..\*.vl"/>
+    <file src="..\help\*.vl" target="help"/>
+    <file src="..\README.md" />
+  </files>
+</package>
