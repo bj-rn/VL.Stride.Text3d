@@ -14,12 +14,10 @@ using Stride.Rendering;
 using Stride.Rendering.ProceduralModels;
 
 
-
 namespace VL.Stride.Text3d
 {
     public unsafe abstract class Text3dBase: PrimitiveProceduralModelBase
     {
-
         protected static D2DFactory d2dFactory;
         protected static DWriteFactory dwFactory;
 
@@ -59,13 +57,11 @@ namespace VL.Stride.Text3d
 
             return vd;
         }
-
-       
     }
+
 
     public unsafe class Text3d : Text3dBase
     {
-
         public string Text { get; set; } = "hello world";
 
         public string Font { get; set; } = "Arial";
@@ -76,16 +72,13 @@ namespace VL.Stride.Text3d
 
         public ParagraphAlignment VerticalAlignment { get; set; } = ParagraphAlignment.Near;
 
-
         public Text3d() : base()
         {
            
         }
 
-
         protected override GeometricMeshData<VertexPositionNormalTexture> CreatePrimitiveMeshData()
         {
-
             TextFormat fmt = new TextFormat(dwFactory, Font, FontSize);
             TextLayout tl = new TextLayout(dwFactory, Text, fmt, 0.0f, 32.0f)
             {
@@ -119,7 +112,6 @@ namespace VL.Stride.Text3d
         [Obsolete("Upddate is deprecated, please use GeometricMeshData instead.")]
         public Mesh Upddate(GraphicsDevice device, GraphicsContext context)
         {
-
             if (device == null || context == null)
                 return null;
 
@@ -164,7 +156,6 @@ namespace VL.Stride.Text3d
             md.DrawCount = vertexcount;
             md.PrimitiveType = PrimitiveType.TriangleList;
 
-
             Vector3 min = new Vector3(float.MaxValue);
             Vector3 max = new Vector3(float.MinValue);
 
@@ -183,13 +174,11 @@ namespace VL.Stride.Text3d
 
             BoundingBox bd = new BoundingBox(min, max);
 
-
             Mesh textmesh = new Mesh
             {
                 Draw = md,
                 BoundingBox = bd
             };
-
 
             renderer.Dispose();
             fmt.Dispose();
@@ -197,14 +186,12 @@ namespace VL.Stride.Text3d
 
             return textmesh;
         }
-
     }
+
 
     public unsafe class Text3dAdvanced : Text3dBase
     {
-
         public TextLayout TextLayout { get; set; }
-
 
         public Text3dAdvanced() : base()
         {
@@ -213,7 +200,6 @@ namespace VL.Stride.Text3d
 
         protected override GeometricMeshData<VertexPositionNormalTexture> CreatePrimitiveMeshData()
         {
-
             if (this.TextLayout == null)
                 return null;
 
@@ -228,7 +214,6 @@ namespace VL.Stride.Text3d
             ex.GetVertices(outlinedGeometry, vertexList, ExtrudeAmount);
             outlinedGeometry.Dispose();
 
-
             renderer.Dispose();
          
             var vertices = vertexList.ToArray();
@@ -237,7 +222,5 @@ namespace VL.Stride.Text3d
 
             return new GeometricMeshData<VertexPositionNormalTexture>(vertices, TmpIndices, isLeftHanded: false) { Name = "Text3dAdvanced" };
         }
-
     }
-
 }
