@@ -4676,11 +4676,11 @@
   </Patch>
   <NugetDependency Id="VyKOO8U7zhdMqgicYWEYn7" Location="VL.CoreLib" Version="2021.4.10-0991-gd1b7e45582" />
   <NugetDependency Id="Jqt8tZwHybKOmYD7qXkWZS" Location="VL.Stride" Version="2021.4.10-0991-gd1b7e45582" />
-  <PlatformDependency Id="Me9nL6UzwxAO103E8UxRSz" Location="../../_vvvv/vvvv_gamma_2021.4.10-0988-g6b8c17d01f/lib/Stride.Graphics.dll" />
-  <PlatformDependency Id="LVDj0zjxAGSN6i8rwdUbyF" Location="./src/VL.Stride.Text3d/bin/Debug/net472/VL.Stride.Text3d.dll" />
-  <PlatformDependency Id="BF0qwJVZH0nQXYQb97I2v8" Location="../../vvvv/vvvv_gamma_2021.4.10-0991-gd1b7e45582/lib/Stride.Rendering.dll" />
-  <PlatformDependency Id="KnM3gs9JNbJOqkZqosdcIf" Location="../../vvvv/vvvv_gamma_2021.4.10-0991-gd1b7e45582/lib/Stride.Engine.dll" />
-  <PlatformDependency Id="OVKJyjDv6paOIfknK7Mrg3" Location="../../vvvv/vvvv_gamma_2021.4.10-0991-gd1b7e45582/lib/SharpDX.Direct2D1.dll" />
-  <PlatformDependency Id="VPA461SYYbbOy9cg3iUJUW" Location="../../vvvv/vvvv_gamma_2021.4.10-0991-gd1b7e45582/lib/Stride.Games.dll" />
-  <PlatformDependency Id="Fj5Fzu4Iq1KLN57bG0adpn" Location="../../vvvv/vvvv_gamma_2021.4.10-0991-gd1b7e45582/lib/SharpDX.dll" />
+  <NugetDependency Id="LQ0kSMLrGHfLQxTjro62iy" Location="SharpDX" Version="4.2.0" />
+  <NugetDependency Id="A1nPvzFAbr7NKs9cHTIMc6" Location="SharpDX.Direct2D1" Version="4.2.0" />
+  <NugetDependency Id="OF4xoCcrcqKOQS3Z2yYLDd" Location="Stride.Engine" Version="4.0.1.1428" />
+  <NugetDependency Id="NTRvO3Ku1EoQAuwy34g89V" Location="Stride.Rendering" Version="4.0.1.1428" />
+  <NugetDependency Id="E5sGDnZBC5OLA5clrldsC2" Location="Stride.Games" Version="4.0.1.1428" />
+  <PlatformDependency Id="FH56HRnQL36N1XTlKWitiK" Location="./lib/net472/VL.Stride.Text3d.dll" />
+  <PlatformDependency Id="HUf8Lf7077fMa04SP4dnkQ" Location="../../vvvv/vvvv_gamma_2021.4.10-0991-gd1b7e45582/lib/Stride.Games.dll" />
 </Document>
