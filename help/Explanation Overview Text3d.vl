@@ -416,7 +416,7 @@
               <Choice Kind="TypeFlag" Name="Float32" />
             </p:TypeAnnotation>
           </Pad>
-          <Pad Id="Ly2SqevorqHOa6wIk3fMPj" Comment="Cull Mode" Bounds="-116,-82,52,15" ShowValueBox="true" isIOBox="true" Value="None">
+          <Pad Id="Ly2SqevorqHOa6wIk3fMPj" Comment="Cull Mode" Bounds="-116,-82,52,15" ShowValueBox="true" isIOBox="true" Value="Back">
             <p:TypeAnnotation LastCategoryFullName="Stride.Graphics" LastSymbolSource="Stride.Graphics.dll">
               <Choice Kind="TypeFlag" Name="CullMode" />
             </p:TypeAnnotation>
