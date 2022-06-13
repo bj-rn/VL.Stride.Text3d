@@ -24,7 +24,7 @@ jobs:
     - name: Publish VL Nuget
       uses: vvvv/PublishVLNuget@1.0.41
       with:
-        csproj: src\VL.Stride.Text3d\VL.Stride.Text3d.csproj
+        csproj: src\VL.Stride.Text3d.csproj
         nuspec: deployment\VL.Stride.Text3d.nuspec
         icon-src: https://raw.githubusercontent.com/vvvv/PublicContent/master/nugeticon.png
         icon-dst: ./deployment/nugeticon.png
