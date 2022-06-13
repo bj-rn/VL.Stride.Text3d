@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
     <id>VL.Stride.Text3d</id>
-    <version>0.1.1</version>
+    <version>0.2.0</version>
     <title>VL.Stride.Text3d</title>
     <authors>bj-rn, mrvux</authors>
     <owners>bj-rn</owners>
