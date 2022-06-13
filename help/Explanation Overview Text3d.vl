@@ -937,8 +937,46 @@
           <Overlay Id="AgUYw7rKOdENCLapHGMbTK" Name="Advanced" Bounds="840,11,1290,655">
             <p:ColorIndex p:Type="Int32">3</p:ColorIndex>
           </Overlay>
-          <ControlPoint Id="OfEGB1UDnDpOcqAZrYujfY" Bounds="21,547" />
-          <ControlPoint Id="NlZN4826R3aPmmeVrtyrW4" Bounds="22,546" />
+          <Node Bounds="50,95,54,19" Id="A8AsN6eMWvPQTExHNWIIqZ">
+            <p:NodeReference LastCategoryFullName="Control" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="OnOpen" />
+            </p:NodeReference>
+            <Pin Id="ICTxSvRI0OkPE4w4IgFqoV" Name="Simulate" Kind="InputPin" />
+            <Pin Id="OBrf4M5GwAoNJF4Kxv1tjp" Name="Output" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="19,195,37,19" Id="BcFfz6nyDmjQMxg0Oj4oal">
+            <p:NodeReference LastCategoryFullName="Primitive.Boolean" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="AND" />
+            </p:NodeReference>
+            <Pin Id="Ddf1itSOo8WMr0NNIRnxT0" Name="Input" Kind="StateInputPin" />
+            <Pin Id="TOW8V1oq8CRMjaLV0OZxWf" Name="Input 2" Kind="InputPin" />
+            <Pin Id="KWK0WWc02bGPbZZImK1W0l" Name="Output" Kind="StateOutputPin" />
+          </Node>
+          <ControlPoint Id="UGOGx4TWi1oP31XXWqs532" Bounds="22,545" />
+          <ControlPoint Id="DmxWi16vDVhNcECowYXaPu" Bounds="22,542" />
+          <Node Bounds="50,146,65,19" Id="IWbkvqUa8BvP6GowV48ZXq">
+            <p:NodeReference LastCategoryFullName="Control" LastSymbolSource="CoreLibBasics.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="MonoFlop" />
+            </p:NodeReference>
+            <Pin Id="Brh8PtEs6zFOziYn7JGaKe" Name="Set" Kind="InputPin" />
+            <Pin Id="Fh53d29Ev9TOOarY0fgjOt" Name="Time" Kind="InputPin" />
+            <Pin Id="Air3dPYPdpAMDpVlTXT5yQ" Name="Retriggerable" Kind="InputPin" />
+            <Pin Id="BrRxmXLSe8DO3HBciyZqTY" Name="Reset" Kind="InputPin" />
+            <Pin Id="L7n13JLDSVyQMqfBK4nfKA" Name="Value" Kind="OutputPin" />
+            <Pin Id="JJ46w0XWWsFLpfxkOQ32rk" Name="Inverse Output" Kind="OutputPin" />
+          </Node>
+          <Pad Id="NxcvQLghF6SMVBrAtx4UV2" Bounds="-533,62,490,160" ShowValueBox="true" isIOBox="true" Value="stupid hack.&#xD;&#xA;for some reason the models get borked when multiple are created at once. &quot;Reconnecting&quot; &quot;fixes&quot; them.&#xD;&#xA;I suspect something goes wrong with Generate[PrimitiveProceduralModelBase].&#xD;&#xA;Inside Text3d -&gt; ApplyTextLayoutsAndCreateModel for example.&#xD;&#xA;&#xD;&#xA;It doesn't happen when creating a Mesh form a VertexBuffer like it is done in&#xD;&#xA;Text3dMesh (Async) [Obsolete].&#xD;&#xA;">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">9</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
         </Canvas>
         <Patch Id="U4ViQdtKCaPPfMAai5p8bX" Name="Create" />
         <Patch Id="JDJJzqL4FZvMGRtJGmp1dR" Name="Update" />
@@ -983,7 +1021,6 @@
         <Link Id="TQvyCpWRODaQEQIu04AFUg" Ids="GIdECvjqJO8L2rbSXmTk06,Skjg9o2WkgIPOOggYDxiP6" />
         <Link Id="P1hxKHA1gJiNpy7Muuyd9Z" Ids="BeyWXXiGoP9NxMxbaiFZOl,C2QlnP8HEFhN2m55NELB6x" />
         <Link Id="Mjrjkz9nQmcLOu3RSDyzhw" Ids="UcNDIBoW7VcQNVJGdl5Rmu,M2ReI9c7XCqLezsSUVR9e1" />
-        <Link Id="GWEzbeTvMcUMEpPDz9lDjD" Ids="EwjQcYcsryeMm15Mr7hph3,OfEGB1UDnDpOcqAZrYujfY,FnQvZ2WGOgfLZC79VsrIL7" />
         <Link Id="NwUWz3kZivFN46FZzuYzDN" Ids="VJyBAFIogCoMWVfOHMYJUx,Ram6HjOJvXGMu80gEui9OV" />
         <Link Id="Mp2gWXSsb3wPB0tAF3Scky" Ids="EySiEXaErYrQc8MAYDS2kh,DgQnOxfcUQoMDGLUtWt6z0" />
         <Link Id="RQeYrHtLyAkP667s7pxoGo" Ids="SaLRCis1bdCMU1ISKBqUWh,A8N02dHRRuZL8CyYoQWmTg" />
@@ -999,7 +1036,6 @@
         <Link Id="BKTUMGr03ZMLmX6aXHLsJ4" Ids="K2ke0mqNpyNLv6wEXUC9AK,IpivcK6iC7lLJ28y3r2fmP" />
         <Link Id="NoaDUlCSpJMOcQKcqNpv45" Ids="P9tHpFKewf2NGOaiPeRYlQ,Uw7S0Xa4X1WMBgqaam1jyO" />
         <Link Id="Lu5dR2El5umOl2EHtQ8Rkk" Ids="EX6JbzrUXMXLNayGM5N0si,KaDTwNZ3rMCNUxSyzjkdiA" />
-        <Link Id="N9MS0Wk18CKQdI4DFbezB6" Ids="EwjQcYcsryeMm15Mr7hph3,NlZN4826R3aPmmeVrtyrW4,QTo4D2GTykCPrimzoc1FxY" />
         <Link Id="AKHEWIls3MONOr16faJuor" Ids="P351MrEuYcrMVo7lPAGX2F,TbMvAGxpN79NiQVHfzNfb8" />
         <Link Id="HRhyPuQ1kmkM2YDihr8tJc" Ids="IVE3CYVJ4FpM2aHPealqqd,VKqpmvmKvSBQFFrZjScTl7" />
         <Link Id="IhkzHeH77mVPHQP2Yphcwt" Ids="UXinu5PCo1QOOmdZTL5SNp,SjfZtYxZMhUQVQNjETutdk" />
@@ -1023,6 +1059,11 @@
         <Link Id="OJiNgl0g8ZpNafstMnHRIC" Ids="JQpVQqalWFGPKPjGILpKNq,KOhSU1nsup3MKEkBWKubO2" />
         <Link Id="PGZcipX81zkO1dovEiVXOt" Ids="S9HD3SumIF9MGVML9yCnjZ,Su7C0i3vptHN4uiHFTc1zG" />
         <Link Id="PwTHTP8tGrQNwrppS3WhEB" Ids="E76LwxJMRSYMyWI3zb0pjE,Ppjs8VE0OdEMakUdlXig6K" />
+        <Link Id="RpGoQ0kB3LCPmd6ujSnDiA" Ids="EwjQcYcsryeMm15Mr7hph3,Ddf1itSOo8WMr0NNIRnxT0" />
+        <Link Id="Tu2efbmvbSwNdoj02pqsbq" Ids="KWK0WWc02bGPbZZImK1W0l,UGOGx4TWi1oP31XXWqs532,FnQvZ2WGOgfLZC79VsrIL7" />
+        <Link Id="C58h8o6yZmkMbKBv2BgEAJ" Ids="KWK0WWc02bGPbZZImK1W0l,DmxWi16vDVhNcECowYXaPu,QTo4D2GTykCPrimzoc1FxY" />
+        <Link Id="UjjjAXUcRpdOF9z0jN5XEr" Ids="OBrf4M5GwAoNJF4Kxv1tjp,Brh8PtEs6zFOziYn7JGaKe" />
+        <Link Id="KWHyiezGwTqLNbEUHr6U3f" Ids="JJ46w0XWWsFLpfxkOQ32rk,TOW8V1oq8CRMjaLV0OZxWf" />
       </Patch>
     </Node>
   </Patch>
