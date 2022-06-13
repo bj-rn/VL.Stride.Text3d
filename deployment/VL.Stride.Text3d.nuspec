@@ -28,7 +28,7 @@
     </frameworkAssemblies>
   </metadata>
    <files>
-    <file src="..src\bin\Release\net472\VL.Stride.Text3d.dll" target="lib\net472" />
+    <file src="..\src\bin\Release\net472\VL.Stride.Text3d.dll" target="lib\net472" />
     <file src="..\*.vl"/>
     <file src="..\help\*.vl" target="help"/>
     <file src="..\README.md" />
