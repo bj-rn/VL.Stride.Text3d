@@ -3,7 +3,19 @@
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <BaseOutputPath>bin\</BaseOutputPath>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <Authors>bj-rn</Authors>
+    <PackageProjectUrl>https://github.com/bj-rn/VL.Stride.Text3d</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="SharpDX" Version="4.2.0" />
@@ -14,5 +26,9 @@
     <PackageReference Include="Stride.Graphics" Version="4.0.1.1428" />
     <PackageReference Include="Stride.Rendering" Version="4.0.1.1428" />
   </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="copy /Y $(SolutionDir)\VL.Stride.Text3d\bin\$(ConfigurationName)\net472\VL.Stride.Text3d.dll $(SolutionDir)\..\lib\net472" />
+  </Target>
 
 </Project>
