@@ -13,7 +13,6 @@ using Buffer = Stride.Graphics.Buffer;
 using Stride.Rendering;
 using Stride.Rendering.ProceduralModels;
 
-//using VL.Lib.Collections;
 
 
 namespace VL.Stride.Text3d
@@ -69,8 +68,6 @@ namespace VL.Stride.Text3d
 
         public string Text { get; set; } = "hello world";
 
-        //public VL.Lib.Text.FontList Font { get; set; }
-
         public string Font { get; set; } = "Arial";
 
         public int FontSize { get; set; } = 32;
@@ -125,8 +122,6 @@ namespace VL.Stride.Text3d
 
             if (device == null || context == null)
                 return null;
-
-            //TextFormat fmt = new TextFormat(dwFactory, (Font as IDynamicEnum).Value, FontSize);
 
             TextFormat fmt = new TextFormat(dwFactory, Font, FontSize);
             TextLayout tl = new TextLayout(dwFactory, Text, fmt, 0.0f, 32.0f)
@@ -203,7 +198,6 @@ namespace VL.Stride.Text3d
             return textmesh;
         }
 
-
     }
 
     public unsafe class Text3dAdvanced : Text3dBase
@@ -216,7 +210,6 @@ namespace VL.Stride.Text3d
         {
 
         }
-
 
         protected override GeometricMeshData<VertexPositionNormalTexture> CreatePrimitiveMeshData()
         {
