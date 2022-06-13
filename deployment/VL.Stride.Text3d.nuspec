@@ -6,7 +6,6 @@
     <title>VL.Stride.Text3d</title>
     <authors>bj-rn, mrvux</authors>
     <owners>bj-rn</owners>
-    <license type="expression">MIT</license>
     <licenseUrl>https://github.com/bj-rn/VL.Stride.Text3d/blob/master/LICENSE</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <readme>README.md</readme>
