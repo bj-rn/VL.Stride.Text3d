@@ -21,8 +21,6 @@
         <dependency id="SharpDX.Direct2D1" version="4.2.0" />
         <dependency id="SharpDX.Mathematics" version="4.2.0" />
         <dependency id="Stride.Core.Mathematics" version="4.0.1.1428" />
-        <dependency id="Stride.Engine" version="4.0.1.1428" />
-        <dependency id="Stride.Games" version="4.0.1.1428" />
         <dependency id="Stride.Graphics" version="4.0.1.1428" />
         <dependency id="Stride.Rendering" version="4.0.1.1428" />
     </dependencies>
