@@ -977,6 +977,9 @@
               <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
             </p:ValueBoxSettings>
           </Pad>
+          <Overlay Id="Hw7KEudbA16Mgs2EclreB3" Name="nota bene: &#xD;&#xA;The TextureCoordinates are not correct!" Bounds="546,-81,491,80">
+            <p:ColorIndex p:Type="Int32">7</p:ColorIndex>
+          </Overlay>
         </Canvas>
         <Patch Id="U4ViQdtKCaPPfMAai5p8bX" Name="Create" />
         <Patch Id="JDJJzqL4FZvMGRtJGmp1dR" Name="Update" />
