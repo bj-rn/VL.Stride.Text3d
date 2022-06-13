@@ -27,8 +27,4 @@
     <PackageReference Include="Stride.Rendering" Version="4.0.1.1428" />
   </ItemGroup>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="copy /Y $(SolutionDir)\VL.Stride.Text3d\bin\$(ConfigurationName)\net472\VL.Stride.Text3d.dll $(SolutionDir)\..\lib\net472" />
-  </Target>
-
 </Project>
