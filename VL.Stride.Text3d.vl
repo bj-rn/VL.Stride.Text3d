@@ -3140,10 +3140,10 @@
       </Canvas>
       <!--
 
-    ************************ Text3dSimple ************************
+    ************************ Text3d ************************
 
 -->
-      <Node Name="Text3dSimple" Category="VL.Stride.Models" Bounds="111,328" Id="FxIPdQYI2WcLlNYIjYMQqm">
+      <Node Name="Text3d" Category="VL.Stride.Models" Bounds="111,328" Id="FxIPdQYI2WcLlNYIjYMQqm">
         <p:NodeReference LastCategoryFullName="Primitive" LastSymbolSource="builtin">
           <Choice Kind="ContainerDefinition" Name="Process" />
         </p:NodeReference>
@@ -3518,10 +3518,10 @@
       </Canvas>
       <!--
 
-    ************************ Text3dSimpleMesh ************************
+    ************************ Text3dMesh ************************
 
 -->
-      <Node Name="Text3dSimpleMesh" Category="VL.Stride.Models.Meshes" Bounds="115,430" Id="CzZ1XdZ6vZeQcsM9QD7IZs">
+      <Node Name="Text3dMesh" Category="VL.Stride.Models.Meshes" Bounds="115,430" Id="CzZ1XdZ6vZeQcsM9QD7IZs">
         <p:NodeReference LastCategoryFullName="Primitive" LastSymbolSource="builtin">
           <Choice Kind="ContainerDefinition" Name="Process" />
         </p:NodeReference>
@@ -4582,7 +4582,7 @@
     ************************ Text3dMesh ************************
 
 -->
-      <Node Name="Text3dMesh" Category="VL.Stride.Models" Bounds="512,430" Id="TABwf6SAkAaMKw3Y2gefNW">
+      <Node Name="Text3dMesh" Category="VL.Stride.Models.Meshes" Bounds="512,430" Id="TABwf6SAkAaMKw3Y2gefNW">
         <p:NodeReference LastCategoryFullName="Primitive" LastSymbolSource="builtin">
           <Choice Kind="ContainerDefinition" Name="Process" />
         </p:NodeReference>
