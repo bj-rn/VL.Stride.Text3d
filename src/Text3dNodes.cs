@@ -213,7 +213,7 @@ namespace VL.Stride.Text3d
             var outlinedGeometry = renderer.GetGeometry();
             ex.GetVertices(outlinedGeometry, vertexList, ExtrudeAmount);
             outlinedGeometry.Dispose();
-
+      
             renderer.Dispose();
          
             var vertices = vertexList.ToArray();

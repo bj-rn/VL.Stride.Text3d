@@ -25,6 +25,7 @@ OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+using System;
 using System.Collections.Generic;
 
 using D2DFactory = SharpDX.Direct2D1.Factory;
@@ -32,6 +33,7 @@ using D2DGeometry = SharpDX.Direct2D1.Geometry;
 using SharpDX.Direct2D1;
 
 using Stride.Graphics;
+using Vector2 = Stride.Core.Mathematics.Vector2;
 
 namespace VL.Stride.Text3d
 {
@@ -88,7 +90,12 @@ namespace VL.Stride.Text3d
             {
                 using (D2DGeometry outlinedGeometry = this.OutlineGeometry(flattenedGeometry))
                 {
-                    using (ExtrudingSink sink = new ExtrudingSink(vertices, height))
+                    var bounds = outlinedGeometry.GetBounds();
+                    //Top and Bottom switched for uv calculation
+                    Vector2 min = new Vector2(bounds.Left, bounds.Bottom);
+                    Vector2 max = new Vector2(bounds.Right, bounds.Top);
+                    
+                    using (ExtrudingSink sink = new ExtrudingSink(vertices, height, min, max))
                     {
                         outlinedGeometry.Simplify(GeometrySimplificationOption.Lines, sink);
                         outlinedGeometry.Tessellate(sink);
