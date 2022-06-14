@@ -349,6 +349,7 @@
               <Choice Kind="ProcessAppFlag" Name="Text3d" />
               <PinReference Kind="InputPin" Name="Text" />
             </p:NodeReference>
+            <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
             <Pin Id="KXOwdMmB9d3QV1yD0BB0i2" Name="Text" Kind="InputPin" DefaultValue="hello" />
             <Pin Id="Q5P32anlc49Lv8SuPcUoMp" Name="Font" Kind="InputPin" />
             <Pin Id="CTpYHs0X3GrL5s6O94q7Ws" Name="FontSize" Kind="InputPin" />
@@ -464,6 +465,7 @@
               </CategoryReference>
               <PinReference Kind="InputPin" Name="Text" />
             </p:NodeReference>
+            <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
             <Pin Id="AlPZBGNB8fLQPynq9qgbyD" Name="Text" Kind="InputPin" />
             <Pin Id="HEokhKMY4iyOarVaO1FcJF" Name="Font" Kind="InputPin" DefaultValue="Lucida Sans Unicode" />
             <Pin Id="QTkFIQkUd4hLCkCy2wvoHU" Name="FontSize" Kind="InputPin" />
@@ -507,6 +509,7 @@
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="Text3d" />
             </p:NodeReference>
+            <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
             <Pin Id="Rro3PnfYMKdPvsxDJ4TG4r" Name="FontAndParagraph" Kind="InputPin" />
             <Pin Id="GIYhuVSWPZyNI4oGtYwYy0" Name="Extrude Amount" Kind="InputPin" />
             <Pin Id="QrXe0nP1KHJN7EEl87jGCB" Name="Transformation" Kind="InputPin" />
@@ -523,6 +526,7 @@
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="FontAndParagraph" />
             </p:NodeReference>
+            <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
             <Pin Id="P2Nb19GXEnCNhpedfyIXsg" Name="Font" Kind="InputPin" />
             <Pin Id="EYeZIZlmCLTNxE6lH7Q6H2" Name="Font Weight" Kind="InputPin" DefaultValue="Normal" />
             <Pin Id="Su7C0i3vptHN4uiHFTc1zG" Name="Font Style" Kind="InputPin" />
@@ -625,6 +629,7 @@
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="Text3dMesh" />
             </p:NodeReference>
+            <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
             <Pin Id="EOPNFSlde1WPW2QWSxZVQD" Name="FontAndParagraph" Kind="InputPin" />
             <Pin Id="EuFdk5ZzzdiN15ZDyAMZp2" Name="Extrude Amount" Kind="InputPin" />
             <Pin Id="TADXswrCZoVPWSUMdZARX5" Name="Result" Kind="OutputPin" />
