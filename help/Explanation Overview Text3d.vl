@@ -1208,6 +1208,7 @@
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="TextLayoutMetrics" />
             </p:NodeReference>
+            <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
             <Pin Id="KV9C9VDy1ZgQDGnzQSN95Q" Name="Input" Kind="InputPin" />
             <Pin Id="V5Kwl65CeBULvLc6DRhHG3" Name="Force Update" Kind="InputPin" />
             <Pin Id="ENEpIGIQwb9MhOBvDPcz7V" Name="Left" Kind="OutputPin" />
@@ -1268,6 +1269,7 @@
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="LineMetrics" />
             </p:NodeReference>
+            <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
             <Pin Id="Qz4H7jXOC7cNyT2wr2XF3N" Name="Input" Kind="InputPin" />
             <Pin Id="B83Co8tian0Mgd0r4F1Q6n" Name="Force Update" Kind="InputPin" />
             <Pin Id="DX2Xgo1QgewMZmwcXpnCqJ" Name="Baseline" Kind="OutputPin" />
