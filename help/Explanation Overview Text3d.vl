@@ -30,7 +30,7 @@
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="SceneWindow" />
             </p:NodeReference>
-            <Pin Id="MhRdA0LtQoSLpXBn3RhBUo" Name="Bounds" Kind="InputPin" DefaultValue="640, 38, 384, 384">
+            <Pin Id="MhRdA0LtQoSLpXBn3RhBUo" Name="Bounds" Kind="InputPin" DefaultValue="1212, 50.5, 384, 384">
               <p:TypeAnnotation LastCategoryFullName="2D" LastSymbolSource="CoreLibBasics.vl">
                 <Choice Kind="TypeFlag" Name="Rectangle" />
               </p:TypeAnnotation>
@@ -533,8 +533,11 @@
             <Pin Id="SwcHkRa9DVTPCXrnrvGtEt" Name="Font Stretch" Kind="InputPin" />
             <Pin Id="Ej5AXow4DJHOcOLdtGXCX3" Name="Font Size" Kind="InputPin" DefaultValue="5" />
             <Pin Id="Ram6HjOJvXGMu80gEui9OV" Name="Text Alignment" Kind="InputPin" DefaultValue="Center" />
+            <Pin Id="OeJVVvnqEmIOjhk7fkXBYH" Name="Optical Alignment" Kind="InputPin" />
             <Pin Id="DgQnOxfcUQoMDGLUtWt6z0" Name="Paragraph Alignment" Kind="InputPin" DefaultValue="Center" />
+            <Pin Id="Mr43v3RQIFIP8vxburZDBr" Name="Vertical Glyph Orientation" Kind="InputPin" />
             <Pin Id="A8N02dHRRuZL8CyYoQWmTg" Name="Word Wrapping" Kind="InputPin" DefaultValue="Wrap" />
+            <Pin Id="GSv6tsSiNqaNiwsSub6sRd" Name="Last Line Wrapping" Kind="InputPin" DefaultValue="True" />
             <Pin Id="H8PB3TPlGjGOye0UPlgmmv" Name="Line Spacing Method" Kind="InputPin" DefaultValue="Uniform" />
             <Pin Id="S1LdhDyoh31QPYLkO7EpqF" Name="Line Spacing" Kind="InputPin" />
             <Pin Id="SjfZtYxZMhUQVQNjETutdk" Name="Baseline" Kind="InputPin" />
@@ -550,12 +553,12 @@
             <Pin Id="SNVWYAbLsBBMepHJK7ArXQ" Name="Update" Kind="InputPin" />
             <Pin Id="EIBBYfA97O4P4zWWpC9KjO" Name="Output" Kind="OutputPin" />
           </Node>
-          <Pad Id="OhTFzSkK9u5MJ0eqsTi2rW" Comment="Line Spacing" Bounds="1320,373,35,15" ShowValueBox="true" isIOBox="true" Value="9">
+          <Pad Id="OhTFzSkK9u5MJ0eqsTi2rW" Comment="Line Spacing" Bounds="1378,377,35,15" ShowValueBox="true" isIOBox="true" Value="9">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
               <Choice Kind="TypeFlag" Name="Float32" />
             </p:TypeAnnotation>
           </Pad>
-          <Pad Id="MH84J8uCG4JL4sQwVvQr2r" Comment="Font Size" Bounds="1222,242,35,15" ShowValueBox="true" isIOBox="true" Value="18">
+          <Pad Id="MH84J8uCG4JL4sQwVvQr2r" Comment="Font Size" Bounds="1221,242,35,15" ShowValueBox="true" isIOBox="true" Value="18">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
               <Choice Kind="TypeFlag" Name="Float32" />
             </p:TypeAnnotation>
@@ -594,7 +597,7 @@
               <Choice Kind="TypeFlag" Name="Float32" />
             </p:TypeAnnotation>
           </Pad>
-          <Pad Id="GIdECvjqJO8L2rbSXmTk06" Comment="Text" Bounds="1405,119,96,19" ShowValueBox="true" isIOBox="true" Value="vvvvvvvvvvvvvvvv">
+          <Pad Id="GIdECvjqJO8L2rbSXmTk06" Comment="Text" Bounds="1461,139,96,19" ShowValueBox="true" isIOBox="true" Value="vvvvvvvvvvvvvvvv">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
@@ -604,22 +607,22 @@
               <Choice Kind="TypeFlag" Name="TextAlignment" />
             </p:TypeAnnotation>
           </Pad>
-          <Pad Id="EySiEXaErYrQc8MAYDS2kh" Comment="Paragraph Alignment" Bounds="1260,297,58,15" ShowValueBox="true" isIOBox="true" Value="Center">
+          <Pad Id="EySiEXaErYrQc8MAYDS2kh" Comment="Paragraph Alignment" Bounds="1281,297,58,15" ShowValueBox="true" isIOBox="true" Value="Center">
             <p:TypeAnnotation LastCategoryFullName="VL.Stride.Text3d" LastSymbolSource="VL.Stride.Text3d.vl">
               <Choice Kind="TypeFlag" Name="ParagraphAlignment" />
             </p:TypeAnnotation>
           </Pad>
-          <Pad Id="SaLRCis1bdCMU1ISKBqUWh" Comment="Word Wrapping" Bounds="1280,323,103,15" ShowValueBox="true" isIOBox="true" Value="Wrap">
+          <Pad Id="SaLRCis1bdCMU1ISKBqUWh" Comment="Word Wrapping" Bounds="1321,327,103,15" ShowValueBox="true" isIOBox="true" Value="Wrap">
             <p:TypeAnnotation LastCategoryFullName="VL.Stride.Text3d" LastSymbolSource="VL.Stride.Text3d.vl">
               <Choice Kind="TypeFlag" Name="WordWrapping" />
             </p:TypeAnnotation>
           </Pad>
-          <Pad Id="T0RpkhYO99ZPB4iMywzc1p" Comment="Line Spacing Method" Bounds="1301,348,84,15" ShowValueBox="true" isIOBox="true" Value="Uniform">
+          <Pad Id="T0RpkhYO99ZPB4iMywzc1p" Comment="Line Spacing Method" Bounds="1359,352,84,15" ShowValueBox="true" isIOBox="true" Value="Uniform">
             <p:TypeAnnotation LastCategoryFullName="VL.Stride.Text3d" LastSymbolSource="VL.Stride.Text3d.vl">
               <Choice Kind="TypeFlag" Name="LineSpacingMethod" />
             </p:TypeAnnotation>
           </Pad>
-          <Pad Id="Ke0VsXYqqDaM9dviEBAskG" Comment="Font" Bounds="1143,171,179,15" ShowValueBox="true" isIOBox="true" Value="Courier New">
+          <Pad Id="Ke0VsXYqqDaM9dviEBAskG" Comment="Font" Bounds="1141,171,179,15" ShowValueBox="true" isIOBox="true" Value="Courier New">
             <p:TypeAnnotation LastCategoryFullName="Text" LastSymbolSource="CoreLibBasics.vl">
               <Choice Kind="TypeFlag" Name="FontList" />
             </p:TypeAnnotation>
@@ -664,7 +667,7 @@
             <Pin Id="FepDY7ikxWNO37DmkJrFG8" Name="Input 2" Kind="InputPin" />
             <Pin Id="P351MrEuYcrMVo7lPAGX2F" Name="Output" Kind="OutputPin" />
           </Node>
-          <Pad Id="UXinu5PCo1QOOmdZTL5SNp" Comment="Baseline" Bounds="1340,401,35,15" ShowValueBox="true" isIOBox="true" Value="0">
+          <Pad Id="UXinu5PCo1QOOmdZTL5SNp" Comment="Baseline" Bounds="1399,409,35,15" ShowValueBox="true" isIOBox="true" Value="0">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
               <Choice Kind="TypeFlag" Name="Float32" />
             </p:TypeAnnotation>
@@ -681,7 +684,7 @@
             <Pin Id="Ppjs8VE0OdEMakUdlXig6K" Name="Input 3" Kind="InputPin" />
             <Pin Id="ThLBsWOhKa8MveZkXw6wa8" Name="Input 4" Kind="InputPin" />
           </Node>
-          <Pad Id="GStZtGtprIoPMJk1V7Mj9y" Comment="Max Width" Bounds="1440,405,35,15" ShowValueBox="true" isIOBox="true" Value="44">
+          <Pad Id="GStZtGtprIoPMJk1V7Mj9y" Comment="Max Width" Bounds="1500,288,35,15" ShowValueBox="true" isIOBox="true" Value="44">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastSymbolSource="CoreLibBasics.vl">
               <Choice Kind="TypeFlag" Name="Float32" />
             </p:TypeAnnotation>
