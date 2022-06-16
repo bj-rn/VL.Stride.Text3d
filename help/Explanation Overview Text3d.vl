@@ -804,7 +804,7 @@
               <Choice Kind="TypeFlag" Name="FontStyle" />
             </p:TypeAnnotation>
           </Pad>
-          <Node Bounds="1755,471,105,19" Id="KoDAXObHCgFOqvfDDrFZE6">
+          <Node Bounds="1858,472,105,19" Id="KoDAXObHCgFOqvfDDrFZE6">
             <p:NodeReference LastCategoryFullName="VL.Stride.Text3d.TextStyles" LastSymbolSource="VL.Stride.Text3d.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <CategoryReference Kind="Category" Name="TextStyles" />
@@ -818,7 +818,7 @@
             <Pin Id="EmygWDfDFVtQQCwnV2j2KS" Name="Update" Kind="ApplyPin" />
             <Pin Id="KEPU3UGQEttNNG68qIDv8C" Name="Output" Kind="StateOutputPin" />
           </Node>
-          <Node Bounds="1658,471,66,19" Id="PGgy2YVsam9Nfiic8fXnTd">
+          <Node Bounds="1761,472,66,19" Id="PGgy2YVsam9Nfiic8fXnTd">
             <p:NodeReference LastCategoryFullName="VL.Stride.Text3d.TextStyles" LastSymbolSource="VL.Stride.Text3d.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <CategoryReference Kind="Category" Name="TextStyles" />
@@ -830,7 +830,7 @@
             <Pin Id="AjQELRrp4J5PiH9xY7OHpt" Name="Update" Kind="ApplyPin" />
             <Pin Id="TWMbnNwPab0OX3RVltmXGz" Name="Output" Kind="StateOutputPin" />
           </Node>
-          <Node Bounds="1658,508,66,19" Id="D1IJWKfpAHxNUSvbYfCjB0">
+          <Node Bounds="1761,509,66,19" Id="D1IJWKfpAHxNUSvbYfCjB0">
             <p:NodeReference LastCategoryFullName="VL.Stride.Text3d.TextStyles" LastSymbolSource="VL.Stride.Text3d.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <CategoryReference Kind="Category" Name="TextStyles" />
@@ -842,7 +842,7 @@
             <Pin Id="UgEIyQZUQfbNdH9yGHG5PX" Name="Update" Kind="ApplyPin" />
             <Pin Id="ODhi2g4JRiQMw9c6Ml8CQH" Name="Output" Kind="StateOutputPin" />
           </Node>
-          <Node Bounds="1658,545,68,19" Id="Hy443OP57RbNxjVNJCSRcG">
+          <Node Bounds="1761,546,68,19" Id="Hy443OP57RbNxjVNJCSRcG">
             <p:NodeReference LastCategoryFullName="VL.Stride.Text3d.TextStyles" LastSymbolSource="VL.Stride.Text3d.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <CategoryReference Kind="Category" Name="TextStyles" />
@@ -854,7 +854,7 @@
             <Pin Id="HT1yjZzXZseNeceMAt3bNg" Name="Update" Kind="ApplyPin" />
             <Pin Id="KyQZS5FEtfBQHGSYLO1S5l" Name="Output" Kind="StateOutputPin" />
           </Node>
-          <Node Bounds="1658,582,68,19" Id="HRGJULjV6oOPnRJXCGDyFC">
+          <Node Bounds="1761,583,68,19" Id="HRGJULjV6oOPnRJXCGDyFC">
             <p:NodeReference LastCategoryFullName="VL.Stride.Text3d.TextStyles" LastSymbolSource="VL.Stride.Text3d.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <CategoryReference Kind="Category" Name="TextStyles" />
@@ -866,7 +866,7 @@
             <Pin Id="E6ylkNzuU7MMcTm4KtKOf0" Name="Update" Kind="ApplyPin" />
             <Pin Id="MaU3mTH29YlPjHYh3kk2Ek" Name="Output" Kind="StateOutputPin" />
           </Node>
-          <Node Bounds="1658,619,68,19" Id="Oeex3RyqhkdMnQZUMpxC6i">
+          <Node Bounds="1761,620,68,19" Id="Oeex3RyqhkdMnQZUMpxC6i">
             <p:NodeReference LastCategoryFullName="VL.Stride.Text3d.TextStyles" LastSymbolSource="VL.Stride.Text3d.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <CategoryReference Kind="Category" Name="TextStyles" />
@@ -878,7 +878,7 @@
             <Pin Id="E10BPg8pHnEPfkVfoUJv7y" Name="Update" Kind="ApplyPin" />
             <Pin Id="AZXGdMaJB2aMVcA4dZifFW" Name="Output" Kind="StateOutputPin" />
           </Node>
-          <Node Bounds="1774,508,69,19" Id="IuBvtmCRVaWLDHSitQCOpI">
+          <Node Bounds="1877,509,69,19" Id="IuBvtmCRVaWLDHSitQCOpI">
             <p:NodeReference LastCategoryFullName="VL.Stride.Text3d.TextStyles" LastSymbolSource="VL.Stride.Text3d.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <CategoryReference Kind="Category" Name="TextStyles" />
@@ -890,7 +890,7 @@
             <Pin Id="MI56IZESGwHOQSsI3pV4oJ" Name="Update" Kind="ApplyPin" />
             <Pin Id="Bh6eSYsOO6xQbYXWUB9VBU" Name="Output" Kind="StateOutputPin" />
           </Node>
-          <Node Bounds="1891,471,81,19" Id="LWLMVXPSOJcNL5zunFd8Ea">
+          <Node Bounds="1994,472,81,19" Id="LWLMVXPSOJcNL5zunFd8Ea">
             <p:NodeReference LastCategoryFullName="VL.Stride.Text3d.TextStyles" LastSymbolSource="VL.Stride.Text3d.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <CategoryReference Kind="Category" Name="TextStyles" />
@@ -902,7 +902,7 @@
             <Pin Id="IavfuoLbC3aNF7I8Ou0TN2" Name="Update" Kind="ApplyPin" />
             <Pin Id="JNGrc6MBZ9kLUPXULEgucY" Name="Output" Kind="StateOutputPin" />
           </Node>
-          <Node Bounds="1827,545,81,19" Id="TsKoTy2JC8bOa8ctweyiLw">
+          <Node Bounds="1930,546,81,19" Id="TsKoTy2JC8bOa8ctweyiLw">
             <p:NodeReference LastCategoryFullName="VL.Stride.Text3d.TextStyles" LastSymbolSource="VL.Stride.Text3d.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <CategoryReference Kind="Category" Name="TextStyles" />
@@ -914,7 +914,7 @@
             <Pin Id="JwqNf2ql2rMMf0rdEbgRth" Name="Update" Kind="ApplyPin" />
             <Pin Id="NAmlruurSYiNFW81pbt4TU" Name="Output" Kind="StateOutputPin" />
           </Node>
-          <Node Bounds="1893,508,70,19" Id="Cl6dPiUzMWcOMqarjxkaAc">
+          <Node Bounds="1996,509,70,19" Id="Cl6dPiUzMWcOMqarjxkaAc">
             <p:NodeReference LastCategoryFullName="VL.Stride.Text3d.TextStyles" LastSymbolSource="VL.Stride.Text3d.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <CategoryReference Kind="Category" Name="TextStyles" />
@@ -926,13 +926,13 @@
             <Pin Id="CtPkoc3BvbaN0bthUmnTW5" Name="Update" Kind="ApplyPin" />
             <Pin Id="FkpHvQKj6jWPrlNUtr0HO0" Name="Output" Kind="StateOutputPin" />
           </Node>
-          <Overlay Id="UWAE7yKe1VrLnNJ7t19qXp" Name="Try me" Bounds="1638,417,378,244">
+          <Overlay Id="UWAE7yKe1VrLnNJ7t19qXp" Name="Try me" Bounds="1741,418,378,244">
             <p:ColorIndex p:Type="Int32">3</p:ColorIndex>
           </Overlay>
           <Overlay Id="AzBXsVHjLo6P5uoGsQ6q4K" Name="Basic" Bounds="123,39,716,572">
             <p:ColorIndex p:Type="Int32">5</p:ColorIndex>
           </Overlay>
-          <Overlay Id="AgUYw7rKOdENCLapHGMbTK" Name="Advanced" Bounds="842,40,1290,655">
+          <Overlay Id="AgUYw7rKOdENCLapHGMbTK" Name="Advanced" Bounds="842,40,1290,746">
             <p:ColorIndex p:Type="Int32">3</p:ColorIndex>
           </Overlay>
           <Pad Id="HwJhGfzbthkL2ZGgt1D7OJ" Comment="Mesh | Model" Bounds="7,51,35,35" ShowValueBox="true" isIOBox="true" Value="True">
@@ -1203,6 +1203,65 @@
           </Node>
           <Pad Id="I2S5pRNZX6yOEKr8qlVDz9" SlotId="M4OcGnFmtPxLnfDVLsCRFN" Bounds="-344,-25" />
           <Pad Id="T3AlRy8Zu6GNKtF0IaULZc" SlotId="M4OcGnFmtPxLnfDVLsCRFN" Bounds="653,820" />
+          <Node Bounds="1332,473,185,19" Id="IB9F1XutleQLoHOgL4KVcB">
+            <p:NodeReference LastCategoryFullName="VL.Stride.Text3d" LastSymbolSource="VL.Stride.Text3d.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="TextLayoutMetrics" />
+            </p:NodeReference>
+            <Pin Id="KV9C9VDy1ZgQDGnzQSN95Q" Name="Input" Kind="InputPin" />
+            <Pin Id="ENEpIGIQwb9MhOBvDPcz7V" Name="Left" Kind="OutputPin" />
+            <Pin Id="N4Jr50eFKdlMUaec3O6YLY" Name="Top" Kind="OutputPin" />
+            <Pin Id="CoRwfsoSxFbLmuVuvZCIPK" Name="Width" Kind="OutputPin" />
+            <Pin Id="AERNmh2rl5CLnPI2odtAPb" Name="Height" Kind="OutputPin" />
+            <Pin Id="Ptw3iUA9sUhQZfj0AoUwgB" Name="Width Including Trailing Whitespace" Kind="OutputPin" />
+            <Pin Id="CNRGAxMEoIwPMVTuEBmpDo" Name="Height Including Trailing Whitespace" Kind="OutputPin" />
+            <Pin Id="TffORF9wXUdOOftycpEbOO" Name="Layout Width" Kind="OutputPin" />
+            <Pin Id="IcCkUT0Lxc4OLDJIxDbWTR" Name="Layout Height" Kind="OutputPin" />
+            <Pin Id="CSOwmrHhYWHOahph7q7Y1F" Name="Line Count" Kind="OutputPin" />
+            <Pin Id="GN2lpxHA3u7Py0LkkQugIe" Name="Max Bidi Reordering Depth" Kind="OutputPin" />
+          </Node>
+          <Pad Id="FCPNbMHC4NlQNT4hkCTjOm" Comment="Left" Bounds="1334,734,49,15" ShowValueBox="true" isIOBox="true">
+            <p:ValueBoxSettings>
+              <p:precision p:Type="Int32">4</p:precision>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="Rfy4CDlVNaGO5T4anE9jDM" Comment="Top" Bounds="1354,702,60,15" ShowValueBox="true" isIOBox="true">
+            <p:ValueBoxSettings>
+              <p:precision p:Type="Int32">5</p:precision>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="BGO1Tuj8ngcMRdaRxkVq4K" Comment="Width" Bounds="1373,677,56,15" ShowValueBox="true" isIOBox="true">
+            <p:ValueBoxSettings>
+              <p:precision p:Type="Int32">4</p:precision>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="H5qZrT3RE3bPfXbeBCZPys" Comment="Height" Bounds="1393,654,47,15" ShowValueBox="true" isIOBox="true">
+            <p:ValueBoxSettings>
+              <p:precision p:Type="Int32">4</p:precision>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="Kwz3L7KjDDcO4eo7ooPZTa" Comment="Width Including Trailing Whitespace" Bounds="1414,623,57,18" ShowValueBox="true" isIOBox="true">
+            <p:ValueBoxSettings>
+              <p:precision p:Type="Int32">4</p:precision>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="G2AQoDC2FNDLp6EGwTwroz" Comment="Height Including Trailing Whitespace" Bounds="1434,596,55,15" ShowValueBox="true" isIOBox="true">
+            <p:ValueBoxSettings>
+              <p:precision p:Type="Int32">4</p:precision>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="LqRRxxK8l27Mj4Rf6sQxHn" Comment="Layout Width" Bounds="1454,574,55,15" ShowValueBox="true" isIOBox="true">
+            <p:ValueBoxSettings>
+              <p:precision p:Type="Int32">4</p:precision>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="UTKLtBlm2fmLBDBBs6Qq4A" Comment="Layout Height" Bounds="1475,551,51,15" ShowValueBox="true" isIOBox="true">
+            <p:ValueBoxSettings>
+              <p:precision p:Type="Int32">4</p:precision>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="J3f1zkz2lB4LL3Xlh97tCe" Comment="Line Count" Bounds="1494,526,35,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="DQQKgsfaBGtMuie4JZme2l" Comment="Max Bidi Reordering Depth" Bounds="1514,507,35,15" ShowValueBox="true" isIOBox="true" />
         </Canvas>
         <Patch Id="U4ViQdtKCaPPfMAai5p8bX" Name="Create" />
         <Patch Id="JDJJzqL4FZvMGRtJGmp1dR" Name="Update" />
@@ -1307,6 +1366,17 @@
         <Slot Id="M4OcGnFmtPxLnfDVLsCRFN" Name="seesaw" />
         <Link Id="G23GhFafO0wOmcP1IP8xpq" Ids="TxnfHdRTpneLIdxWyjezk7,I2S5pRNZX6yOEKr8qlVDz9" />
         <Link Id="PWaICnKkb4oPDHUzaZNsFc" Ids="T3AlRy8Zu6GNKtF0IaULZc,DWAnSabH9EoQIXpzyyCgYM" />
+        <Link Id="Typk0WDDMscLiuNde4YBlw" Ids="EIBBYfA97O4P4zWWpC9KjO,KV9C9VDy1ZgQDGnzQSN95Q" />
+        <Link Id="Vvt3DA4umikLd4lHVSaAg6" Ids="ENEpIGIQwb9MhOBvDPcz7V,FCPNbMHC4NlQNT4hkCTjOm" />
+        <Link Id="HrnlxzPHkGnObkG2FKqLDT" Ids="N4Jr50eFKdlMUaec3O6YLY,Rfy4CDlVNaGO5T4anE9jDM" />
+        <Link Id="CP3BG581tjoN2NEm9liZ22" Ids="CoRwfsoSxFbLmuVuvZCIPK,BGO1Tuj8ngcMRdaRxkVq4K" />
+        <Link Id="UHzeaDMB0ChMZPbPaebEAL" Ids="AERNmh2rl5CLnPI2odtAPb,H5qZrT3RE3bPfXbeBCZPys" />
+        <Link Id="EquNioc2FZWLSY90SOOypR" Ids="Ptw3iUA9sUhQZfj0AoUwgB,Kwz3L7KjDDcO4eo7ooPZTa" />
+        <Link Id="Gv97IeEsL75MjrF8jYBUiR" Ids="CNRGAxMEoIwPMVTuEBmpDo,G2AQoDC2FNDLp6EGwTwroz" />
+        <Link Id="NBVFPwohX2kPU0UtG9tu33" Ids="TffORF9wXUdOOftycpEbOO,LqRRxxK8l27Mj4Rf6sQxHn" />
+        <Link Id="P1gB2wQUVvtPkEtssDQZGt" Ids="IcCkUT0Lxc4OLDJIxDbWTR,UTKLtBlm2fmLBDBBs6Qq4A" />
+        <Link Id="V8HSUzC6RxxLVFq2HXnmrD" Ids="CSOwmrHhYWHOahph7q7Y1F,J3f1zkz2lB4LL3Xlh97tCe" />
+        <Link Id="T8K4QN8UamtNtk1vxC2DLD" Ids="GN2lpxHA3u7Py0LkkQugIe,DQQKgsfaBGtMuie4JZme2l" />
       </Patch>
     </Node>
   </Patch>
