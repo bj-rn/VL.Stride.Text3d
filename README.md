@@ -8,7 +8,7 @@ The nodes make use of [Extruder.cs](https://github.com/mrvux/dx11-vvvv/blob/mast
 The library itself is released under [MIT license](https://github.com/bj-rn/VL.Stride.Text3d/blob/master/LICENSE).
 
 ## Using the library
-In order to use this library with VL you have to install the nuget that is available via nuget.org. For information on how to use nugets with VL, see [Managing Nugets](https://thegraybook.vvvv.org/reference/libraries/dependencies.html#manage-nugets) in the VL documentation. As described there you go to the commandline and then type:
+In order to use this library with VL you have to install the nuget that is available via nuget.org. For information on how to use nugets with VL, see [Managing Nugets](https://thegraybook.vvvv.org/reference/hde/managing-nugets.html) in the VL documentation. As described there you go to the commandline and then type:
 
     nuget install VL.Stride.Text3d
 
