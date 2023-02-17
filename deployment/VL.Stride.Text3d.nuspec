@@ -16,7 +16,7 @@
     <tags>VL, vvvv, stride, 3d, extrude, text, model, mesh, directwrite</tags>
   </metadata>
    <files>
-    <file src="..\src\bin\Release\net6.0\VL.Stride.Text3d.dll" target="lib\net6.0" />
+    <file src="..\lib\net6.0\VL.Stride.Text3d.dll" target="lib\net6.0" />
     <file src="..\*.vl"/>
     <file src="..\help\*.vl" target="help"/>
     <file src="..\README.md" />
