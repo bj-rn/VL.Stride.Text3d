@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-    <BaseOutputPath>bin\</BaseOutputPath>
+    <OutputPath>..\lib</OutputPath> 
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <Authors>bj-rn</Authors>
     <PackageProjectUrl>https://github.com/bj-rn/VL.Stride.Text3d</PackageProjectUrl>
@@ -22,9 +22,9 @@
     <PackageReference Include="SharpDX.Direct2D1" Version="4.2.0" />
     <PackageReference Include="SharpDX.DXGI" Version="4.2.0" />
     <PackageReference Include="SharpDX.Mathematics" Version="4.2.0" />
-    <PackageReference Include="Stride.Core.Mathematics" Version="4.0.1.1428" />
-    <PackageReference Include="Stride.Graphics" Version="4.0.1.1428" />
-    <PackageReference Include="Stride.Rendering" Version="4.0.1.1428" />
+    <PackageReference Include="Stride.Core.Mathematics" Version="4.1.0.1734" />
+    <PackageReference Include="Stride.Graphics" Version="4.1.0.1734" />
+    <PackageReference Include="Stride.Rendering" Version="4.1.0.1734" />
   </ItemGroup>
 
 </Project>
