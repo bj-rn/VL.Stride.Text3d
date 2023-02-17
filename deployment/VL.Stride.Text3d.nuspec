@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
     <id>VL.Stride.Text3d</id>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <title>VL.Stride.Text3d</title>
     <authors>bj-rn, mrvux</authors>
     <owners>bj-rn</owners>
@@ -14,6 +14,9 @@
     <description>Set of nodes to create and render (extruded) 3d text in VL.Stride</description>
     <copyright>Copyright © 2023 bj-rn</copyright>
     <tags>VL, vvvv, stride, 3d, extrude, text, model, mesh, directwrite</tags>
+    <dependencies>
+      <dependency id="SharpDX.Mathematics" version="4.2.0" />
+    </dependencies>
   </metadata>
    <files>
     <file src="..\lib\net6.0\VL.Stride.Text3d.dll" target="lib\net6.0" />
