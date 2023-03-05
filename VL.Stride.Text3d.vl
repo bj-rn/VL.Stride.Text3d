@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Document xmlns:p="property" Id="CZ8gAr2NmdROSWWoz2vu5O" LanguageVersion="2022.5.0-0582-g69e6cbc026" Version="0.128">
+<Document xmlns:p="property" Id="CZ8gAr2NmdROSWWoz2vu5O" LanguageVersion="2022.5.0-0682-gfeb541475e" Version="0.128">
   <Patch Id="GwxC6opOICELdxzyX4Gy13">
     <Canvas Id="JZTO0uFaN3AMM7loV30D4w" DefaultCategory="VL.Stride.Text3d" CanvasType="FullCategory">
       <Canvas Id="KVtG9KDKCODO9Lz44s0gQ4" Name="Advanced" Position="96,128">
@@ -3912,7 +3912,7 @@
               <ControlPoint Id="KuV9RUfYjaGPogd7WIiDC3" Bounds="244,437" Alignment="Bottom" />
               <ControlPoint Id="OsV43lMCPyfOvvtMZ3KCNE" Bounds="407,437" Alignment="Bottom" />
             </Node>
-            <Pad Id="DhxToQCmH8xLVlAbV8aaR3" Comment="Dispose Cached Outputs" Bounds="547,116,35,15" ShowValueBox="true" isIOBox="true" Value="True">
+            <Pad Id="DhxToQCmH8xLVlAbV8aaR3" Comment="Dispose Cached Outputs" Bounds="548,109,35,15" ShowValueBox="true" isIOBox="true" Value="False">
               <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
                 <Choice Kind="ImmutableTypeFlag" Name="Boolean" />
                 <FullNameCategoryReference ID="Primitive" />
@@ -3957,7 +3957,7 @@
               <ControlPoint Id="TK8DHEiqLroOdaFoYCAZDY" Bounds="2022,472" Alignment="Top" />
               <ControlPoint Id="LBRJJg7VtX1O75i2L74bvz" Bounds="2011,540" Alignment="Bottom" />
             </Node>
-            <Pad Id="KGOKtb3WplKOVoffu7xcBW" Comment="Dispose Cached Outputs" Bounds="2034,443,37,16" ShowValueBox="true" isIOBox="true" Value="True">
+            <Pad Id="KGOKtb3WplKOVoffu7xcBW" Comment="Dispose Cached Outputs" Bounds="2094,435,37,16" ShowValueBox="true" isIOBox="true" Value="True">
               <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
                 <Choice Kind="ImmutableTypeFlag" Name="Boolean" />
                 <FullNameCategoryReference ID="Primitive" />
@@ -5660,11 +5660,12 @@
       </Patch>
     </Node>
   </Patch>
-  <NugetDependency Id="VyKOO8U7zhdMqgicYWEYn7" Location="VL.CoreLib" Version="2022.5.0-0582-g69e6cbc026" />
-  <NugetDependency Id="Jqt8tZwHybKOmYD7qXkWZS" Location="VL.Stride" Version="2022.5.0-0582-g69e6cbc026" />
+  <NugetDependency Id="VyKOO8U7zhdMqgicYWEYn7" Location="VL.CoreLib" Version="2022.5.0-0682-gfeb541475e" />
+  <NugetDependency Id="Jqt8tZwHybKOmYD7qXkWZS" Location="VL.Stride" Version="2022.5.0-0682-gfeb541475e" />
   <PlatformDependency Id="HUf8Lf7077fMa04SP4dnkQ" Location="Stride.Games.dll" />
   <PlatformDependency Id="TrFnUPSiIBzNHwy3YMU7hG" Location="SharpDX.dll" />
   <PlatformDependency Id="Vfhxj1Zp275PmM7QnM7m0F" Location="SharpDX.Direct2D1.dll" />
   <PlatformDependency Id="RzGRyx1RJB4LoVR1v3fPmv" Location="./lib/net6.0/VL.Stride.Text3d.dll" />
   <PlatformDependency Id="CJQjojILRLPLGVDxU5QdMi" Location="Stride.Rendering.dll" />
+  <NugetDependency Id="HkFlVfY3xULO6ZPxB6khL2" Location="SharpDX.Mathematics" Version="4.2.0" />
 </Document>
