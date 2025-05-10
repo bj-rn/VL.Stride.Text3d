@@ -22,3 +22,11 @@ For 2021.4
 
 Try it with vvvv, the visual live-programming environment for .NET  
 Download: http://visualprogramming.net
+
+---
+### License
+
+### [MIT](https://github.com/bj-rn/VL.Stride.Text3d/blob/master/LICENSE)
+---
+[Support me on Ko-fi](https://ko-fi.com/Q5Q61EQB8X)
+
