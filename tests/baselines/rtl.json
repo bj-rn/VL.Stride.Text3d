@@ -1,0 +1,16 @@
+{
+  "case": "rtl",
+  "inputs": {
+    "node": "Text3d",
+    "text": "\u0645\u0631\u062D\u0628\u0627",
+    "font": "Arial",
+    "fontSize": 32,
+    "textAlignment": "Leading",
+    "paragraphAlignment": "Near",
+    "extrudeAmount": 1
+  },
+  "vertexCount": 1728,
+  "sha256": "2B0A047A2E3D2D5D875B09A742A7B1FF78EA405553C5511D1EC45558DF003F51",
+  "exception": null,
+  "source": "VL.Stride.Text3d 1.0.2 (SharpDX 4.2.0), legacy/VL.Stride.Text3d.dll"
+}

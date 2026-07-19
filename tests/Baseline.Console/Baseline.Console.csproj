@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Phase 0 baseline capture tool.
+    References the SHIPPED 1.0.2 SharpDX-based build (snapshotted in ./legacy) and dumps
+    its vertex output as regression fixtures to ..\baselines. The Silk.NET port is
+    verified against these fixtures. Do not point this project at src/ - it must keep
+    building against the legacy binary after src/ is ported.
+  -->
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SharpDX" Version="4.2.0" />
+    <PackageReference Include="SharpDX.Direct2D1" Version="4.2.0" />
+    <PackageReference Include="SharpDX.DXGI" Version="4.2.0" />
+    <PackageReference Include="SharpDX.Mathematics" Version="4.2.0" />
+    <PackageReference Include="Stride.Core.Mathematics" Version="4.1.0.1734" />
+    <PackageReference Include="Stride.Graphics" Version="4.1.0.1734" />
+    <PackageReference Include="Stride.Rendering" Version="4.1.0.1734" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="VL.Stride.Text3d">
+      <HintPath>legacy\VL.Stride.Text3d.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

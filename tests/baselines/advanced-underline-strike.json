@@ -1,0 +1,16 @@
+{
+  "case": "advanced-underline-strike",
+  "inputs": {
+    "node": "Text3dAdvanced",
+    "text": "Hello World",
+    "font": "Arial",
+    "fontSize": 32,
+    "underlineRange": "0..5",
+    "strikethroughRange": "6..5",
+    "extrudeAmount": 1
+  },
+  "vertexCount": 4212,
+  "sha256": "EDEFF39541E9DF516A0AE5B3C6E55057812F5CCF420231ACE8CE5AE12A796632",
+  "exception": null,
+  "source": "VL.Stride.Text3d 1.0.2 (SharpDX 4.2.0), legacy/VL.Stride.Text3d.dll"
+}

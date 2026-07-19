@@ -1,0 +1,16 @@
+{
+  "case": "multiline-center-far",
+  "inputs": {
+    "node": "Text3d",
+    "text": "line1\nline2",
+    "font": "Arial",
+    "fontSize": 32,
+    "textAlignment": "Center",
+    "paragraphAlignment": "Far",
+    "extrudeAmount": 1
+  },
+  "vertexCount": 3192,
+  "sha256": "C3E62A8202C6C913007EE5158814A1AC28521975EFCDFC3DEC5E16911A1C2DC1",
+  "exception": null,
+  "source": "VL.Stride.Text3d 1.0.2 (SharpDX 4.2.0), legacy/VL.Stride.Text3d.dll"
+}
