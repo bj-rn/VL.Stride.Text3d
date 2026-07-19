@@ -47,6 +47,7 @@ public class FontFamily
 
     private readonly Style style = new();
 
+    [return: Pin(Name = "Output")]
     public ITextStyle Update(int startPosition = 0, int length = 0, FontList? font = null, bool enabled = true)
     {
         style.SetCommon(startPosition, length, enabled);
@@ -69,6 +70,7 @@ public class FontSize
 
     private readonly Style style = new();
 
+    [return: Pin(Name = "Output")]
     public ITextStyle Update(int startPosition = 0, int length = 0, float fontSize = 32f, bool enabled = true)
     {
         style.SetCommon(startPosition, length, enabled);
@@ -90,6 +92,7 @@ public class FontStretch
 
     private readonly Style style = new();
 
+    [return: Pin(Name = "Output")]
     public ITextStyle Update(int startPosition = 0, int length = 0,
         FontStretchEnum fontStretch = FontStretchEnum.Normal, bool enabled = true)
     {
@@ -112,6 +115,7 @@ public class FontStyle
 
     private readonly Style style = new();
 
+    [return: Pin(Name = "Output")]
     public ITextStyle Update(int startPosition = 0, int length = 0,
         FontStyleEnum fontStyle = FontStyleEnum.Normal, bool enabled = true)
     {
@@ -134,6 +138,7 @@ public class FontWeight
 
     private readonly Style style = new();
 
+    [return: Pin(Name = "Output")]
     public ITextStyle Update(int startPosition = 0, int length = 0,
         FontWeightEnum fontWeight = FontWeightEnum.Bold, bool enabled = true)
     {
@@ -156,6 +161,7 @@ public class StrikeThrough
 
     private readonly Style style = new();
 
+    [return: Pin(Name = "Output")]
     public ITextStyle Update(int startPosition = 0, int length = 0, bool strikeThrough = true, bool enabled = true)
     {
         style.SetCommon(startPosition, length, enabled);
@@ -177,6 +183,7 @@ public class Underline
 
     private readonly Style style = new();
 
+    [return: Pin(Name = "Output")]
     public ITextStyle Update(int startPosition = 0, int length = 0, bool underline = true, bool enabled = true)
     {
         style.SetCommon(startPosition, length, enabled);
@@ -202,6 +209,7 @@ public class PairKerning
 
     private readonly Style style = new();
 
+    [return: Pin(Name = "Output")]
     public ITextStyle Update(int startPosition = 0, int length = 0, bool pairKerning = true, bool enabled = true)
     {
         style.SetCommon(startPosition, length, enabled);
@@ -229,6 +237,7 @@ public class CharacterSpacing
 
     private readonly Style style = new();
 
+    [return: Pin(Name = "Output")]
     public ITextStyle Update(int startPosition = 0, int length = 0,
         float leadingSpacing = 0f, float trailingSpacing = 0f, float minimumAdvanceWidth = 0f, bool enabled = true)
     {
@@ -275,6 +284,7 @@ public class Typography
 
     private readonly Style style = new();
 
+    [return: Pin(Name = "Output")]
     public ITextStyle Update(int startPosition = 0, int length = 0,
         FontFeatureTagEnum fontFeature = FontFeatureTagEnum.Default, int parameter = 1, bool enabled = true)
     {

@@ -8,6 +8,7 @@
 // reference identity as their change signal.
 
 using System.Runtime.InteropServices;
+using VL.Core.Import;
 using VL.Lib.Text;
 using VL.Stride.Text3d.Core;
 using VL.Stride.Text3d.Interop;
@@ -46,6 +47,7 @@ namespace VL.Stride.Text3d.Nodes;
 /// Builds a DirectWrite text layout from font, paragraph and text settings.
 /// Feed it into Text3d (Advanced), Text3dMesh (Advanced), TextLayoutMetrics or LineMetrics.
 /// </summary>
+[ProcessNode(HasStateOutput = true)]
 public sealed unsafe class FontAndParagraph : IDisposable
 {
     private static readonly Guid IID_IDWriteTextLayout2 = new("1093c18f-8d5e-43f0-b064-0917311b525e");

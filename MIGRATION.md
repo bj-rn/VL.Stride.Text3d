@@ -14,7 +14,9 @@ re-pick a node.
        vvvv.exe --package-repositories "D:\_dev\_vl-libs" -o "<path to help patch>" --log
 
 2. For every red node: double-click it, find the replacement per the table below,
-   re-pick it. **Pin names are unchanged**, so links reconnect automatically.
+   re-pick it. **Pin names are unchanged** (one exception: the old `FontSize` pin on the
+   simple Text3d/Text3dMesh nodes is now `Font Size` per vvvv naming convention — that
+   one link must be re-drawn), so links reconnect automatically.
 3. Re-enter the values of enum IOBoxes (the enum *types* changed identity; the member
    names are the same, so read the old value off the red IOBox first).
 4. Let the editor update the document dependencies on save (the old pinned

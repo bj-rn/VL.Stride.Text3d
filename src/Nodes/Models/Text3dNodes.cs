@@ -3,6 +3,7 @@
 // (Advanced) variant takes a FontAndParagraph. Both output a cached Entity holding a
 // ModelComponent whose Model is regenerated only when inputs change.
 
+using Stride.Core.Mathematics;
 using Stride.Engine;
 using Stride.Games;
 using Stride.Rendering;
@@ -54,6 +55,20 @@ internal static class Text3dModelBuilder
         entity.Add(modelComponent);
         return entity;
     }
+
+    /// <summary>Applies the optional Transformation matrix to the entity's transform.</summary>
+    public static void ApplyTransformation(Entity entity, Matrix? transformation)
+    {
+        if (transformation is { } matrix)
+        {
+            entity.Transform.UseTRS = false;
+            entity.Transform.LocalMatrix = matrix;
+        }
+        else
+        {
+            entity.Transform.UseTRS = true;
+        }
+    }
 }
 
 /// <summary>Renders a string of text as an extruded 3D model entity.</summary>
@@ -76,9 +91,10 @@ public class Text3d : IDisposable
         string text = "hello world", FontList? font = null, int fontSize = 32,
         TextAlignment textAlignment = TextAlignment.Leading,
         ParagraphAlignment paragraphAlignment = ParagraphAlignment.Near,
-        float extrudeAmount = 1f)
+        float extrudeAmount = 1f,
+        Matrix? transformation = null, Material? material = null, bool isShadowCaster = true)
     {
-        int hash = HashCode.Combine(text, font?.Value, fontSize, textAlignment, paragraphAlignment, extrudeAmount);
+        int hash = HashCode.Combine(text, font?.Value, fontSize, textAlignment, paragraphAlignment, extrudeAmount, material);
         if (hash != lastHash || modelComponent.Model == null)
         {
             model.Text = text ?? "";
@@ -87,9 +103,12 @@ public class Text3d : IDisposable
             model.HorizontalAlignment = textAlignment;
             model.VerticalAlignment = paragraphAlignment;
             model.ExtrudeAmount = extrudeAmount;
+            model.MaterialInstance.Material = material;
             modelComponent.Model = Text3dModelBuilder.Build(model, services.Game);
             lastHash = hash;
         }
+        Text3dModelBuilder.ApplyTransformation(entity, transformation);
+        modelComponent.IsShadowCaster = isShadowCaster;
         output = entity;
     }
 
@@ -107,6 +126,7 @@ public class Text3dAdvanced : IDisposable
     private TextLayoutHandle? lastLayout;
     private int lastVersion = -1;
     private float lastExtrude = float.NaN;
+    private Material? lastMaterial;
 
     public Text3dAdvanced(NodeContext nodeContext)
     {
@@ -115,7 +135,8 @@ public class Text3dAdvanced : IDisposable
     }
 
     public void Update(out Entity output,
-        FontAndParagraph? fontAndParagraph = null, float extrudeAmount = 1f)
+        FontAndParagraph? fontAndParagraph = null, float extrudeAmount = 1f,
+        Matrix? transformation = null, Material? material = null, bool isShadowCaster = true)
     {
         var layout = fontAndParagraph?.GetTextLayout();
         int version = fontAndParagraph?.GetVersion() ?? -1;
@@ -125,15 +146,20 @@ public class Text3dAdvanced : IDisposable
             lastLayout = null;
             lastVersion = -1;
         }
-        else if (!ReferenceEquals(layout, lastLayout) || version != lastVersion || extrudeAmount != lastExtrude)
+        else if (!ReferenceEquals(layout, lastLayout) || version != lastVersion
+            || extrudeAmount != lastExtrude || !ReferenceEquals(material, lastMaterial))
         {
             model.TextLayout = layout;
             model.ExtrudeAmount = extrudeAmount;
+            model.MaterialInstance.Material = material;
             modelComponent.Model = Text3dModelBuilder.Build(model, services.Game);
             lastLayout = layout;
             lastVersion = version;
             lastExtrude = extrudeAmount;
+            lastMaterial = material;
         }
+        Text3dModelBuilder.ApplyTransformation(entity, transformation);
+        modelComponent.IsShadowCaster = isShadowCaster;
         output = entity;
     }
 
