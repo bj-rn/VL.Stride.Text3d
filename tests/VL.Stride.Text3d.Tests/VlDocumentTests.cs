@@ -49,14 +49,12 @@ public class VlDocumentTests
     }
 
     [Test]
-    [Ignore("Help patches still reference the old in-document definitions — enable after the Phase 5 re-link in the vvvv editor (see MIGRATION.md).")]
     public async Task HelpText3dCompiles()
     {
         await testEnvironment!.LoadAndTestAsync(Path.Combine(TestData.RepoRoot, "help", "Explanation Overview Text3d.vl"));
     }
 
     [Test]
-    [Ignore("Help patches still reference the old in-document definitions — enable after the Phase 5 re-link in the vvvv editor (see MIGRATION.md).")]
     public async Task HelpTextStylesCompiles()
     {
         await testEnvironment!.LoadAndTestAsync(Path.Combine(TestData.RepoRoot, "help", "Explanation Overview TextStyles.vl"));

@@ -38,7 +38,7 @@ re-pick a node.
 | Enums: WordWrapping, TextAlignment, ParagraphAlignment, FontStretch, FontStyle, FontWeight, LineSpacingMethod, ReadingDirection, FlowDirection, FontFeatureTag, OpticalAlignment, VerticalGlyphOrientation (VL.Stride.Text3d.Enums) | same names, same category | new type identity → re-create IOBoxes |
 | Services (Internal) | — | removed (nodes get the Game via NodeContext) |
 
-## After migration
+## Status
 
-Enable the two `[Ignore]`d help-patch compile tests in
-`tests/VL.Stride.Text3d.Tests/VlDocumentTests.cs` and run `dotnet test`.
+The help patches were re-linked and the compile tests in
+`tests/VL.Stride.Text3d.Tests/VlDocumentTests.cs` are enabled and green.
