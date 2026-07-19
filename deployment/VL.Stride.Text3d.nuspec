@@ -27,7 +27,7 @@
     <file src="..\*.vl" />
     <file src="..\help\*.vl" target="help" />
     <file src="..\shaders\*.sdsl" target="shaders" />
-    <file src="..\README.md" target="docs" />
+    <file src="..\README.md" target="docs\" />
     <file src="..\DX11-vvvv-License.md" />
   </files>
 </package>
