@@ -52,7 +52,10 @@ public class Text3dMeshAsync : IDisposable
     /// <param name="extrudeOrigin">Where the extruded mesh sits relative to Z = 0.</param>
     /// <param name="flatteningTolerance">The maximum deviation allowed when flattening the outlines; smaller values yield finer curves and more vertices.</param>
     /// <param name="smoothingAngle">In cycles: side-wall edges sharper than this angle stay hard, flatter ones are shaded smooth.</param>
-    /// <param name="sideUVMapping">How the side walls are UV-mapped: Silhouette keeps the caps' planar projection (constant along the depth), ContourDepth runs U once around each contour and V along the depth, ContourDepthTiled tiles absolute surface distances by Texture Scale on walls and caps (use wrapping texture addressing).</param>
+    /// <param name="sideUVMapping">How the side walls of the extrusion are UV-mapped.
+    /// Silhouette (the previous behavior) projects the flat text silhouette onto the walls, so texture coordinates do not change along the depth and textures smear into stripes there; use it for backwards compatibility or when only the caps matter.
+    /// ContourDepth unrolls each wall like a paper strip: U runs once around each contour (0 to 1, with the wrap seam where the contour starts) and V runs along the depth (0 on the front face, 1 on the back face); use it for gradients, ribbons or any texture that should fit exactly once around a letter.
+    /// ContourDepthTiled uses the same unrolling but with absolute surface distances divided by Texture Scale, applied to the caps as well, so a pattern tiles at the same physical size everywhere; coordinates exceed 1 on larger surfaces, so set the texture addressing to wrap; use it for seamless materials such as noise or fabric. Every contour (outline or hole) is mapped independently.</param>
     /// <param name="textureScale">Surface distance covered by one texture repeat; only used by ContourDepthTiled.</param>
     /// <param name="weldVertices">Welds identical vertices into an indexed mesh: visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle list).</param>
     public unsafe void Update(out Mesh? output, out bool inProgress,
@@ -147,7 +150,10 @@ public class Text3dMeshAdvancedAsync : IDisposable
     /// <param name="extrudeOrigin">Where the extruded mesh sits relative to Z = 0.</param>
     /// <param name="flatteningTolerance">The maximum deviation allowed when flattening the outlines; smaller values yield finer curves and more vertices.</param>
     /// <param name="smoothingAngle">In cycles: side-wall edges sharper than this angle stay hard, flatter ones are shaded smooth.</param>
-    /// <param name="sideUVMapping">How the side walls are UV-mapped: Silhouette keeps the caps' planar projection (constant along the depth), ContourDepth runs U once around each contour and V along the depth, ContourDepthTiled tiles absolute surface distances by Texture Scale on walls and caps (use wrapping texture addressing).</param>
+    /// <param name="sideUVMapping">How the side walls of the extrusion are UV-mapped.
+    /// Silhouette (the previous behavior) projects the flat text silhouette onto the walls, so texture coordinates do not change along the depth and textures smear into stripes there; use it for backwards compatibility or when only the caps matter.
+    /// ContourDepth unrolls each wall like a paper strip: U runs once around each contour (0 to 1, with the wrap seam where the contour starts) and V runs along the depth (0 on the front face, 1 on the back face); use it for gradients, ribbons or any texture that should fit exactly once around a letter.
+    /// ContourDepthTiled uses the same unrolling but with absolute surface distances divided by Texture Scale, applied to the caps as well, so a pattern tiles at the same physical size everywhere; coordinates exceed 1 on larger surfaces, so set the texture addressing to wrap; use it for seamless materials such as noise or fabric. Every contour (outline or hole) is mapped independently.</param>
     /// <param name="textureScale">Surface distance covered by one texture repeat; only used by ContourDepthTiled.</param>
     /// <param name="weldVertices">Welds identical vertices into an indexed mesh: visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle list).</param>
     public unsafe void Update(out Mesh? output, out bool inProgress,
@@ -250,7 +256,10 @@ public class Text3dMeshesAsync : IDisposable
     /// <param name="extrudeOrigin">Where the extruded meshes sit relative to Z = 0.</param>
     /// <param name="flatteningTolerance">The maximum deviation allowed when flattening the outlines; smaller values yield finer curves and more vertices.</param>
     /// <param name="smoothingAngle">In cycles: side-wall edges sharper than this angle stay hard, flatter ones are shaded smooth.</param>
-    /// <param name="sideUVMapping">How the side walls are UV-mapped: Silhouette keeps the caps' planar projection (constant along the depth), ContourDepth runs U once around each contour and V along the depth, ContourDepthTiled tiles absolute surface distances by Texture Scale on walls and caps (use wrapping texture addressing).</param>
+    /// <param name="sideUVMapping">How the side walls of the extrusion are UV-mapped.
+    /// Silhouette (the previous behavior) projects the flat text silhouette onto the walls, so texture coordinates do not change along the depth and textures smear into stripes there; use it for backwards compatibility or when only the caps matter.
+    /// ContourDepth unrolls each wall like a paper strip: U runs once around each contour (0 to 1, with the wrap seam where the contour starts) and V runs along the depth (0 on the front face, 1 on the back face); use it for gradients, ribbons or any texture that should fit exactly once around a letter.
+    /// ContourDepthTiled uses the same unrolling but with absolute surface distances divided by Texture Scale, applied to the caps as well, so a pattern tiles at the same physical size everywhere; coordinates exceed 1 on larger surfaces, so set the texture addressing to wrap; use it for seamless materials such as noise or fabric. Every contour (outline or hole) is mapped independently.</param>
     /// <param name="textureScale">Surface distance covered by one texture repeat; only used by ContourDepthTiled.</param>
     /// <param name="weldVertices">Welds identical vertices into indexed meshes: visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle lists).</param>
     public unsafe void Update(out Spread<Mesh> meshes, out Spread<Matrix> transformations, out bool inProgress,
@@ -344,7 +353,10 @@ public class Text3dMeshesAdvancedAsync : IDisposable
     /// <param name="extrudeOrigin">Where the extruded meshes sit relative to Z = 0.</param>
     /// <param name="flatteningTolerance">The maximum deviation allowed when flattening the outlines; smaller values yield finer curves and more vertices.</param>
     /// <param name="smoothingAngle">In cycles: side-wall edges sharper than this angle stay hard, flatter ones are shaded smooth.</param>
-    /// <param name="sideUVMapping">How the side walls are UV-mapped: Silhouette keeps the caps' planar projection (constant along the depth), ContourDepth runs U once around each contour and V along the depth, ContourDepthTiled tiles absolute surface distances by Texture Scale on walls and caps (use wrapping texture addressing).</param>
+    /// <param name="sideUVMapping">How the side walls of the extrusion are UV-mapped.
+    /// Silhouette (the previous behavior) projects the flat text silhouette onto the walls, so texture coordinates do not change along the depth and textures smear into stripes there; use it for backwards compatibility or when only the caps matter.
+    /// ContourDepth unrolls each wall like a paper strip: U runs once around each contour (0 to 1, with the wrap seam where the contour starts) and V runs along the depth (0 on the front face, 1 on the back face); use it for gradients, ribbons or any texture that should fit exactly once around a letter.
+    /// ContourDepthTiled uses the same unrolling but with absolute surface distances divided by Texture Scale, applied to the caps as well, so a pattern tiles at the same physical size everywhere; coordinates exceed 1 on larger surfaces, so set the texture addressing to wrap; use it for seamless materials such as noise or fabric. Every contour (outline or hole) is mapped independently.</param>
     /// <param name="textureScale">Surface distance covered by one texture repeat; only used by ContourDepthTiled.</param>
     /// <param name="weldVertices">Welds identical vertices into indexed meshes: visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle lists).</param>
     public unsafe void Update(out Spread<Mesh> meshes, out Spread<Matrix> transformations, out bool inProgress,
