@@ -273,7 +273,7 @@ public class CharacterSpacing
     /// <param name="length">The number of text positions in the range.</param>
     /// <param name="leadingSpacing">The spacing before each character, in reading order.</param>
     /// <param name="trailingSpacing">The spacing after each character, in reading order.</param>
-    /// <param name="minimumAdvanceWidth">The minimum advance of each character — prevents characters from becoming too thin or zero-width; must be zero or greater.</param>
+    /// <param name="minimumAdvanceWidth">The minimum advance of each character, preventing characters from becoming too thin or zero-width; must be zero or greater.</param>
     /// <param name="enabled">Whether the style is applied.</param>
     [return: Pin(Name = "Output")]
     public ITextStyle Update(int startPosition = 0, int length = 0,

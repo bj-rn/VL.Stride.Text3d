@@ -38,11 +38,11 @@ Download: http://visualprogramming.net
 ## Changes in 2.2
 
 - New `Weld Vertices` pin on all mesh/model producing nodes (default off): welds
-  identical vertices into an indexed mesh — visually lossless with roughly 2–3× smaller
-  vertex buffers. Off by default because it changes the mesh topology, which per-face
-  techniques relying on the plain triangle list may depend on.
-- Async variants of all mesh nodes — `Text3dMesh (Async)`, `Text3dMesh (Advanced Async)`,
-  `Text3dMeshes (Async)` and `Text3dMeshes (Advanced Async)`: geometry is computed on a
+  identical vertices into an indexed mesh, visually lossless with roughly 2 to 3 times
+  smaller vertex buffers. Off by default because it changes the mesh topology, which
+  per-face techniques relying on the plain triangle list may depend on.
+- Async variants of all mesh nodes (`Text3dMesh (Async)`, `Text3dMesh (Advanced Async)`,
+  `Text3dMeshes (Async)` and `Text3dMeshes (Advanced Async)`): geometry is computed on a
   background thread (an `In Progress` output reports activity), the last completed
   result stays available meanwhile, and rapid input changes are coalesced.
 - New nodes `Text3dMeshes` and `Text3dMeshes (Advanced)`: output one mesh per glyph
@@ -51,10 +51,10 @@ Download: http://visualprogramming.net
   characters, and underline/strikethrough decorations are not included.
 - New pins on the Text3d/Text3dMesh nodes (defaults reproduce the previous behavior
   exactly):
-  - `Extrude Origin` (Center/Front/Back) — where the mesh sits relative to Z = 0.
-  - `Flattening Tolerance` (default 0.1) — curve quality of the outlines; smaller
+  - `Extrude Origin` (Center/Front/Back): where the mesh sits relative to Z = 0.
+  - `Flattening Tolerance` (default 0.1): curve quality of the outlines; smaller
     values give finer curves and more vertices.
-  - `Smoothing Angle` (in cycles, default 1/6 = 60°) — side-wall edges sharper than
+  - `Smoothing Angle` (in cycles, default 1/6 = 60°): side-wall edges sharper than
     this stay hard, flatter ones are shaded smooth.
 - The entity nodes regained the `Name` pin.
 - All enum members now carry tooltips.
@@ -64,7 +64,7 @@ Download: http://visualprogramming.net
 - Side-wall lighting corrected: the extrusion's side walls now use the true outward
   surface normal (a bug inherited from the original dx11-vvvv code mirrored it, so
   extruded surfaces shaded incorrectly). Silhouette, front/back caps and UVs are
-  unchanged — only the shading of the extruded sides differs.
+  unchanged; only the shading of the extruded sides differs.
 
 ## Breaking changes in 2.0
 
@@ -95,7 +95,7 @@ release: bump `Silk.NET.Direct2D` (exact `[x.y.z]` pin) and the `Stride.*` versi
 `src/VL.Stride.Text3d.csproj` plus the nuspec dependency, rebuild, and run the test
 suite. Two things to preserve when touching the interop:
 
-- Never use Silk.NET's managed-`String` overloads for DirectWrite calls — they marshal
+- Never use Silk.NET's managed-`String` overloads for DirectWrite calls; they marshal
   the WCHAR parameters with the wrong encoding (silent font fallback, intermittent
   E_INVALIDARG). Always pass pinned UTF-16 `char*` (see `src/Interop/Native.cs`).
 - The vertex-output regression fixtures in `tests/baselines` are font/machine-dependent

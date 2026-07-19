@@ -108,7 +108,7 @@ public class Text3dMesh : IDisposable
     /// <param name="extrudeOrigin">Where the extruded mesh sits relative to Z = 0.</param>
     /// <param name="flatteningTolerance">The maximum deviation allowed when flattening the outlines; smaller values yield finer curves and more vertices.</param>
     /// <param name="smoothingAngle">In cycles: side-wall edges sharper than this angle stay hard, flatter ones are shaded smooth.</param>
-    /// <param name="weldVertices">Welds identical vertices into an indexed mesh — visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle list).</param>
+    /// <param name="weldVertices">Welds identical vertices into an indexed mesh: visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle list).</param>
     public void Update(out Mesh? output,
         string text = "hello world", FontList? font = null, int fontSize = 32,
         TextAlignment textAlignment = TextAlignment.Leading,
@@ -178,7 +178,7 @@ public class Text3dMeshes : IDisposable
     /// <param name="extrudeOrigin">Where the extruded meshes sit relative to Z = 0.</param>
     /// <param name="flatteningTolerance">The maximum deviation allowed when flattening the outlines; smaller values yield finer curves and more vertices.</param>
     /// <param name="smoothingAngle">In cycles: side-wall edges sharper than this angle stay hard, flatter ones are shaded smooth.</param>
-    /// <param name="weldVertices">Welds identical vertices into indexed meshes — visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle lists).</param>
+    /// <param name="weldVertices">Welds identical vertices into indexed meshes: visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle lists).</param>
     public unsafe void Update(out Spread<Mesh> meshes, out Spread<Matrix> transformations,
         string text = "hello world", FontList? font = null, int fontSize = 32,
         TextAlignment textAlignment = TextAlignment.Leading,
@@ -245,7 +245,7 @@ public class Text3dMeshesAdvanced : IDisposable
     /// <param name="extrudeOrigin">Where the extruded meshes sit relative to Z = 0.</param>
     /// <param name="flatteningTolerance">The maximum deviation allowed when flattening the outlines; smaller values yield finer curves and more vertices.</param>
     /// <param name="smoothingAngle">In cycles: side-wall edges sharper than this angle stay hard, flatter ones are shaded smooth.</param>
-    /// <param name="weldVertices">Welds identical vertices into indexed meshes — visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle lists).</param>
+    /// <param name="weldVertices">Welds identical vertices into indexed meshes: visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle lists).</param>
     public unsafe void Update(out Spread<Mesh> meshes, out Spread<Matrix> transformations,
         FontAndParagraph? fontAndParagraph = null, float extrudeAmount = 1f,
         ExtrudeOrigin extrudeOrigin = ExtrudeOrigin.Center,
@@ -304,7 +304,7 @@ public class Text3dMeshAdvanced : IDisposable
     /// <param name="extrudeOrigin">Where the extruded mesh sits relative to Z = 0.</param>
     /// <param name="flatteningTolerance">The maximum deviation allowed when flattening the outlines; smaller values yield finer curves and more vertices.</param>
     /// <param name="smoothingAngle">In cycles: side-wall edges sharper than this angle stay hard, flatter ones are shaded smooth.</param>
-    /// <param name="weldVertices">Welds identical vertices into an indexed mesh — visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle list).</param>
+    /// <param name="weldVertices">Welds identical vertices into an indexed mesh: visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle list).</param>
     public void Update(out Mesh? output,
         FontAndParagraph? fontAndParagraph = null, float extrudeAmount = 1f,
         ExtrudeOrigin extrudeOrigin = ExtrudeOrigin.Center,

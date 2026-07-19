@@ -4,7 +4,7 @@ The two documents in `help/` still reference the node definitions that lived ins
 old `VL.Stride.Text3d.vl` plus the SharpDX enum aliases. Since 2.0 all nodes come from
 the C# assembly, every one of those references shows up red and must be re-picked once
 in the vvvv editor. This is deliberate: hand-editing the `NodeReference` XML for
-C#-imported symbols is error-prone — the editor rewrites them authoritatively when you
+C#-imported symbols is error-prone; the editor rewrites them authoritatively when you
 re-pick a node.
 
 ## Procedure (per help file)
@@ -15,7 +15,7 @@ re-pick a node.
 
 2. For every red node: double-click it, find the replacement per the table below,
    re-pick it. **Pin names are unchanged** (one exception: the old `FontSize` pin on the
-   simple Text3d/Text3dMesh nodes is now `Font Size` per vvvv naming convention — that
+   simple Text3d/Text3dMesh nodes is now `Font Size` per vvvv naming convention, that
    one link must be re-drawn), so links reconnect automatically.
 3. Re-enter the values of enum IOBoxes (the enum *types* changed identity; the member
    names are the same, so read the old value off the red IOBox first).

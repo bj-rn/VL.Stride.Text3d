@@ -51,7 +51,7 @@ public sealed unsafe class Extruder
     /// <summary>Default outline flattening tolerance (as the original implementation).</summary>
     public const float DefaultFlatteningTolerance = .1f;
 
-    /// <summary>Default smoothing angle in cycles (vvvv standard unit; 1/6 = 60°) —
+    /// <summary>Default smoothing angle in cycles (vvvv standard unit; 1/6 = 60°);
     /// its cosine matches the original hard-coded 0.5 threshold.</summary>
     public const float DefaultSmoothingAngle = 1f / 6f;
 

@@ -21,7 +21,7 @@ using Silk.NET.DirectWrite;
 
 namespace VL.Stride.Text3d.Interop;
 
-/// <summary>D2D1_POINT_2F — 8-byte by-value point used by BeginFigure.</summary>
+/// <summary>D2D1_POINT_2F, the 8-byte by-value point used by BeginFigure.</summary>
 public struct Point2F
 {
     public float X;

@@ -51,7 +51,7 @@ public class Text3dMeshAsync : IDisposable
     /// <param name="extrudeOrigin">Where the extruded mesh sits relative to Z = 0.</param>
     /// <param name="flatteningTolerance">The maximum deviation allowed when flattening the outlines; smaller values yield finer curves and more vertices.</param>
     /// <param name="smoothingAngle">In cycles: side-wall edges sharper than this angle stay hard, flatter ones are shaded smooth.</param>
-    /// <param name="weldVertices">Welds identical vertices into an indexed mesh — visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle list).</param>
+    /// <param name="weldVertices">Welds identical vertices into an indexed mesh: visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle list).</param>
     public unsafe void Update(out Mesh? output, out bool inProgress,
         string text = "hello world", FontList? font = null, int fontSize = 32,
         TextAlignment textAlignment = TextAlignment.Leading,
@@ -139,7 +139,7 @@ public class Text3dMeshAdvancedAsync : IDisposable
     /// <param name="extrudeOrigin">Where the extruded mesh sits relative to Z = 0.</param>
     /// <param name="flatteningTolerance">The maximum deviation allowed when flattening the outlines; smaller values yield finer curves and more vertices.</param>
     /// <param name="smoothingAngle">In cycles: side-wall edges sharper than this angle stay hard, flatter ones are shaded smooth.</param>
-    /// <param name="weldVertices">Welds identical vertices into an indexed mesh — visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle list).</param>
+    /// <param name="weldVertices">Welds identical vertices into an indexed mesh: visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle list).</param>
     public unsafe void Update(out Mesh? output, out bool inProgress,
         FontAndParagraph? fontAndParagraph = null, float extrudeAmount = 1f,
         ExtrudeOrigin extrudeOrigin = ExtrudeOrigin.Center,
@@ -233,7 +233,7 @@ public class Text3dMeshesAsync : IDisposable
     /// <param name="extrudeOrigin">Where the extruded meshes sit relative to Z = 0.</param>
     /// <param name="flatteningTolerance">The maximum deviation allowed when flattening the outlines; smaller values yield finer curves and more vertices.</param>
     /// <param name="smoothingAngle">In cycles: side-wall edges sharper than this angle stay hard, flatter ones are shaded smooth.</param>
-    /// <param name="weldVertices">Welds identical vertices into indexed meshes — visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle lists).</param>
+    /// <param name="weldVertices">Welds identical vertices into indexed meshes: visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle lists).</param>
     public unsafe void Update(out Spread<Mesh> meshes, out Spread<Matrix> transformations, out bool inProgress,
         string text = "hello world", FontList? font = null, int fontSize = 32,
         TextAlignment textAlignment = TextAlignment.Leading,
@@ -320,7 +320,7 @@ public class Text3dMeshesAdvancedAsync : IDisposable
     /// <param name="extrudeOrigin">Where the extruded meshes sit relative to Z = 0.</param>
     /// <param name="flatteningTolerance">The maximum deviation allowed when flattening the outlines; smaller values yield finer curves and more vertices.</param>
     /// <param name="smoothingAngle">In cycles: side-wall edges sharper than this angle stay hard, flatter ones are shaded smooth.</param>
-    /// <param name="weldVertices">Welds identical vertices into indexed meshes — visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle lists).</param>
+    /// <param name="weldVertices">Welds identical vertices into indexed meshes: visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle lists).</param>
     public unsafe void Update(out Spread<Mesh> meshes, out Spread<Matrix> transformations, out bool inProgress,
         FontAndParagraph? fontAndParagraph = null, float extrudeAmount = 1f,
         ExtrudeOrigin extrudeOrigin = ExtrudeOrigin.Center,

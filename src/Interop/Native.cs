@@ -71,7 +71,7 @@ public static unsafe class Native
     /// <summary>
     /// Creates a TextFormat with SharpDX-convenience-constructor semantics
     /// (system font collection, locale "").
-    /// Family name and locale are passed as pinned UTF-16 pointers — do NOT use the
+    /// Family name and locale are passed as pinned UTF-16 pointers; do NOT use the
     /// Silk.NET managed-string overloads here: they marshal DWrite's WCHAR parameters
     /// with the wrong encoding (observed in the Phase 1 spike: garbage family name
     /// causing silent font fallback plus intermittent E_INVALIDARG).

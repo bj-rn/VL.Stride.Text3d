@@ -128,7 +128,7 @@ public sealed unsafe class FontAndParagraph : IDisposable
 
     /// <summary>Sets line spacing method, line height and baseline distance.</summary>
     /// <param name="method">How line height is determined (from content, uniform, or proportional).</param>
-    /// <param name="lineSpacing">The line height — the distance from one baseline to the next (used by the Uniform method).</param>
+    /// <param name="lineSpacing">The line height, the distance from one baseline to the next (used by the Uniform method).</param>
     /// <param name="baseline">The distance from the top of the line to its baseline; a reasonable ratio is 80% of the line spacing.</param>
     public void SetLineSpacing(LineSpacingMethod method = LineSpacingMethod.Default,
         float lineSpacing = 0f, float baseline = 0f)
@@ -165,7 +165,7 @@ public sealed unsafe class FontAndParagraph : IDisposable
 
     /// <summary>Sets trimming for text overflowing the layout box.</summary>
     /// <param name="granularity">The text granularity (character or word) at which trimming applies.</param>
-    /// <param name="delimiter">A character that signals the beginning of the portion of text to preserve — most useful for path ellipsis, where the delimiter would be a slash. Empty for none.</param>
+    /// <param name="delimiter">A character that signals the beginning of the portion of text to preserve; most useful for path ellipsis, where the delimiter would be a slash. Empty for none.</param>
     /// <param name="delimiterCount">How many occurrences of the delimiter to step back from the end.</param>
     /// <param name="ellipsisTrimmingSign">Whether an ellipsis (…) sign is shown at the trimming position.</param>
     public void SetTrimming(TrimmingGranularity granularity = TrimmingGranularity.None,
@@ -188,7 +188,7 @@ public sealed unsafe class FontAndParagraph : IDisposable
         => Set(ref this.verticalGlyphOrientation, verticalGlyphOrientation);
 
     /// <summary>Applies per-range text styles (see the TextStyles category).</summary>
-    /// <param name="styles">The text styles applied to the layout, in order — later styles override earlier ones on overlapping ranges.</param>
+    /// <param name="styles">The text styles applied to the layout, in order; later styles override earlier ones on overlapping ranges.</param>
     public void ApplyStyles(IReadOnlyList<ITextStyle>? styles)
     {
         this.styles = styles;
