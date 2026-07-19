@@ -107,6 +107,17 @@ suite. Two things to preserve when touching the interop:
   (DirectWrite output varies with installed font versions). After moving to a new
   machine, regenerate them once with `REGENERATE_BASELINES=1 dotnet test`.
 
+### Possible future direction
+
+The library is Windows-only because text shaping, outline extraction and tessellation
+run on Direct2D/DirectWrite. Should vvvv/Stride ever leave Windows, the whole native
+layer could be replaced by a cross-platform stack: text shaping and glyph outlines via
+HarfBuzz (HarfBuzzSharp) or Typography.OpenFont, boolean outline merging and
+tessellation via LibTessDotNet. The extrusion and UV logic in `src/Core` is independent
+of Direct2D input and would carry over; the regression fixtures would then also become
+machine-independent. This is a large effort with no user-visible gain today and is
+recorded here only as a direction, not a plan.
+
 ---
 ### License
 
