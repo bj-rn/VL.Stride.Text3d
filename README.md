@@ -37,6 +37,10 @@ Download: http://visualprogramming.net
 
 ## Changes in 2.2
 
+- New nodes `Text3dMeshes` and `Text3dMeshes (Advanced)`: output one mesh per glyph
+  plus per-glyph transforms for typography animation. Each mesh's pivot sits on the
+  baseline at the glyph's pen position. Spaces produce no mesh, ligatures may merge
+  characters, and underline/strikethrough decorations are not included.
 - New pins on the Text3d/Text3dMesh nodes (defaults reproduce the previous behavior
   exactly):
   - `Extrude Origin` (Center/Front/Back) — where the mesh sits relative to Z = 0.

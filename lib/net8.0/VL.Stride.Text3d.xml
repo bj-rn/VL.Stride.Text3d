@@ -17,6 +17,19 @@
             <param name="smoothingThreshold">Adjacent edge normals are averaged when their dot
             product exceeds this (cos of the smoothing angle; the original hard-coded 0.5).</param>
         </member>
+        <member name="T:VL.Stride.Text3d.Core.GlyphOutlineCollector">
+            <summary>Collects one outline geometry per glyph (local coordinates) plus its baseline pen position.</summary>
+        </member>
+        <member name="M:VL.Stride.Text3d.Core.GlyphMeshBuilder.ExtractGlyphVertices(Silk.NET.DirectWrite.IDWriteTextLayout*,System.Single,VL.Stride.Text3d.Enums.ExtrudeOrigin,System.Single,System.Single)">
+            <summary>
+            Extracts one extruded vertex array per visible glyph (local coordinates, pivot on
+            the baseline at the glyph's pen position) plus the world-space baseline position.
+            Glyphs without ink (spaces) are skipped.
+            </summary>
+        </member>
+        <member name="T:VL.Stride.Text3d.Core.PrebuiltMeshModel">
+            <summary>Procedural model over an already-computed vertex array (used to turn per-glyph vertices into Stride meshes).</summary>
+        </member>
         <member name="M:VL.Stride.Text3d.Core.OutlineRenderer.GetGeometry">
             <summary>Accumulated geometry (null for empty text). The caller takes ownership.</summary>
         </member>
@@ -411,6 +424,12 @@
         <member name="M:VL.Stride.Text3d.Nodes.FontAndParagraph.GetTextFormat">
             <summary>The built text format.</summary>
         </member>
+        <member name="M:VL.Stride.Text3d.Nodes.Meshes.GlyphMeshNodeHelper.Build(Stride.Engine.Game,Silk.NET.DirectWrite.IDWriteTextLayout*,System.Single,VL.Stride.Text3d.Enums.ExtrudeOrigin,System.Single,System.Single,VL.Lib.Collections.Spread{Stride.Rendering.Mesh}@,VL.Lib.Collections.Spread{Stride.Core.Mathematics.Matrix}@)">
+            <summary>Builds one Stride mesh per visible glyph plus its translation matrix.</summary>
+        </member>
+        <member name="M:VL.Stride.Text3d.Nodes.Meshes.GlyphMeshNodeHelper.CreateSimpleLayout(System.String,System.String,System.Single,VL.Stride.Text3d.Enums.TextAlignment,VL.Stride.Text3d.Enums.ParagraphAlignment)">
+            <summary>Creates a layout with the same settings the simple Text3d nodes use.</summary>
+        </member>
         <member name="T:VL.Stride.Text3d.Nodes.Meshes.Text3dMesh">
             <summary>Renders a string of text as an extruded 3D mesh.</summary>
         </member>
@@ -423,6 +442,44 @@
             <param name="paragraphAlignment">The alignment of the paragraph relative to the top and bottom edge of the layout box.</param>
             <param name="extrudeAmount">The depth of the extrusion along Z.</param>
             <param name="extrudeOrigin">Where the extruded mesh sits relative to Z = 0.</param>
+            <param name="flatteningTolerance">The maximum deviation allowed when flattening the outlines; smaller values yield finer curves and more vertices.</param>
+            <param name="smoothingAngle">In cycles: side-wall edges sharper than this angle stay hard, flatter ones are shaded smooth.</param>
+        </member>
+        <member name="T:VL.Stride.Text3d.Nodes.Meshes.Text3dMeshes">
+            <summary>
+            Renders a string of text as one extruded 3D mesh per glyph, with per-glyph transforms
+            for typography animation. The pivot of each mesh is on the baseline at the glyph's pen
+            position. Spaces produce no mesh; ligatures may merge characters; underline and
+            strikethrough are not included.
+            </summary>
+        </member>
+        <member name="M:VL.Stride.Text3d.Nodes.Meshes.Text3dMeshes.Update(VL.Lib.Collections.Spread{Stride.Rendering.Mesh}@,VL.Lib.Collections.Spread{Stride.Core.Mathematics.Matrix}@,System.String,VL.Lib.Text.FontList,System.Int32,VL.Stride.Text3d.Enums.TextAlignment,VL.Stride.Text3d.Enums.ParagraphAlignment,System.Single,VL.Stride.Text3d.Enums.ExtrudeOrigin,System.Single,System.Single)">
+            <param name="meshes">One mesh per visible glyph, in draw order, each in local coordinates around its baseline pivot.</param>
+            <param name="transformations">Per glyph: the translation placing the mesh at its position in the text.</param>
+            <param name="text">The string to render.</param>
+            <param name="font">The name of the font family.</param>
+            <param name="fontSize">The logical size of the font in DIP units (1 DIP = 1/96 inch).</param>
+            <param name="textAlignment">The alignment of paragraph text relative to the leading and trailing edge of the layout box.</param>
+            <param name="paragraphAlignment">The alignment of the paragraph relative to the top and bottom edge of the layout box.</param>
+            <param name="extrudeAmount">The depth of the extrusion along Z.</param>
+            <param name="extrudeOrigin">Where the extruded meshes sit relative to Z = 0.</param>
+            <param name="flatteningTolerance">The maximum deviation allowed when flattening the outlines; smaller values yield finer curves and more vertices.</param>
+            <param name="smoothingAngle">In cycles: side-wall edges sharper than this angle stay hard, flatter ones are shaded smooth.</param>
+        </member>
+        <member name="T:VL.Stride.Text3d.Nodes.Meshes.Text3dMeshesAdvanced">
+            <summary>
+            Renders a FontAndParagraph text layout as one extruded 3D mesh per glyph, with
+            per-glyph transforms for typography animation. The pivot of each mesh is on the
+            baseline at the glyph's pen position. Spaces produce no mesh; ligatures may merge
+            characters; underline and strikethrough are not included.
+            </summary>
+        </member>
+        <member name="M:VL.Stride.Text3d.Nodes.Meshes.Text3dMeshesAdvanced.Update(VL.Lib.Collections.Spread{Stride.Rendering.Mesh}@,VL.Lib.Collections.Spread{Stride.Core.Mathematics.Matrix}@,VL.Stride.Text3d.Nodes.FontAndParagraph,System.Single,VL.Stride.Text3d.Enums.ExtrudeOrigin,System.Single,System.Single)">
+            <param name="meshes">One mesh per visible glyph, in draw order, each in local coordinates around its baseline pivot.</param>
+            <param name="transformations">Per glyph: the translation placing the mesh at its position in the text.</param>
+            <param name="fontAndParagraph">The FontAndParagraph providing the text layout to render.</param>
+            <param name="extrudeAmount">The depth of the extrusion along Z.</param>
+            <param name="extrudeOrigin">Where the extruded meshes sit relative to Z = 0.</param>
             <param name="flatteningTolerance">The maximum deviation allowed when flattening the outlines; smaller values yield finer curves and more vertices.</param>
             <param name="smoothingAngle">In cycles: side-wall edges sharper than this angle stay hard, flatter ones are shaded smooth.</param>
         </member>
