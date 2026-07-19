@@ -1,0 +1,118 @@
+// Headless tests of the C# node surface that doesn't need a graphics device:
+// FontAndParagraph building/caching, text styles, and metrics readback.
+
+using NUnit.Framework;
+using VL.Stride.Text3d.Core;
+using VL.Stride.Text3d.Nodes;
+using FontWeightEnum = VL.Stride.Text3d.Enums.FontWeight;
+using WordWrapping = VL.Stride.Text3d.Enums.WordWrapping;
+
+namespace VL.Stride.Text3d.Tests;
+
+[TestFixture]
+public class FontAndParagraphTests
+{
+    [Test]
+    public void BuildsLayoutAndCachesUntilDirty()
+    {
+        using var fap = new FontAndParagraph();
+        fap.SetText("hello");
+        Assert.That(fap.GetIsDirty(), Is.True);
+
+        var layout1 = fap.GetTextLayout();
+        Assert.That(layout1, Is.Not.Null);
+        Assert.That(fap.GetIsDirty(), Is.False);
+
+        // Unchanged settings -> same handle instance (reference identity = change signal)
+        fap.SetText("hello");
+        Assert.That(fap.GetTextLayout(), Is.SameAs(layout1));
+
+        // Changed settings -> rebuilt handle, bumped version
+        int versionBefore = fap.GetVersion();
+        fap.SetText("world");
+        Assert.That(fap.GetIsDirty(), Is.True);
+        var layout2 = fap.GetTextLayout();
+        Assert.That(layout2, Is.Not.SameAs(layout1));
+        Assert.That(fap.GetVersion(), Is.GreaterThan(versionBefore));
+    }
+
+    [Test]
+    public void AppliedStyleChangeTriggersRebuild()
+    {
+        using var fap = new FontAndParagraph();
+        fap.SetText("hello world");
+
+        var weightNode = new TextStyles.FontWeight();
+        var style = weightNode.Update(startPosition: 0, length: 5, fontWeight: FontWeightEnum.Bold);
+        fap.ApplyStyles(new[] { style });
+
+        var layout1 = fap.GetTextLayout();
+
+        // Same style values -> no rebuild
+        weightNode.Update(startPosition: 0, length: 5, fontWeight: FontWeightEnum.Bold);
+        Assert.That(fap.GetTextLayout(), Is.SameAs(layout1));
+
+        // Changed style value -> rebuild
+        weightNode.Update(startPosition: 0, length: 5, fontWeight: FontWeightEnum.Black);
+        Assert.That(fap.GetTextLayout(), Is.Not.SameAs(layout1));
+    }
+
+    [Test]
+    public void AllStyleNodesApplyWithoutError()
+    {
+        using var fap = new FontAndParagraph();
+        fap.SetText("hello world styles");
+
+        var styles = new ITextStyle[]
+        {
+            new TextStyles.FontFamily().Update(0, 5),
+            new TextStyles.FontSize().Update(0, 5, 48f),
+            new TextStyles.FontStretch().Update(2, 4),
+            new TextStyles.FontStyle().Update(2, 4, Enums.FontStyle.Italic),
+            new TextStyles.FontWeight().Update(6, 5, FontWeightEnum.Bold),
+            new TextStyles.StrikeThrough().Update(6, 5),
+            new TextStyles.Underline().Update(0, 11),
+            new TextStyles.PairKerning().Update(0, 18),
+            new TextStyles.CharacterSpacing().Update(0, 18, 2f, 1f, 0f),
+            new TextStyles.Typography().Update(0, 18, Enums.FontFeatureTag.StandardLigatures, 1),
+        };
+        fap.ApplyStyles(styles);
+
+        Assert.That(() => fap.GetTextLayout(), Throws.Nothing);
+    }
+
+    [Test]
+    public void MetricsNodesReadValues()
+    {
+        using var fap = new FontAndParagraph();
+        fap.SetText("line one\nline two");
+        fap.SetWordWrapping(WordWrapping.NoWrap);
+
+        var layoutMetrics = new TextLayoutMetrics();
+        layoutMetrics.Update(out _, out _, out float width, out float height,
+            out _, out _, out _, out _, out int lineCount, out _, fap);
+        Assert.That(width, Is.GreaterThan(0));
+        Assert.That(height, Is.GreaterThan(0));
+        Assert.That(lineCount, Is.EqualTo(2));
+
+        var lineMetrics = new LineMetrics();
+        lineMetrics.Update(out var baseline, out var lineHeight, out _,
+            out var length, out _, out _, fap);
+        Assert.That(baseline.Count, Is.EqualTo(2));
+        Assert.That(lineHeight.Count, Is.EqualTo(2));
+        Assert.That(length.Count, Is.EqualTo(2));
+        Assert.That(baseline[0], Is.GreaterThan(0));
+    }
+
+    [Test]
+    public void TrimmingWithEllipsisSignBuilds()
+    {
+        using var fap = new FontAndParagraph();
+        fap.SetText("some quite long text that will be trimmed");
+        fap.SetMaxWidth(50f);
+        fap.SetWordWrapping(WordWrapping.NoWrap);
+        fap.SetTrimming(Enums.TrimmingGranularity.Character, "", 0, ellipsisTrimmingSign: true);
+
+        Assert.That(() => fap.GetTextLayout(), Throws.Nothing);
+    }
+}

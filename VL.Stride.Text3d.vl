@@ -4,6 +4,21 @@
   <NugetDependency Id="Z05IV8jWIe7f2Ust04t9b9" Location="VL.Stride" Version="2025.7.4" />
   <PlatformDependency Id="LU7xMuDfnRrAk4ofIDygWV" Location="./lib/net8.0/VL.Stride.Text3d.dll" IsForward="true" />
   <Patch Id="vdq1nxbXny6XfViFbKhLHm">
-    <Canvas Id="VM4xrLI9XqB9c7C6dXWsGD" DefaultCategory="VL.Stride.Text3d" BordersChecked="false" CanvasType="FullCategory" />
+    <Canvas Id="VM4xrLI9XqB9c7C6dXWsGD" DefaultCategory="VL.Stride.Text3d" CanvasType="FullCategory" />
+    <Node Name="Application" Bounds="100,100" Id="5XqyDdO0LTcPBirhtAucUP">
+      <p:NodeReference>
+        <Choice Kind="ContainerDefinition" Name="Process" />
+        <FullNameCategoryReference ID="Primitive" />
+      </p:NodeReference>
+      <Patch Id="vGXytl3mC0550XRSO2CmDj">
+        <Canvas Id="XKw1erH2THCYuHaua8ymvb" CanvasType="Group" />
+        <Patch Id="PrTEA3Pg9RMkUVj4sGdRlj" Name="Create" />
+        <Patch Id="68sTnPvvaJPRfNp0w7wohR" Name="Update" />
+        <ProcessDefinition Id="bCGK0CQPKORQwIjGX2mGA2">
+          <Fragment Id="tQkozjA5F2ae9S5bHEcFLJ" Patch="PrTEA3Pg9RMkUVj4sGdRlj" Enabled="true" />
+          <Fragment Id="BAQP7wSx6X7OvBBRwnpFVT" Patch="68sTnPvvaJPRfNp0w7wohR" Enabled="true" />
+        </ProcessDefinition>
+      </Patch>
+    </Node>
   </Patch>
 </Document>
