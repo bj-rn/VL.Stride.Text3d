@@ -1,6 +1,6 @@
 name: push_release_nuget
 
-# on push on master
+# on push on main
 on:
   push:
     branches:
