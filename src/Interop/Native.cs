@@ -49,10 +49,14 @@ public static unsafe class Native
             if (d2dFactory != null)
                 return;
 
+            // Multi-threaded factory: the async mesh nodes run geometry extraction on
+            // background tasks concurrently with main-thread generation, so the factory
+            // must serialize access internally. Geometry output is unaffected (guarded
+            // by the baseline parity tests).
             var d2dApi = D2D.GetApi();
             void* d2d = null;
             fixed (Guid* iid = &IID_ID2D1Factory)
-                ThrowOnFailure(d2dApi.D2D1CreateFactory(D2DFactoryType.SingleThreaded, iid, null, &d2d));
+                ThrowOnFailure(d2dApi.D2D1CreateFactory(D2DFactoryType.MultiThreaded, iid, null, &d2d));
 
             var dwApi = DWrite.GetApi();
             IUnknown* dw = null;

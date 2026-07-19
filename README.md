@@ -37,6 +37,10 @@ Download: http://visualprogramming.net
 
 ## Changes in 2.2
 
+- Async variants of all mesh nodes — `Text3dMesh (Async)`, `Text3dMesh (Advanced Async)`,
+  `Text3dMeshes (Async)` and `Text3dMeshes (Advanced Async)`: geometry is computed on a
+  background thread (an `In Progress` output reports activity), the last completed
+  result stays available meanwhile, and rapid input changes are coalesced.
 - New nodes `Text3dMeshes` and `Text3dMeshes (Advanced)`: output one mesh per glyph
   plus per-glyph transforms for typography animation. Each mesh's pivot sits on the
   baseline at the glyph's pen position. Spaces produce no mesh, ligatures may merge

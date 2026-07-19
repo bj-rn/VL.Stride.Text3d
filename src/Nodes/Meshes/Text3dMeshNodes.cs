@@ -6,6 +6,7 @@
 
 using Stride.Core.Mathematics;
 using Stride.Engine;
+using Stride.Graphics;
 using Stride.Rendering;
 using VL.Core;
 using VL.Core.Import;
@@ -34,7 +35,14 @@ internal static unsafe class GlyphMeshNodeHelper
     {
         var glyphs = GlyphMeshBuilder.ExtractGlyphVertices(textLayout, extrudeAmount,
             extrudeOrigin, flatteningTolerance, smoothingAngle);
+        BuildMeshes(game, glyphs, out meshes, out transformations);
+    }
 
+    /// <summary>Turns precomputed per-glyph vertices into GPU meshes (main thread).</summary>
+    public static void BuildMeshes(Game game,
+        List<(VertexPositionNormalTexture[] Vertices, Vector2 Position)> glyphs,
+        out Spread<Mesh> meshes, out Spread<Matrix> transformations)
+    {
         var meshBuilder = new SpreadBuilder<Mesh>(glyphs.Count);
         var transformationBuilder = new SpreadBuilder<Matrix>(glyphs.Count);
         var model = new PrebuiltMeshModel();
@@ -51,6 +59,15 @@ internal static unsafe class GlyphMeshNodeHelper
         }
         meshes = meshBuilder.ToSpread();
         transformations = transformationBuilder.ToSpread();
+    }
+
+    /// <summary>Builds a whole-text mesh from precomputed vertices (main thread).</summary>
+    public static Mesh? BuildMesh(Game game, PrebuiltMeshModel model, VertexPositionNormalTexture[] vertices)
+    {
+        model.Vertices = vertices;
+        var strideModel = new StrideModel();
+        model.Generate(game.Services, strideModel);
+        return strideModel.Meshes.Count > 0 ? strideModel.Meshes[0] : null;
     }
 
     /// <summary>Creates a layout with the same settings the simple Text3d nodes use.</summary>

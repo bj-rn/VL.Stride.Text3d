@@ -20,6 +20,31 @@ using ExtrudeOrigin = VL.Stride.Text3d.Enums.ExtrudeOrigin;
 
 namespace VL.Stride.Text3d.Core;
 
+/// <summary>The whole-text extraction pipeline (outline union -> extrusion), usable from any thread.</summary>
+public static unsafe class TextOutlineExtractor
+{
+    public static void ExtractVertices(IDWriteTextLayout* textLayout, List<VertexPositionNormalTexture> vertices,
+        float extrudeAmount, Enums.ExtrudeOrigin extrudeOrigin, float flatteningTolerance, float smoothingAngle)
+    {
+        var renderer = new OutlineRenderer(Native.D2DFactory);
+        var rendererPtr = (IDWriteTextRenderer*)GetComPointer(renderer, typeof(IDWriteTextRendererCallback).GUID);
+        try
+        {
+            ThrowOnFailure(textLayout->Draw(null, rendererPtr, 0.0f, 0.0f));
+
+            var geometry = renderer.GetGeometry();
+            var extruder = new Extruder(Native.D2DFactory);
+            extruder.GetVertices(geometry, vertices, extrudeAmount, extrudeOrigin, flatteningTolerance, smoothingAngle);
+            if (geometry != null)
+                geometry->Release();
+        }
+        finally
+        {
+            Marshal.Release((nint)rendererPtr);
+        }
+    }
+}
+
 public abstract unsafe class Text3dBase : PrimitiveProceduralModelBase
 {
     protected readonly List<VertexPositionNormalTexture> vertexList = new(1024);
@@ -45,24 +70,8 @@ public abstract unsafe class Text3dBase : PrimitiveProceduralModelBase
 
     /// <summary>Draws the layout into an OutlineRenderer and extrudes the result into vertexList.</summary>
     protected void ExtractVertices(IDWriteTextLayout* textLayout)
-    {
-        var renderer = new OutlineRenderer(Native.D2DFactory);
-        var rendererPtr = (IDWriteTextRenderer*)GetComPointer(renderer, typeof(IDWriteTextRendererCallback).GUID);
-        try
-        {
-            ThrowOnFailure(textLayout->Draw(null, rendererPtr, 0.0f, 0.0f));
-
-            var geometry = renderer.GetGeometry();
-            var extruder = new Extruder(Native.D2DFactory);
-            extruder.GetVertices(geometry, vertexList, ExtrudeAmount, ExtrudeOrigin, FlatteningTolerance, SmoothingAngle);
-            if (geometry != null)
-                geometry->Release();
-        }
-        finally
-        {
-            Marshal.Release((nint)rendererPtr);
-        }
-    }
+        => TextOutlineExtractor.ExtractVertices(textLayout, vertexList,
+            ExtrudeAmount, ExtrudeOrigin, FlatteningTolerance, SmoothingAngle);
 
     protected GeometricMeshData<VertexPositionNormalTexture> BuildMeshData(string name)
     {
