@@ -10,6 +10,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <readme>README.md</readme>
     <projectUrl>https://github.com/bj-rn/VL.Stride.Text3d</projectUrl>
+    <repository type="git" url="https://github.com/bj-rn/VL.Stride.Text3d.git" />
     <summary>Render 3d text in VL.Stride</summary>
     <description>Set of nodes to create and render (extruded) 3d text in VL.Stride</description>
     <copyright>Copyright © 2026 bj-rn</copyright>
@@ -23,11 +24,10 @@
   <files>
     <file src="..\lib\net8.0\VL.Stride.Text3d.dll" target="lib\net8.0" />
     <file src="..\lib\net8.0\VL.Stride.Text3d.xml" target="lib\net8.0" />
-    <file src="..\lib\net8.0\Silk.NET.Direct2D.dll" target="lib\net8.0" />
     <file src="..\*.vl" />
     <file src="..\help\*.vl" target="help" />
     <file src="..\shaders\*.sdsl" target="shaders" />
-    <file src="..\README.md" />
+    <file src="..\README.md" target="docs" />
     <file src="..\DX11-vvvv-License.md" />
   </files>
 </package>
