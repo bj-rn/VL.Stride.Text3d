@@ -5,6 +5,8 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <!-- Keep in sync with the version in deployment\VL.Stride.Text3d.nuspec -->
+    <Version>2.3.0</Version>
     <OutputPath>..\lib\net8.0\</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <!-- vvvv reads pin/node tooltips from the XML documentation file -->
