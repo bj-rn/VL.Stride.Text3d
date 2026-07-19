@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
     <id>VL.Stride.Text3d</id>
-    <version>1.0.2</version>
+    <version>2.0.0</version>
     <title>VL.Stride.Text3d</title>
     <authors>bj-rn, mrvux</authors>
     <owners>bj-rn</owners>
@@ -12,16 +12,20 @@
     <projectUrl>https://github.com/bj-rn/VL.Stride.Text3d</projectUrl>
     <summary>Render 3d text in VL.Stride</summary>
     <description>Set of nodes to create and render (extruded) 3d text in VL.Stride</description>
-    <copyright>Copyright © 2023 bj-rn</copyright>
-    <tags>VL, vvvv, stride, 3d, extrude, text, model, mesh, directwrite</tags>
+    <copyright>Copyright © 2026 bj-rn</copyright>
+    <tags>VL, vvvv, stride, 3d, extrude, text, model, mesh, directwrite, silk.net</tags>
     <dependencies>
-      <dependency id="SharpDX.Mathematics" version="4.2.0" />
+      <group targetFramework="net8.0">
+        <dependency id="Silk.NET.Direct2D" version="[2.22.0]" />
+      </group>
     </dependencies>
   </metadata>
-   <files>
-    <file src="..\lib\net6.0\VL.Stride.Text3d.dll" target="lib\net6.0" />
-    <file src="..\*.vl"/>
-    <file src="..\help\*.vl" target="help"/>
+  <files>
+    <file src="..\lib\net8.0\VL.Stride.Text3d.dll" target="lib\net8.0" />
+    <file src="..\lib\net8.0\Silk.NET.Direct2D.dll" target="lib\net8.0" />
+    <file src="..\*.vl" />
+    <file src="..\help\*.vl" target="help" />
     <file src="..\README.md" />
+    <file src="..\DX11-vvvv-License.md" />
   </files>
 </package>
