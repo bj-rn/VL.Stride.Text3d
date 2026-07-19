@@ -23,6 +23,18 @@ public sealed unsafe class TextLayoutMetrics
     private int lastVersion = -1;
     private TextMetrics1 metrics;
 
+    /// <param name="left">The left-most point of formatted text relative to the layout box, excluding any glyph overhang.</param>
+    /// <param name="top">The top-most point of formatted text relative to the layout box, excluding any glyph overhang.</param>
+    /// <param name="width">The width of the formatted text, ignoring trailing whitespace at the end of each line.</param>
+    /// <param name="height">The height of the formatted text; for an empty string this is the height of the default font.</param>
+    /// <param name="heightIncludingTrailingWhitespace">The height of the formatted text, taking trailing whitespace into account.</param>
+    /// <param name="widthIncludingTrailingWhitespace">The width of the formatted text, taking the trailing whitespace at the end of each line into account.</param>
+    /// <param name="layoutWidth">The initial width given to the layout (Max Width).</param>
+    /// <param name="layoutHeight">The initial height given to the layout (Max Height).</param>
+    /// <param name="lineCount">Total number of lines.</param>
+    /// <param name="maxBidiReorderingDepth">The maximum bidirectional reordering count of any line of text; 1 if there is no bidirectional text or no text at all.</param>
+    /// <param name="input">The FontAndParagraph whose text layout is measured.</param>
+    /// <param name="forceUpdate">Re-reads the metrics even when the layout did not change.</param>
     public void Update(
         out float left, out float top, out float width, out float height,
         out float heightIncludingTrailingWhitespace, out float widthIncludingTrailingWhitespace,
@@ -88,6 +100,14 @@ public sealed unsafe class LineMetrics
     private Spread<int> newlineLength = Spread<int>.Empty;
     private Spread<int> trailingWhitespaceLength = Spread<int>.Empty;
 
+    /// <param name="baseline">Per line: the distance from the top of the text line to its baseline.</param>
+    /// <param name="height">Per line: the height of the text line.</param>
+    /// <param name="isTrimmed">Per line: whether the line is trimmed.</param>
+    /// <param name="length">Per line: the number of text positions, including trailing whitespace and newline characters.</param>
+    /// <param name="newlineLength">Per line: the number of characters in the newline sequence at its end; 0 if the line was wrapped or is the end of the text.</param>
+    /// <param name="trailingWhitespaceLength">Per line: the number of whitespace positions at its end (newline sequences count as whitespace).</param>
+    /// <param name="input">The FontAndParagraph whose text layout is measured.</param>
+    /// <param name="forceUpdate">Re-reads the metrics even when the layout did not change.</param>
     public void Update(
         out Spread<float> baseline, out Spread<float> height, out Spread<bool> isTrimmed,
         out Spread<int> length, out Spread<int> newlineLength, out Spread<int> trailingWhitespaceLength,

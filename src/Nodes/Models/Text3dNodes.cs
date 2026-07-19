@@ -145,6 +145,23 @@ public class Text3d : IDisposable
         entity = Text3dModelBuilder.CreateEntity("Text3d", out modelComponent);
     }
 
+    /// <param name="output">The entity holding the generated text model.</param>
+    /// <param name="text">The string to render.</param>
+    /// <param name="font">The name of the font family.</param>
+    /// <param name="fontSize">The logical size of the font in DIP units (1 DIP = 1/96 inch).</param>
+    /// <param name="textAlignment">The alignment of paragraph text relative to the leading and trailing edge of the layout box.</param>
+    /// <param name="paragraphAlignment">The alignment of the paragraph relative to the top and bottom edge of the layout box.</param>
+    /// <param name="extrudeAmount">The depth of the extrusion along Z.</param>
+    /// <param name="extrudeOrigin">Where the extruded mesh sits relative to Z = 0.</param>
+    /// <param name="flatteningTolerance">The maximum deviation allowed when flattening the outlines; smaller values yield finer curves and more vertices.</param>
+    /// <param name="smoothingAngle">In cycles: side-wall edges sharper than this angle stay hard, flatter ones are shaded smooth.</param>
+    /// <param name="transformation">The transformation applied to the entity; when not set the entity keeps its default transform.</param>
+    /// <param name="material">The material used to render the model.</param>
+    /// <param name="isShadowCaster">Whether the model casts shadows.</param>
+    /// <param name="components">Additional components attached to the entity.</param>
+    /// <param name="children">Entities parented under this entity's transform.</param>
+    /// <param name="name">The name of the entity.</param>
+    /// <param name="enabled">Whether the model is rendered.</param>
     public void Update(out Entity output,
         string text = "hello world", FontList? font = null, int fontSize = 32,
         TextAlignment textAlignment = TextAlignment.Leading,
@@ -209,6 +226,19 @@ public class Text3dAdvanced : IDisposable
         entity = Text3dModelBuilder.CreateEntity("Text3d", out modelComponent);
     }
 
+    /// <param name="output">The entity holding the generated text model.</param>
+    /// <param name="fontAndParagraph">The FontAndParagraph providing the text layout to render.</param>
+    /// <param name="extrudeAmount">The depth of the extrusion along Z.</param>
+    /// <param name="extrudeOrigin">Where the extruded mesh sits relative to Z = 0.</param>
+    /// <param name="flatteningTolerance">The maximum deviation allowed when flattening the outlines; smaller values yield finer curves and more vertices.</param>
+    /// <param name="smoothingAngle">In cycles: side-wall edges sharper than this angle stay hard, flatter ones are shaded smooth.</param>
+    /// <param name="transformation">The transformation applied to the entity; when not set the entity keeps its default transform.</param>
+    /// <param name="material">The material used to render the model.</param>
+    /// <param name="isShadowCaster">Whether the model casts shadows.</param>
+    /// <param name="components">Additional components attached to the entity.</param>
+    /// <param name="children">Entities parented under this entity's transform.</param>
+    /// <param name="name">The name of the entity.</param>
+    /// <param name="enabled">Whether the model is rendered.</param>
     public void Update(out Entity output,
         FontAndParagraph? fontAndParagraph = null, float extrudeAmount = 1f,
         ExtrudeOrigin extrudeOrigin = ExtrudeOrigin.Center,

@@ -47,6 +47,10 @@ public class FontFamily
 
     private readonly Style style = new();
 
+    /// <param name="startPosition">The start text position of the range the style applies to.</param>
+    /// <param name="length">The number of text positions in the range.</param>
+    /// <param name="font">The font family name applied to the text range.</param>
+    /// <param name="enabled">Whether the style is applied.</param>
     [return: Pin(Name = "Output")]
     public ITextStyle Update(int startPosition = 0, int length = 0, FontList? font = null, bool enabled = true)
     {
@@ -70,6 +74,10 @@ public class FontSize
 
     private readonly Style style = new();
 
+    /// <param name="startPosition">The start text position of the range the style applies to.</param>
+    /// <param name="length">The number of text positions in the range.</param>
+    /// <param name="fontSize">The font size in DIP units (1 DIP = 1/96 inch) applied to the text range.</param>
+    /// <param name="enabled">Whether the style is applied.</param>
     [return: Pin(Name = "Output")]
     public ITextStyle Update(int startPosition = 0, int length = 0, float fontSize = 32f, bool enabled = true)
     {
@@ -92,6 +100,10 @@ public class FontStretch
 
     private readonly Style style = new();
 
+    /// <param name="startPosition">The start text position of the range the style applies to.</param>
+    /// <param name="length">The number of text positions in the range.</param>
+    /// <param name="fontStretch">The font stretch (width relative to normal) applied to the text range.</param>
+    /// <param name="enabled">Whether the style is applied.</param>
     [return: Pin(Name = "Output")]
     public ITextStyle Update(int startPosition = 0, int length = 0,
         FontStretchEnum fontStretch = FontStretchEnum.Normal, bool enabled = true)
@@ -115,6 +127,10 @@ public class FontStyle
 
     private readonly Style style = new();
 
+    /// <param name="startPosition">The start text position of the range the style applies to.</param>
+    /// <param name="length">The number of text positions in the range.</param>
+    /// <param name="fontStyle">The font style (normal, italic or oblique) applied to the text range.</param>
+    /// <param name="enabled">Whether the style is applied.</param>
     [return: Pin(Name = "Output")]
     public ITextStyle Update(int startPosition = 0, int length = 0,
         FontStyleEnum fontStyle = FontStyleEnum.Normal, bool enabled = true)
@@ -138,6 +154,10 @@ public class FontWeight
 
     private readonly Style style = new();
 
+    /// <param name="startPosition">The start text position of the range the style applies to.</param>
+    /// <param name="length">The number of text positions in the range.</param>
+    /// <param name="fontWeight">The font weight (thickness of the strokes) applied to the text range.</param>
+    /// <param name="enabled">Whether the style is applied.</param>
     [return: Pin(Name = "Output")]
     public ITextStyle Update(int startPosition = 0, int length = 0,
         FontWeightEnum fontWeight = FontWeightEnum.Bold, bool enabled = true)
@@ -161,6 +181,10 @@ public class StrikeThrough
 
     private readonly Style style = new();
 
+    /// <param name="startPosition">The start text position of the range the style applies to.</param>
+    /// <param name="length">The number of text positions in the range.</param>
+    /// <param name="strikeThrough">Whether strikethrough takes place within the text range.</param>
+    /// <param name="enabled">Whether the style is applied.</param>
     [return: Pin(Name = "Output")]
     public ITextStyle Update(int startPosition = 0, int length = 0, bool strikeThrough = true, bool enabled = true)
     {
@@ -183,6 +207,10 @@ public class Underline
 
     private readonly Style style = new();
 
+    /// <param name="startPosition">The start text position of the range the style applies to.</param>
+    /// <param name="length">The number of text positions in the range.</param>
+    /// <param name="underline">Whether underline takes place within the text range.</param>
+    /// <param name="enabled">Whether the style is applied.</param>
     [return: Pin(Name = "Output")]
     public ITextStyle Update(int startPosition = 0, int length = 0, bool underline = true, bool enabled = true)
     {
@@ -209,6 +237,10 @@ public class PairKerning
 
     private readonly Style style = new();
 
+    /// <param name="startPosition">The start text position of the range the style applies to.</param>
+    /// <param name="length">The number of text positions in the range.</param>
+    /// <param name="pairKerning">Whether the text in the range is pair-kerned using the font's kerning pair adjustments.</param>
+    /// <param name="enabled">Whether the style is applied.</param>
     [return: Pin(Name = "Output")]
     public ITextStyle Update(int startPosition = 0, int length = 0, bool pairKerning = true, bool enabled = true)
     {
@@ -237,6 +269,12 @@ public class CharacterSpacing
 
     private readonly Style style = new();
 
+    /// <param name="startPosition">The start text position of the range the style applies to.</param>
+    /// <param name="length">The number of text positions in the range.</param>
+    /// <param name="leadingSpacing">The spacing before each character, in reading order.</param>
+    /// <param name="trailingSpacing">The spacing after each character, in reading order.</param>
+    /// <param name="minimumAdvanceWidth">The minimum advance of each character — prevents characters from becoming too thin or zero-width; must be zero or greater.</param>
+    /// <param name="enabled">Whether the style is applied.</param>
     [return: Pin(Name = "Output")]
     public ITextStyle Update(int startPosition = 0, int length = 0,
         float leadingSpacing = 0f, float trailingSpacing = 0f, float minimumAdvanceWidth = 0f, bool enabled = true)
@@ -284,6 +322,11 @@ public class Typography
 
     private readonly Style style = new();
 
+    /// <param name="startPosition">The start text position of the range the style applies to.</param>
+    /// <param name="length">The number of text positions in the range.</param>
+    /// <param name="fontFeature">The OpenType feature (by name tag) applied to the text range.</param>
+    /// <param name="parameter">The execution parameter of the feature: non-zero generally enables it, zero disables it; features requiring a selector use this as the selector index.</param>
+    /// <param name="enabled">Whether the style is applied.</param>
     [return: Pin(Name = "Output")]
     public ITextStyle Update(int startPosition = 0, int length = 0,
         FontFeatureTagEnum fontFeature = FontFeatureTagEnum.Default, int parameter = 1, bool enabled = true)
