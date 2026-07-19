@@ -1,0 +1,46 @@
+// Sample triplanar material shader shipped with VL.Stride.Text3d.
+//
+// Connect the TriplanarColor node to a ComputeColor input of a material (for example
+// the Diffuse or Emissive slot of a PBR material). The texture is sampled three times
+// along the world axes and blended by the surface normal, so no UVs are involved and
+// extruded text is textured seamlessly on caps and side walls alike, without seams or
+// stretching. Best suited for tileable surface textures such as noise, concrete or
+// fabric; for placed textures (labels, gradients along the text) use the UV-based
+// Side UV Mapping modes of the Text3d nodes instead.
+//
+// The mapping is anchored in world space, so the pattern flows through the mesh when
+// the entity moves; this is inherent to world-space triplanar mapping.
+
+shader TriplanarColor_ShaderFX : ComputeColor, PositionStream4, NormalStream, Texturing
+{
+    
+    rgroup PerMaterial
+    {
+        // The texture projected along the three world axes; use a tileable texture
+        stage Texture2D TextureInput;
+    }
+
+    cbuffer PerMaterial
+    {
+        // World-space distance covered by one texture repeat
+        stage float TextureScale = 1.0f;
+
+        // Higher values sharpen the transitions between the three projections
+        stage float BlendSharpness = 4.0f;
+    }
+
+    override float4 Compute()
+    {
+        float3 position = streams.PositionWS.xyz / max(TextureScale, 0.001f);
+        float3 normal = normalize(streams.normalWS);
+
+        float3 blend = pow(abs(normal), BlendSharpness);
+        blend /= blend.x + blend.y + blend.z;
+
+        float4 alongX = TextureInput.Sample(LinearRepeatSampler, position.yz);
+        float4 alongY = TextureInput.Sample(LinearRepeatSampler, position.xz);
+        float4 alongZ = TextureInput.Sample(LinearRepeatSampler, position.xy);
+
+        return alongX * blend.x + alongY * blend.y + alongZ * blend.z;
+    }
+};

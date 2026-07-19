@@ -37,6 +37,10 @@ Download: http://visualprogramming.net
 
 ## Changes in 2.2
 
+- A sample triplanar material shader ships with the package: connect the
+  `TriplanarColor` ShaderFX node to a ComputeColor input of a material (for example the
+  Diffuse slot) to texture caps and side walls seamlessly without any UVs. Best for
+  tileable surface textures; for placed textures use the `Side UV Mapping` modes below.
 - New `Side UV Mapping` pin on all mesh/model producing nodes (default Silhouette, the
   previous behavior): ContourDepth unwraps the side walls, running U once around each
   contour and V along the extrusion depth; ContourDepthTiled tiles absolute surface

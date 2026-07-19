@@ -26,6 +26,7 @@
     <file src="..\lib\net8.0\Silk.NET.Direct2D.dll" target="lib\net8.0" />
     <file src="..\*.vl" />
     <file src="..\help\*.vl" target="help" />
+    <file src="..\shaders\*.sdsl" target="shaders" />
     <file src="..\README.md" />
     <file src="..\DX11-vvvv-License.md" />
   </files>
