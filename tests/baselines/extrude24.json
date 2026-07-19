@@ -10,7 +10,7 @@
     "extrudeAmount": 24
   },
   "vertexCount": 432,
-  "sha256": "3A66D0B46F18143E29DA1EBFFACEC136774623DF485BB565392E4CF1D64AF7CA",
+  "sha256": "B00FBE5EE705A07A1C3B7E13D5B8FD3BFB9DAF33A8F9ED579818370F983993AB",
   "exception": null,
-  "source": "VL.Stride.Text3d 1.0.2 (SharpDX 4.2.0), legacy/VL.Stride.Text3d.dll"
+  "source": "VL.Stride.Text3d 2.1.0 (Silk.NET, corrected side-wall normals); originally captured from 1.0.2 (SharpDX)"
 }

@@ -28,10 +28,15 @@ OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// Ported VERBATIM per the agreed bug policy (verified bit-exact in Phase 1), including:
-//  - PORT-NOTE: side-wall normal formula normalize(vec.Y, vec.X) is NOT the true outward
-//    normal (that would be (vec.Y, -vec.X)); kept 1:1 for baseline parity. Fix planned
-//    for 2.1.
+// Ported per the agreed bug policy (verified bit-exact against the SharpDX build in
+// Phase 1 for 2.0), with one deliberate 2.1 change:
+//  - Since 2.1 the side-wall normal is the true outward edge normal
+//    normalize(vec.Y, -vec.X) — the original's normalize(vec.Y, vec.X) mirrored the
+//    normal across the diagonal, so extruded side walls shaded incorrectly. The sign
+//    is verified by the SideWallNormalsPointOutward test (rectangular glyph "I") and
+//    holds for hole contours too, since D2D's Outline() winds them opposite to outer
+//    contours which flips the formula's result accordingly. Vertex positions, UVs and
+//    cap normals are unchanged (guarded during baseline regeneration).
 //  - PORT-NOTE: normal smoothing threshold dot > 0.5 as original.
 // The dead d1/d2 locals of the original AddTriangles (which contained X/Y typos and were
 // never used) are omitted — no behavior change.
@@ -79,8 +84,8 @@ public sealed unsafe partial class ExtrudingSink : ID2D1SimplifiedGeometrySinkCa
         Vector2 ptj = m_figureVertices[j].pt;
         Vector2 vecij = ptj - pti;
 
-        // PORT-NOTE: kept 1:1 — see file header.
-        return Vector2.Normalize(new Vector2(vecij.Y, vecij.X));
+        // True outward edge normal (2.1 fix, see file header).
+        return Vector2.Normalize(new Vector2(vecij.Y, -vecij.X));
     }
 
     private Vector2 GetUV(int i)

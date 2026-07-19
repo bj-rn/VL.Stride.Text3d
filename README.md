@@ -35,6 +35,13 @@ For 2021.4
 Try it with vvvv, the visual live-programming environment for .NET
 Download: http://visualprogramming.net
 
+## Changes in 2.1
+
+- Side-wall lighting corrected: the extrusion's side walls now use the true outward
+  surface normal (a bug inherited from the original dx11-vvvv code mirrored it, so
+  extruded surfaces shaded incorrectly). Silhouette, front/back caps and UVs are
+  unchanged — only the shading of the extruded sides differs.
+
 ## Breaking changes in 2.0
 
 - Requires vvvv gamma ≥ 7.4 (net8.0); the SharpDX dependency is gone.

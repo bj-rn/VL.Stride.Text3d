@@ -1,11 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <!--
-    Phase 0 baseline capture tool.
+    Phase 0 baseline capture tool (historical).
     References the SHIPPED 1.0.2 SharpDX-based build (snapshotted in ./legacy) and dumps
-    its vertex output as regression fixtures to ..\baselines. The Silk.NET port is
-    verified against these fixtures. Do not point this project at src/ - it must keep
-    building against the legacy binary after src/ is ported.
+    its vertex output as regression fixtures to ..\baselines. These fixtures proved the
+    2.0 Silk.NET port bit-exact. Since 2.1 the committed fixtures are deliberately
+    regenerated from the fixed implementation (corrected side-wall normals, see
+    tests/VL.Stride.Text3d.Tests/VertexParityTests.cs), so this tool's "verify" mode no
+    longer matches them — it is kept as documentation of the original capture process.
   -->
 
   <PropertyGroup>
