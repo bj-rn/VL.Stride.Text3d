@@ -13,6 +13,7 @@ using VL.Lib.Basics.Resources;
 using VL.Lib.Collections;
 using VL.Lib.Text;
 using VL.Stride.Text3d.Core;
+using ExtrudeOrigin = VL.Stride.Text3d.Enums.ExtrudeOrigin;
 using ParagraphAlignment = VL.Stride.Text3d.Enums.ParagraphAlignment;
 using StrideModel = Stride.Rendering.Model;
 using TextAlignment = VL.Stride.Text3d.Enums.TextAlignment;
@@ -148,11 +149,20 @@ public class Text3d : IDisposable
         string text = "hello world", FontList? font = null, int fontSize = 32,
         TextAlignment textAlignment = TextAlignment.Leading,
         ParagraphAlignment paragraphAlignment = ParagraphAlignment.Near,
-        float extrudeAmount = 1f,
+        float extrudeAmount = 1f, ExtrudeOrigin extrudeOrigin = ExtrudeOrigin.Center,
+        float flatteningTolerance = Core.Extruder.DefaultFlatteningTolerance,
+        float smoothingAngle = Core.Extruder.DefaultSmoothingAngle,
         Matrix? transformation = null, Material? material = null, bool isShadowCaster = true,
-        Spread<EntityComponent>? components = null, Spread<Entity>? children = null, bool enabled = true)
+        Spread<EntityComponent>? components = null, Spread<Entity>? children = null,
+        string name = "Text3d", bool enabled = true)
     {
-        int hash = HashCode.Combine(text, font?.Value, fontSize, textAlignment, paragraphAlignment, extrudeAmount, material);
+        var hashCode = new HashCode();
+        hashCode.Add(text); hashCode.Add(font?.Value); hashCode.Add(fontSize);
+        hashCode.Add(textAlignment); hashCode.Add(paragraphAlignment);
+        hashCode.Add(extrudeAmount); hashCode.Add(extrudeOrigin);
+        hashCode.Add(flatteningTolerance); hashCode.Add(smoothingAngle);
+        hashCode.Add(material);
+        int hash = hashCode.ToHashCode();
         if (hash != lastHash || modelComponent.Model == null)
         {
             model.Text = text ?? "";
@@ -161,6 +171,9 @@ public class Text3d : IDisposable
             model.HorizontalAlignment = textAlignment;
             model.VerticalAlignment = paragraphAlignment;
             model.ExtrudeAmount = extrudeAmount;
+            model.ExtrudeOrigin = extrudeOrigin;
+            model.FlatteningTolerance = flatteningTolerance;
+            model.SmoothingAngle = smoothingAngle;
             model.MaterialInstance.Material = material;
             modelComponent.Model = Text3dModelBuilder.Build(model, services.Game);
             lastHash = hash;
@@ -170,6 +183,7 @@ public class Text3d : IDisposable
         Text3dModelBuilder.SyncChildren(entity, ref lastChildren, children);
         modelComponent.IsShadowCaster = isShadowCaster;
         modelComponent.Enabled = enabled;
+        entity.Name = name;
         output = entity;
     }
 
@@ -185,9 +199,7 @@ public class Text3dAdvanced : IDisposable
     private readonly Entity entity;
     private readonly ModelComponent modelComponent;
     private TextLayoutHandle? lastLayout;
-    private int lastVersion = -1;
-    private float lastExtrude = float.NaN;
-    private Material? lastMaterial;
+    private int lastHash;
     private Spread<EntityComponent>? lastComponents;
     private Spread<Entity>? lastChildren;
 
@@ -199,34 +211,46 @@ public class Text3dAdvanced : IDisposable
 
     public void Update(out Entity output,
         FontAndParagraph? fontAndParagraph = null, float extrudeAmount = 1f,
+        ExtrudeOrigin extrudeOrigin = ExtrudeOrigin.Center,
+        float flatteningTolerance = Core.Extruder.DefaultFlatteningTolerance,
+        float smoothingAngle = Core.Extruder.DefaultSmoothingAngle,
         Matrix? transformation = null, Material? material = null, bool isShadowCaster = true,
-        Spread<EntityComponent>? components = null, Spread<Entity>? children = null, bool enabled = true)
+        Spread<EntityComponent>? components = null, Spread<Entity>? children = null,
+        string name = "Text3d", bool enabled = true)
     {
         var layout = fontAndParagraph?.GetTextLayout();
-        int version = fontAndParagraph?.GetVersion() ?? -1;
         if (layout == null)
         {
             modelComponent.Model = null;
             lastLayout = null;
-            lastVersion = -1;
         }
-        else if (!ReferenceEquals(layout, lastLayout) || version != lastVersion
-            || extrudeAmount != lastExtrude || !ReferenceEquals(material, lastMaterial))
+        else
         {
-            model.TextLayout = layout;
-            model.ExtrudeAmount = extrudeAmount;
-            model.MaterialInstance.Material = material;
-            modelComponent.Model = Text3dModelBuilder.Build(model, services.Game);
-            lastLayout = layout;
-            lastVersion = version;
-            lastExtrude = extrudeAmount;
-            lastMaterial = material;
+            var hashCode = new HashCode();
+            hashCode.Add(layout); hashCode.Add(fontAndParagraph!.GetVersion());
+            hashCode.Add(extrudeAmount); hashCode.Add(extrudeOrigin);
+            hashCode.Add(flatteningTolerance); hashCode.Add(smoothingAngle);
+            hashCode.Add(material);
+            int hash = hashCode.ToHashCode();
+            if (!ReferenceEquals(layout, lastLayout) || hash != lastHash)
+            {
+                model.TextLayout = layout;
+                model.ExtrudeAmount = extrudeAmount;
+                model.ExtrudeOrigin = extrudeOrigin;
+                model.FlatteningTolerance = flatteningTolerance;
+                model.SmoothingAngle = smoothingAngle;
+                model.MaterialInstance.Material = material;
+                modelComponent.Model = Text3dModelBuilder.Build(model, services.Game);
+                lastLayout = layout;
+                lastHash = hash;
+            }
         }
         Text3dModelBuilder.ApplyTransformation(entity, transformation);
         Text3dModelBuilder.SyncComponents(entity, modelComponent, ref lastComponents, components);
         Text3dModelBuilder.SyncChildren(entity, ref lastChildren, children);
         modelComponent.IsShadowCaster = isShadowCaster;
         modelComponent.Enabled = enabled;
+        entity.Name = name;
         output = entity;
     }
 

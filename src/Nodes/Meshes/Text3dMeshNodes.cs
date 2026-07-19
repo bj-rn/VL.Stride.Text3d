@@ -8,6 +8,7 @@ using VL.Core.Import;
 using VL.Lib.Text;
 using VL.Stride.Text3d.Core;
 using VL.Stride.Text3d.Nodes.Models;
+using ExtrudeOrigin = VL.Stride.Text3d.Enums.ExtrudeOrigin;
 using ParagraphAlignment = VL.Stride.Text3d.Enums.ParagraphAlignment;
 using TextAlignment = VL.Stride.Text3d.Enums.TextAlignment;
 
@@ -31,9 +32,16 @@ public class Text3dMesh : IDisposable
         string text = "hello world", FontList? font = null, int fontSize = 32,
         TextAlignment textAlignment = TextAlignment.Leading,
         ParagraphAlignment paragraphAlignment = ParagraphAlignment.Near,
-        float extrudeAmount = 1f)
+        float extrudeAmount = 1f, ExtrudeOrigin extrudeOrigin = ExtrudeOrigin.Center,
+        float flatteningTolerance = Core.Extruder.DefaultFlatteningTolerance,
+        float smoothingAngle = Core.Extruder.DefaultSmoothingAngle)
     {
-        int hash = HashCode.Combine(text, font?.Value, fontSize, textAlignment, paragraphAlignment, extrudeAmount);
+        var hashCode = new HashCode();
+        hashCode.Add(text); hashCode.Add(font?.Value); hashCode.Add(fontSize);
+        hashCode.Add(textAlignment); hashCode.Add(paragraphAlignment);
+        hashCode.Add(extrudeAmount); hashCode.Add(extrudeOrigin);
+        hashCode.Add(flatteningTolerance); hashCode.Add(smoothingAngle);
+        int hash = hashCode.ToHashCode();
         if (hash != lastHash || mesh == null)
         {
             model.Text = text ?? "";
@@ -42,6 +50,9 @@ public class Text3dMesh : IDisposable
             model.HorizontalAlignment = textAlignment;
             model.VerticalAlignment = paragraphAlignment;
             model.ExtrudeAmount = extrudeAmount;
+            model.ExtrudeOrigin = extrudeOrigin;
+            model.FlatteningTolerance = flatteningTolerance;
+            model.SmoothingAngle = smoothingAngle;
             var strideModel = Text3dModelBuilder.Build(model, services.Game);
             mesh = strideModel.Meshes.Count > 0 ? strideModel.Meshes[0] : null;
             lastHash = hash;
@@ -60,8 +71,7 @@ public class Text3dMeshAdvanced : IDisposable
     private readonly Text3dAdvancedModel model = new();
     private Mesh? mesh;
     private TextLayoutHandle? lastLayout;
-    private int lastVersion = -1;
-    private float lastExtrude = float.NaN;
+    private int lastHash;
 
     public Text3dMeshAdvanced(NodeContext nodeContext)
     {
@@ -69,25 +79,36 @@ public class Text3dMeshAdvanced : IDisposable
     }
 
     public void Update(out Mesh? output,
-        FontAndParagraph? fontAndParagraph = null, float extrudeAmount = 1f)
+        FontAndParagraph? fontAndParagraph = null, float extrudeAmount = 1f,
+        ExtrudeOrigin extrudeOrigin = ExtrudeOrigin.Center,
+        float flatteningTolerance = Core.Extruder.DefaultFlatteningTolerance,
+        float smoothingAngle = Core.Extruder.DefaultSmoothingAngle)
     {
         var layout = fontAndParagraph?.GetTextLayout();
-        int version = fontAndParagraph?.GetVersion() ?? -1;
         if (layout == null)
         {
             mesh = null;
             lastLayout = null;
-            lastVersion = -1;
         }
-        else if (!ReferenceEquals(layout, lastLayout) || version != lastVersion || extrudeAmount != lastExtrude)
+        else
         {
-            model.TextLayout = layout;
-            model.ExtrudeAmount = extrudeAmount;
-            var strideModel = Text3dModelBuilder.Build(model, services.Game);
-            mesh = strideModel.Meshes.Count > 0 ? strideModel.Meshes[0] : null;
-            lastLayout = layout;
-            lastVersion = version;
-            lastExtrude = extrudeAmount;
+            var hashCode = new HashCode();
+            hashCode.Add(layout); hashCode.Add(fontAndParagraph!.GetVersion());
+            hashCode.Add(extrudeAmount); hashCode.Add(extrudeOrigin);
+            hashCode.Add(flatteningTolerance); hashCode.Add(smoothingAngle);
+            int hash = hashCode.ToHashCode();
+            if (!ReferenceEquals(layout, lastLayout) || hash != lastHash)
+            {
+                model.TextLayout = layout;
+                model.ExtrudeAmount = extrudeAmount;
+                model.ExtrudeOrigin = extrudeOrigin;
+                model.FlatteningTolerance = flatteningTolerance;
+                model.SmoothingAngle = smoothingAngle;
+                var strideModel = Text3dModelBuilder.Build(model, services.Game);
+                mesh = strideModel.Meshes.Count > 0 ? strideModel.Meshes[0] : null;
+                lastLayout = layout;
+                lastHash = hash;
+            }
         }
         output = mesh;
     }

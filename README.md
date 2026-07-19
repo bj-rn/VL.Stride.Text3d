@@ -35,6 +35,18 @@ For 2021.4
 Try it with vvvv, the visual live-programming environment for .NET
 Download: http://visualprogramming.net
 
+## Changes in 2.2
+
+- New pins on the Text3d/Text3dMesh nodes (defaults reproduce the previous behavior
+  exactly):
+  - `Extrude Origin` (Center/Front/Back) — where the mesh sits relative to Z = 0.
+  - `Flattening Tolerance` (default 0.1) — curve quality of the outlines; smaller
+    values give finer curves and more vertices.
+  - `Smoothing Angle` (default 60°) — side-wall edges sharper than this stay hard,
+    flatter ones are shaded smooth.
+- The entity nodes regained the `Name` pin.
+- All enum members now carry tooltips.
+
 ## Changes in 2.1
 
 - Side-wall lighting corrected: the extrusion's side walls now use the true outward
@@ -57,6 +69,26 @@ Download: http://visualprogramming.net
 - The advanced nodes no longer accept a raw SharpDX `TextLayout`; build layouts with
   `FontAndParagraph`.
 - Empty text no longer throws, it yields an empty mesh.
+
+## Maintenance notes
+
+The 2.x package is version-coupled to what vvvv bundles:
+
+| this library | vvvv gamma | Silk.NET | Stride |
+|---|---|---|---|
+| 2.x | 7.4 | 2.22.0 (exact pin) | 4.2.1.2487 |
+
+When vvvv updates its bundled Silk.NET or Stride, this package needs a matching
+release: bump `Silk.NET.Direct2D` (exact `[x.y.z]` pin) and the `Stride.*` versions in
+`src/VL.Stride.Text3d.csproj` plus the nuspec dependency, rebuild, and run the test
+suite. Two things to preserve when touching the interop:
+
+- Never use Silk.NET's managed-`String` overloads for DirectWrite calls — they marshal
+  the WCHAR parameters with the wrong encoding (silent font fallback, intermittent
+  E_INVALIDARG). Always pass pinned UTF-16 `char*` (see `src/Interop/Native.cs`).
+- The vertex-output regression fixtures in `tests/baselines` are font/machine-dependent
+  (DirectWrite output varies with installed font versions). After moving to a new
+  machine, regenerate them once with `REGENERATE_BASELINES=1 dotnet test`.
 
 ---
 ### License

@@ -53,7 +53,9 @@ namespace VL.Stride.Text3d.Core;
 public sealed unsafe partial class ExtrudingSink : ID2D1SimplifiedGeometrySinkCallback, ID2D1TessellationSinkCallback
 {
     private readonly List<VertexPositionNormalTexture> vertices;
-    private readonly float m_height;
+    private readonly float zFront;
+    private readonly float zBack;
+    private readonly float smoothingThreshold;
     private readonly Vector2 min;
     private readonly Vector2 max;
 
@@ -68,10 +70,17 @@ public sealed unsafe partial class ExtrudingSink : ID2D1SimplifiedGeometrySinkCa
 
     private readonly List<Vertex2D> m_figureVertices = new();
 
-    public ExtrudingSink(List<VertexPositionNormalTexture> vertices, float height, Vector2 min, Vector2 max)
+    /// <param name="zFront">Z of the front face (was +height/2 in the original).</param>
+    /// <param name="zBack">Z of the back face (was -height/2 in the original).</param>
+    /// <param name="smoothingThreshold">Adjacent edge normals are averaged when their dot
+    /// product exceeds this (cos of the smoothing angle; the original hard-coded 0.5).</param>
+    public ExtrudingSink(List<VertexPositionNormalTexture> vertices, float zFront, float zBack,
+        float smoothingThreshold, Vector2 min, Vector2 max)
     {
         this.vertices = vertices;
-        this.m_height = height;
+        this.zFront = zFront;
+        this.zBack = zBack;
+        this.smoothingThreshold = smoothingThreshold;
         this.min = min;
         this.max = max;
     }
@@ -166,7 +175,7 @@ public sealed unsafe partial class ExtrudingSink : ID2D1SimplifiedGeometrySinkCa
 
                 Vertex2D v = m_figureVertices[i];
 
-                if ((n1.X * n2.X + n1.Y * n2.Y) > .5f)
+                if ((n1.X * n2.X + n1.Y * n2.Y) > smoothingThreshold)
                 {
                     Vector2 sum = m_figureVertices[i].norm + m_figureVertices[h].norm;
                     v.inter1 = Vector2.Normalize(sum);
@@ -194,13 +203,13 @@ public sealed unsafe partial class ExtrudingSink : ID2D1SimplifiedGeometrySinkCa
                 Vector2 uv = m_figureVertices[i].uv;
                 Vector2 nextUV = m_figureVertices[j].uv;
 
-                vertices.Add(new VertexPositionNormalTexture { Position = new Vector3(pt.X, pt.Y, m_height / 2), Normal = new Vector3(ptNorm3.X, ptNorm3.Y, 0.0f), TextureCoordinate = uv });
-                vertices.Add(new VertexPositionNormalTexture { Position = new Vector3(nextPt.X, nextPt.Y, -m_height / 2), Normal = new Vector3(nextPtNorm2.X, nextPtNorm2.Y, 0.0f), TextureCoordinate = nextUV });
-                vertices.Add(new VertexPositionNormalTexture { Position = new Vector3(pt.X, pt.Y, -m_height / 2), Normal = new Vector3(ptNorm3.X, ptNorm3.Y, 0.0f), TextureCoordinate = uv });
+                vertices.Add(new VertexPositionNormalTexture { Position = new Vector3(pt.X, pt.Y, zFront), Normal = new Vector3(ptNorm3.X, ptNorm3.Y, 0.0f), TextureCoordinate = uv });
+                vertices.Add(new VertexPositionNormalTexture { Position = new Vector3(nextPt.X, nextPt.Y, zBack), Normal = new Vector3(nextPtNorm2.X, nextPtNorm2.Y, 0.0f), TextureCoordinate = nextUV });
+                vertices.Add(new VertexPositionNormalTexture { Position = new Vector3(pt.X, pt.Y, zBack), Normal = new Vector3(ptNorm3.X, ptNorm3.Y, 0.0f), TextureCoordinate = uv });
 
-                vertices.Add(new VertexPositionNormalTexture { Position = new Vector3(nextPt.X, nextPt.Y, -m_height / 2), Normal = new Vector3(nextPtNorm2.X, nextPtNorm2.Y, 0.0f), TextureCoordinate = nextUV });
-                vertices.Add(new VertexPositionNormalTexture { Position = new Vector3(pt.X, pt.Y, m_height / 2), Normal = new Vector3(ptNorm3.X, ptNorm3.Y, 0.0f), TextureCoordinate = uv });
-                vertices.Add(new VertexPositionNormalTexture { Position = new Vector3(nextPt.X, nextPt.Y, m_height / 2), Normal = new Vector3(nextPtNorm2.X, nextPtNorm2.Y, 0.0f), TextureCoordinate = nextUV });
+                vertices.Add(new VertexPositionNormalTexture { Position = new Vector3(nextPt.X, nextPt.Y, zBack), Normal = new Vector3(nextPtNorm2.X, nextPtNorm2.Y, 0.0f), TextureCoordinate = nextUV });
+                vertices.Add(new VertexPositionNormalTexture { Position = new Vector3(pt.X, pt.Y, zFront), Normal = new Vector3(ptNorm3.X, ptNorm3.Y, 0.0f), TextureCoordinate = uv });
+                vertices.Add(new VertexPositionNormalTexture { Position = new Vector3(nextPt.X, nextPt.Y, zFront), Normal = new Vector3(nextPtNorm2.X, nextPtNorm2.Y, 0.0f), TextureCoordinate = nextUV });
             }
         }
     }
@@ -219,13 +228,13 @@ public sealed unsafe partial class ExtrudingSink : ID2D1SimplifiedGeometrySinkCa
             float p2x = tri.Point2.X, p2y = tri.Point2.Y;
             float p3x = tri.Point3.X, p3y = tri.Point3.Y;
 
-            vertices.Add(new VertexPositionNormalTexture { Position = new Vector3(p1x, p1y, m_height / 2), Normal = new Vector3(0.0f, 0.0f, 1.0f), TextureCoordinate = GetUV(p1x, p1y) });
-            vertices.Add(new VertexPositionNormalTexture { Position = new Vector3(p3x, p3y, m_height / 2), Normal = new Vector3(0.0f, 0.0f, 1.0f), TextureCoordinate = GetUV(p3x, p3y) });
-            vertices.Add(new VertexPositionNormalTexture { Position = new Vector3(p2x, p2y, m_height / 2), Normal = new Vector3(0.0f, 0.0f, 1.0f), TextureCoordinate = GetUV(p2x, p2y) });
+            vertices.Add(new VertexPositionNormalTexture { Position = new Vector3(p1x, p1y, zFront), Normal = new Vector3(0.0f, 0.0f, 1.0f), TextureCoordinate = GetUV(p1x, p1y) });
+            vertices.Add(new VertexPositionNormalTexture { Position = new Vector3(p3x, p3y, zFront), Normal = new Vector3(0.0f, 0.0f, 1.0f), TextureCoordinate = GetUV(p3x, p3y) });
+            vertices.Add(new VertexPositionNormalTexture { Position = new Vector3(p2x, p2y, zFront), Normal = new Vector3(0.0f, 0.0f, 1.0f), TextureCoordinate = GetUV(p2x, p2y) });
 
-            vertices.Add(new VertexPositionNormalTexture { Position = new Vector3(p2x, p2y, -m_height / 2), Normal = new Vector3(0.0f, 0.0f, -1.0f), TextureCoordinate = GetUV(p2x, p2y) });
-            vertices.Add(new VertexPositionNormalTexture { Position = new Vector3(p3x, p3y, -m_height / 2), Normal = new Vector3(0.0f, 0.0f, -1.0f), TextureCoordinate = GetUV(p3x, p3y) });
-            vertices.Add(new VertexPositionNormalTexture { Position = new Vector3(p1x, p1y, -m_height / 2), Normal = new Vector3(0.0f, 0.0f, -1.0f), TextureCoordinate = GetUV(p1x, p1y) });
+            vertices.Add(new VertexPositionNormalTexture { Position = new Vector3(p2x, p2y, zBack), Normal = new Vector3(0.0f, 0.0f, -1.0f), TextureCoordinate = GetUV(p2x, p2y) });
+            vertices.Add(new VertexPositionNormalTexture { Position = new Vector3(p3x, p3y, zBack), Normal = new Vector3(0.0f, 0.0f, -1.0f), TextureCoordinate = GetUV(p3x, p3y) });
+            vertices.Add(new VertexPositionNormalTexture { Position = new Vector3(p1x, p1y, zBack), Normal = new Vector3(0.0f, 0.0f, -1.0f), TextureCoordinate = GetUV(p1x, p1y) });
         }
     }
 }

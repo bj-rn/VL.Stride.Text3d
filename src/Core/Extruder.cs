@@ -41,13 +41,19 @@ using Silk.NET.Maths;
 using VL.Stride.Text3d.Interop;
 using static VL.Stride.Text3d.Interop.ComCallbackHelper;
 using Stride.Graphics;
+using VL.Stride.Text3d.Enums;
 using Vector2 = Stride.Core.Mathematics.Vector2;
 
 namespace VL.Stride.Text3d.Core;
 
 public sealed unsafe class Extruder
 {
-    private const float FlatteningTolerance = .1f;
+    /// <summary>Default outline flattening tolerance (as the original implementation).</summary>
+    public const float DefaultFlatteningTolerance = .1f;
+
+    /// <summary>Default smoothing angle in degrees; cos(60°) = 0.5 matches the original threshold.</summary>
+    public const float DefaultSmoothingAngle = 60f;
+
     private const float D2DDefaultFlatteningTolerance = 0.25f;
 
     private readonly ID2D1Factory* factory;
@@ -87,7 +93,11 @@ public sealed unsafe class Extruder
         return path;
     }
 
-    public void GetVertices(ID2D1Geometry* geometry, List<VertexPositionNormalTexture> vertices, float height = 24.0f)
+    public void GetVertices(ID2D1Geometry* geometry, List<VertexPositionNormalTexture> vertices,
+        float height = 24.0f,
+        ExtrudeOrigin origin = ExtrudeOrigin.Center,
+        float flatteningTolerance = DefaultFlatteningTolerance,
+        float smoothingAngle = DefaultSmoothingAngle)
     {
         vertices.Clear();
 
@@ -101,7 +111,20 @@ public sealed unsafe class Extruder
             return;
         }
 
-        ID2D1PathGeometry* flattened = FlattenGeometry(geometry, FlatteningTolerance);
+        // D2D requires a positive tolerance
+        flatteningTolerance = Math.Max(flatteningTolerance, 1e-4f);
+
+        // cos of the smoothing angle; computed in double so 60° yields exactly 0.5f
+        float smoothingThreshold = (float)Math.Cos(Math.Clamp(smoothingAngle, 0f, 180f) * Math.PI / 180.0);
+
+        var (zFront, zBack) = origin switch
+        {
+            ExtrudeOrigin.Front => (0f, -height),
+            ExtrudeOrigin.Back => (height, 0f),
+            _ => (height / 2, -height / 2),
+        };
+
+        ID2D1PathGeometry* flattened = FlattenGeometry(geometry, flatteningTolerance);
         ID2D1PathGeometry* outlined = OutlineGeometry((ID2D1Geometry*)flattened);
 
         Box2D<float> bounds = default;
@@ -111,7 +134,7 @@ public sealed unsafe class Extruder
         var min = new Vector2(bounds.Min.X, bounds.Max.Y);
         var max = new Vector2(bounds.Max.X, bounds.Min.Y);
 
-        var sink = new ExtrudingSink(vertices, height, min, max);
+        var sink = new ExtrudingSink(vertices, zFront, zBack, smoothingThreshold, min, max);
         var simplifiedPtr = (ID2D1SimplifiedGeometrySink*)GetComPointer(sink, typeof(ID2D1SimplifiedGeometrySinkCallback).GUID);
         var tessellationPtr = (ID2D1TessellationSink*)GetComPointer(sink, typeof(ID2D1TessellationSinkCallback).GUID);
         try

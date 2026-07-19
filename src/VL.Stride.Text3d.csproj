@@ -5,7 +5,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>2.1.0</Version>
+    <Version>2.2.0</Version>
     <Authors>bj-rn</Authors>
     <PackageProjectUrl>https://github.com/bj-rn/VL.Stride.Text3d</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>

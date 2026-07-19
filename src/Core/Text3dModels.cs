@@ -16,6 +16,7 @@ using SilkTextAlignment = Silk.NET.DirectWrite.TextAlignment;
 using SilkWordWrapping = Silk.NET.DirectWrite.WordWrapping;
 using TextAlignment = VL.Stride.Text3d.Enums.TextAlignment;
 using ParagraphAlignment = VL.Stride.Text3d.Enums.ParagraphAlignment;
+using ExtrudeOrigin = VL.Stride.Text3d.Enums.ExtrudeOrigin;
 
 namespace VL.Stride.Text3d.Core;
 
@@ -24,6 +25,15 @@ public abstract unsafe class Text3dBase : PrimitiveProceduralModelBase
     protected readonly List<VertexPositionNormalTexture> vertexList = new(1024);
 
     public float ExtrudeAmount { get; set; } = 1.0f;
+
+    /// <summary>Where the extruded mesh sits relative to Z = 0.</summary>
+    public ExtrudeOrigin ExtrudeOrigin { get; set; } = ExtrudeOrigin.Center;
+
+    /// <summary>Maximum outline flattening deviation; smaller values yield finer curves (and more vertices).</summary>
+    public float FlatteningTolerance { get; set; } = Extruder.DefaultFlatteningTolerance;
+
+    /// <summary>Side-wall edges sharper than this angle (degrees) stay hard; flatter ones are smoothed.</summary>
+    public float SmoothingAngle { get; set; } = Extruder.DefaultSmoothingAngle;
 
     protected static int[] GetDefaultIndicesArray(int size)
     {
@@ -44,7 +54,7 @@ public abstract unsafe class Text3dBase : PrimitiveProceduralModelBase
 
             var geometry = renderer.GetGeometry();
             var extruder = new Extruder(Native.D2DFactory);
-            extruder.GetVertices(geometry, vertexList, ExtrudeAmount);
+            extruder.GetVertices(geometry, vertexList, ExtrudeAmount, ExtrudeOrigin, FlatteningTolerance, SmoothingAngle);
             if (geometry != null)
                 geometry->Release();
         }
