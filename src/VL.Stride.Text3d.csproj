@@ -1,13 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-    <OutputPath>..\lib</OutputPath> 
-    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <TargetFramework>net8.0</TargetFramework>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Version>2.0.0</Version>
     <Authors>bj-rn</Authors>
     <PackageProjectUrl>https://github.com/bj-rn/VL.Stride.Text3d</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <OutputPath>..\lib\net8.0\</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,13 +22,22 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="SharpDX" Version="4.2.0" />
-    <PackageReference Include="SharpDX.Direct2D1" Version="4.2.0" />
-    <PackageReference Include="SharpDX.DXGI" Version="4.2.0" />
-    <PackageReference Include="SharpDX.Mathematics" Version="4.2.0" />
-    <PackageReference Include="Stride.Core.Mathematics" Version="4.1.0.1734" />
-    <PackageReference Include="Stride.Graphics" Version="4.1.0.1734" />
-    <PackageReference Include="Stride.Rendering" Version="4.1.0.1734" />
+    <!-- Pinned exactly: must match the Silk.NET family bundled with vvvv gamma 7.4 -->
+    <PackageReference Include="Silk.NET.Direct2D" Version="[2.22.0]" GeneratePathProperty="true" />
+    <PackageReference Include="Stride.Core.Mathematics" Version="4.2.1.2487" />
+    <PackageReference Include="Stride.Graphics" Version="4.2.1.2487" />
+    <PackageReference Include="Stride.Rendering" Version="4.2.1.2487" />
   </ItemGroup>
+
+  <!--
+    vvvv 7.4 bundles Silk.NET.Core 2.22.0 but NOT Silk.NET.Direct2D, so the binding
+    assembly must sit next to VL.Stride.Text3d.dll for source-repository development
+    (NuGet installs additionally get it via the nuspec dependency).
+  -->
+  <Target Name="CopySilkDirect2D" AfterTargets="Build">
+    <Copy SourceFiles="$(PkgSilk_NET_Direct2D)\lib\net5.0\Silk.NET.Direct2D.dll"
+          DestinationFolder="$(OutputPath)"
+          SkipUnchangedFiles="true" />
+  </Target>
 
 </Project>

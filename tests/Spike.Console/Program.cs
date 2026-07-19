@@ -1,14 +1,16 @@
-// Phase 1 spike runner: rebuilds the Phase 0 test matrix through the Silk.NET pipeline
-// and compares vertex output against tests/baselines fixtures.
+// Parity harness: rebuilds the Phase 0 test matrix through the library's Core classes
+// (src/, Silk.NET port) and compares vertex output against tests/baselines fixtures.
 //
 //   dotnet run -- compare   (default) per-case count + epsilon comparison
-//   dotnet run -- leak      1000 iterations of the default case, working-set report
+//   dotnet run -- leak      3000 iterations, steady-state working-set report
 
+using System.Reflection;
 using System.Text.Json;
-using Spike;
 using Stride.Graphics;
-using TextAlignment = Silk.NET.DirectWrite.TextAlignment;
-using ParagraphAlignment = Silk.NET.DirectWrite.ParagraphAlignment;
+using VL.Stride.Text3d.Core;
+using VL.Stride.Text3d.Interop;
+using TextAlignment = VL.Stride.Text3d.Enums.TextAlignment;
+using ParagraphAlignment = VL.Stride.Text3d.Enums.ParagraphAlignment;
 
 const string RtlText = "مرحبا";
 const float Epsilon = 1e-5f;
@@ -22,36 +24,17 @@ if (leakMode)
     return 0;
 }
 
-if (args.Length > 0 && args[0].Equals("diag", StringComparison.OrdinalIgnoreCase))
+var cases = new (string Name, Func<VertexPositionNormalTexture[]> Run)[]
 {
-    // Bounds diagnostic: compare position ranges, baseline vs port, for one case.
-    float[] b = ReadFloats(Path.Combine(baselineDir, "simple-default.bin"));
-    PrintBounds("baseline simple-default", Enumerable.Range(0, b.Length / 8)
-        .Select(i => (b[i * 8], b[i * 8 + 1], b[i * 8 + 2])));
-    var mine = SilkText3dPipeline.BuildSimple("vvvv", "Arial", 32, TextAlignment.Leading, ParagraphAlignment.Near, 1f);
-    PrintBounds("port     simple-default", mine.Select(v => (v.Position.X, v.Position.Y, v.Position.Z)));
-    return 0;
-
-    static void PrintBounds(string label, IEnumerable<(float X, float Y, float Z)> pts)
-    {
-        float minX = float.MaxValue, minY = float.MaxValue, maxX = float.MinValue, maxY = float.MinValue;
-        int n = 0;
-        foreach (var p in pts) { n++; minX = Math.Min(minX, p.X); minY = Math.Min(minY, p.Y); maxX = Math.Max(maxX, p.X); maxY = Math.Max(maxY, p.Y); }
-        Console.WriteLine($"{label}: {n} verts, X [{minX:G9} .. {maxX:G9}], Y [{minY:G9} .. {maxY:G9}]");
-    }
-}
-
-var cases = new (string Name, Func<List<VertexPositionNormalTexture>> Run)[]
-{
-    ("simple-default", () => SilkText3dPipeline.BuildSimple("vvvv", "Arial", 32, TextAlignment.Leading, ParagraphAlignment.Near, 1f)),
-    ("multiline-center-far", () => SilkText3dPipeline.BuildSimple("line1\nline2", "Arial", 32, TextAlignment.Center, ParagraphAlignment.Far, 1f)),
-    ("times-size8", () => SilkText3dPipeline.BuildSimple("vvvv", "Times New Roman", 8, TextAlignment.Leading, ParagraphAlignment.Near, 1f)),
-    ("times-size128", () => SilkText3dPipeline.BuildSimple("vvvv", "Times New Roman", 128, TextAlignment.Leading, ParagraphAlignment.Near, 1f)),
-    ("extrude0", () => SilkText3dPipeline.BuildSimple("vvvv", "Arial", 32, TextAlignment.Leading, ParagraphAlignment.Near, 0f)),
-    ("extrude24", () => SilkText3dPipeline.BuildSimple("vvvv", "Arial", 32, TextAlignment.Leading, ParagraphAlignment.Near, 24f)),
-    ("rtl", () => SilkText3dPipeline.BuildSimple(RtlText, "Arial", 32, TextAlignment.Leading, ParagraphAlignment.Near, 1f)),
-    ("advanced-underline-strike", () => SilkText3dPipeline.BuildAdvancedUnderlineStrike("Hello World", "Arial", 32, 1f)),
-    ("empty", () => SilkText3dPipeline.BuildSimple("", "Arial", 32, TextAlignment.Leading, ParagraphAlignment.Near, 1f)),
+    ("simple-default", () => BuildSimple("vvvv", "Arial", 32, TextAlignment.Leading, ParagraphAlignment.Near, 1f)),
+    ("multiline-center-far", () => BuildSimple("line1\nline2", "Arial", 32, TextAlignment.Center, ParagraphAlignment.Far, 1f)),
+    ("times-size8", () => BuildSimple("vvvv", "Times New Roman", 8, TextAlignment.Leading, ParagraphAlignment.Near, 1f)),
+    ("times-size128", () => BuildSimple("vvvv", "Times New Roman", 128, TextAlignment.Leading, ParagraphAlignment.Near, 1f)),
+    ("extrude0", () => BuildSimple("vvvv", "Arial", 32, TextAlignment.Leading, ParagraphAlignment.Near, 0f)),
+    ("extrude24", () => BuildSimple("vvvv", "Arial", 32, TextAlignment.Leading, ParagraphAlignment.Near, 24f)),
+    ("rtl", () => BuildSimple(RtlText, "Arial", 32, TextAlignment.Leading, ParagraphAlignment.Near, 1f)),
+    ("advanced-underline-strike", () => BuildAdvancedUnderlineStrike("Hello World", "Arial", 32, 1f)),
+    ("empty", () => BuildSimple("", "Arial", 32, TextAlignment.Leading, ParagraphAlignment.Near, 1f)),
 };
 
 int failures = 0;
@@ -69,7 +52,7 @@ foreach (var (name, run) in cases)
             // intentionally returns a degenerate 3-vertex zero mesh instead.
             var sidecar = JsonDocument.Parse(File.ReadAllText(Path.Combine(baselineDir, name + ".json")));
             string? baselineEx = sidecar.RootElement.GetProperty("exception").GetString();
-            bool degenerate = vertices.Count == 3 && vertices.All(v =>
+            bool degenerate = vertices.Length == 3 && vertices.All(v =>
                 v.Position == default && v.Normal == default && v.TextureCoordinate == default);
             Console.WriteLine($"{name,-28} {(degenerate ? "OK" : "FAIL")}  (baseline threw {baselineEx}; port returns degenerate mesh — intentional change)");
             if (!degenerate) failures++;
@@ -79,16 +62,16 @@ foreach (var (name, run) in cases)
         float[] expected = ReadFloats(binPath);
         int expectedCount = expected.Length / 8;
 
-        if (vertices.Count != expectedCount)
+        if (vertices.Length != expectedCount)
         {
-            Console.WriteLine($"{name,-28} FAIL  vertex count {vertices.Count} != baseline {expectedCount}");
+            Console.WriteLine($"{name,-28} FAIL  vertex count {vertices.Length} != baseline {expectedCount}");
             failures++;
             continue;
         }
 
         float maxDiff = 0f;
         int diffIndex = -1;
-        for (int i = 0; i < vertices.Count; i++)
+        for (int i = 0; i < vertices.Length; i++)
         {
             var v = vertices[i];
             actual[0] = v.Position.X; actual[1] = v.Position.Y; actual[2] = v.Position.Z;
@@ -102,7 +85,7 @@ foreach (var (name, run) in cases)
         }
 
         bool ok = maxDiff <= Epsilon;
-        Console.WriteLine($"{name,-28} {(ok ? "OK" : "FAIL")}  ({vertices.Count} vertices, max component diff {maxDiff:E2}{(diffIndex >= 0 ? $" @v{diffIndex}" : "")})");
+        Console.WriteLine($"{name,-28} {(ok ? "OK" : "FAIL")}  ({vertices.Length} vertices, max component diff {maxDiff:E2}{(diffIndex >= 0 ? $" @v{diffIndex}" : "")})");
         if (!ok) failures++;
     }
     catch (Exception e)
@@ -114,6 +97,48 @@ foreach (var (name, run) in cases)
 
 Console.WriteLine(failures == 0 ? "COMPARE PASSED" : $"COMPARE FAILED ({failures} case(s))");
 return failures == 0 ? 0 : 1;
+
+static VertexPositionNormalTexture[] BuildSimple(
+    string text, string font, int fontSize,
+    TextAlignment textAlignment, ParagraphAlignment paragraphAlignment, float extrude)
+{
+    var model = new Text3dModel
+    {
+        Text = text, Font = font, FontSize = fontSize,
+        HorizontalAlignment = textAlignment, VerticalAlignment = paragraphAlignment,
+        ExtrudeAmount = extrude,
+    };
+    return CreateMeshVertices(model);
+}
+
+static unsafe VertexPositionNormalTexture[] BuildAdvancedUnderlineStrike(
+    string text, string font, float fontSize, float extrude)
+{
+    var fmt = Native.CreateTextFormat(font, fontSize);
+    var layout = Native.CreateTextLayout(text, fmt, 0.0f, 32.0f);
+    fmt->Release();
+
+    layout->SetWordWrapping(Silk.NET.DirectWrite.WordWrapping.NoWrap);
+    layout->SetUnderline(true, new Silk.NET.DirectWrite.TextRange { StartPosition = 0, Length = 5 });
+    layout->SetStrikethrough(true, new Silk.NET.DirectWrite.TextRange { StartPosition = 6, Length = 5 });
+
+    using var handle = TextLayoutHandle.FromPointer((nint)layout, addRef: false);
+    var model = new Text3dAdvancedModel { TextLayout = handle, ExtrudeAmount = extrude };
+    return CreateMeshVertices(model);
+}
+
+static VertexPositionNormalTexture[] CreateMeshVertices(Text3dBase model)
+{
+    // CreatePrimitiveMeshData is protected in PrimitiveProceduralModelBase.
+    var method = model.GetType().GetMethod("CreatePrimitiveMeshData",
+        BindingFlags.Instance | BindingFlags.NonPublic)
+        ?? throw new MissingMethodException(model.GetType().Name, "CreatePrimitiveMeshData");
+    object meshData = method.Invoke(model, null)
+        ?? throw new InvalidOperationException("CreatePrimitiveMeshData returned null");
+    var vertices = (VertexPositionNormalTexture[]?)meshData.GetType().GetProperty("Vertices")!.GetValue(meshData)
+        ?? throw new InvalidOperationException("GeometricMeshData.Vertices is null");
+    return vertices;
+}
 
 static float[] ReadFloats(string path)
 {
@@ -127,17 +152,16 @@ static void RunLeakTest()
 {
     // Warm-up
     for (int i = 0; i < 10; i++)
-        SilkText3dPipeline.BuildSimple("vvvv", "Arial", 32, TextAlignment.Leading, ParagraphAlignment.Near, 1f);
+        BuildSimple("vvvv", "Arial", 32, TextAlignment.Leading, ParagraphAlignment.Near, 1f);
     GC.Collect(); GC.WaitForPendingFinalizers(); GC.Collect();
-    long start = Environment.WorkingSet;
-    Console.WriteLine($"working set after warm-up: {start / 1024 / 1024.0:F1} MB");
+    Console.WriteLine($"working set after warm-up: {Environment.WorkingSet / 1024 / 1024.0:F1} MB");
 
     // First iterations grow the heap and native glyph/geometry caches; the leak
     // criterion is steady-state growth AFTER that settling window.
     long settled = 0;
     for (int i = 1; i <= 3000; i++)
     {
-        SilkText3dPipeline.BuildSimple("vvvv", "Arial", 32, TextAlignment.Leading, ParagraphAlignment.Near, 1f);
+        BuildSimple("vvvv", "Arial", 32, TextAlignment.Leading, ParagraphAlignment.Near, 1f);
         if (i % 500 == 0)
         {
             GC.Collect(); GC.WaitForPendingFinalizers(); GC.Collect();

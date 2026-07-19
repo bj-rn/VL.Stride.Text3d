@@ -1,11 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <!--
-    Phase 1 interop spike: proves that managed COM callbacks (IDWriteTextRenderer,
-    ID2D1SimplifiedGeometrySink, ID2D1TessellationSink) implemented with .NET 8
-    source-generated COM drive the Silk.NET 2.22.0 D2D/DWrite pipeline and reproduce
-    the Phase 0 baseline fixtures. The interop code written here graduates into src/
-    in Phase 2.
+    Phase 1/2 parity harness: drives the library's Core classes and compares vertex
+    output against the Phase 0 SharpDX baselines in ..\baselines. The interop it
+    originally spiked now lives in src\ (referenced below).
   -->
 
   <PropertyGroup>
@@ -17,10 +15,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Silk.NET.Direct2D" Version="[2.22.0]" />
-    <PackageReference Include="Stride.Core.Mathematics" Version="4.2.1.2487" />
-    <PackageReference Include="Stride.Graphics" Version="4.2.1.2487" />
-    <PackageReference Include="Stride.Rendering" Version="4.2.1.2487" />
+    <ProjectReference Include="..\..\src\VL.Stride.Text3d.csproj" />
   </ItemGroup>
 
 </Project>
