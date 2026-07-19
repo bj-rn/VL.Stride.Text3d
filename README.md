@@ -39,7 +39,7 @@ Download: http://visualprogramming.net
 
 - Requires vvvv gamma ≥ 7.4 (net8.0); the SharpDX dependency is gone.
 - All node definitions moved from the VL document into the C# assembly. Existing
-  patches will show the Text3d nodes red once — re-pick them via the node browser
+  patches will show the Text3d nodes red once, re-pick them via the node browser
   (names, categories and pins are unchanged).
 - The enum types (TextAlignment, FontWeight, …) are now defined by the library itself.
   Member names are unchanged, but enum IOBoxes must be re-created once.
@@ -49,11 +49,9 @@ Download: http://visualprogramming.net
 - Removed: `Text3dMesh (Async)` (was obsolete) and the internal `Services` node.
 - The advanced nodes no longer accept a raw SharpDX `TextLayout`; build layouts with
   `FontAndParagraph`.
-- Empty text no longer throws — it yields an empty mesh.
+- Empty text no longer throws, it yields an empty mesh.
 
 ---
 ### License
 
 ### [MIT](https://github.com/bj-rn/VL.Stride.Text3d/blob/master/LICENSE)
----
-[Support me on Ko-fi](https://ko-fi.com/Q5Q61EQB8X)
