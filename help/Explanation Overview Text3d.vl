@@ -1388,10 +1388,14 @@
               <Choice Kind="TypeFlag" Name="Float32" />
             </p:TypeAnnotation>
           </Pad>
-          <Pad Id="Vs64feEuuoMP4awuVOXaHH" Comment="Smoothing Angle" Bounds="693,530,35,15" ShowValueBox="true" isIOBox="true" Value="60">
+          <Pad Id="Vs64feEuuoMP4awuVOXaHH" Comment="Smoothing Angle" Bounds="693,530,46,15" ShowValueBox="true" isIOBox="true" Value="0.16666667">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="Float32" />
             </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:precision p:Type="Int32">4</p:precision>
+              <p:stepsize p:Type="Single">0.01</p:stepsize>
+            </p:ValueBoxSettings>
           </Pad>
           <ControlPoint Id="D296A6DKep7O7OzktCao3l" Bounds="504,699" />
           <Pad Id="UZ4AclKUwAvPqMNwjWBph1" Comment="Extrude Origin" Bounds="343,450,60,15" ShowValueBox="true" isIOBox="true" Value="Center">
@@ -1404,10 +1408,14 @@
               <Choice Kind="TypeFlag" Name="Float32" />
             </p:TypeAnnotation>
           </Pad>
-          <Pad Id="UJI4m9nOikkOUZc8vYabQq" Comment="Smoothing Angle" Bounds="383,510,35,15" ShowValueBox="true" isIOBox="true" Value="60">
+          <Pad Id="UJI4m9nOikkOUZc8vYabQq" Comment="Smoothing Angle" Bounds="383,510,45,15" ShowValueBox="true" isIOBox="true" Value="0.16666667">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="Float32" />
             </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:precision p:Type="Int32">4</p:precision>
+              <p:stepsize p:Type="Single">0.01</p:stepsize>
+            </p:ValueBoxSettings>
           </Pad>
         </Canvas>
         <Patch Id="U4ViQdtKCaPPfMAai5p8bX" Name="Create" />
