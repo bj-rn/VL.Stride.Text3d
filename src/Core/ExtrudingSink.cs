@@ -76,6 +76,9 @@ public sealed unsafe partial class ExtrudingSink : ID2D1SimplifiedGeometrySinkCa
     /// <param name="zBack">Z of the back face (was -height/2 in the original).</param>
     /// <param name="smoothingThreshold">Adjacent edge normals are averaged when their dot
     /// product exceeds this (cos of the smoothing angle; the original hard-coded 0.5).</param>
+    /// <param name="vertices">Receives the generated triangle soup.</param>
+    /// <param name="min">Silhouette bounds corner used for the planar UV projection (left, top).</param>
+    /// <param name="max">Silhouette bounds corner used for the planar UV projection (right, bottom).</param>
     /// <param name="sideUVMapping">How the side walls are UV-mapped; ContourDepthTiled also
     /// switches the caps to absolute density.</param>
     /// <param name="textureScale">Surface distance covered by one texture repeat (ContourDepthTiled only).</param>

@@ -8,7 +8,7 @@
     <owners>bj-rn</owners>
     <license type="expression">MIT</license>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <readme>README.md</readme>
+    <readme>docs\README.md</readme>
     <projectUrl>https://github.com/bj-rn/VL.Stride.Text3d</projectUrl>
     <repository type="git" url="https://github.com/bj-rn/VL.Stride.Text3d.git" />
     <summary>Render 3d text in VL.Stride</summary>
