@@ -1,0 +1,619 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>VL.Stride.Text3d</name>
+    </assembly>
+    <members>
+        <member name="F:VL.Stride.Text3d.Core.Extruder.DefaultFlatteningTolerance">
+            <summary>Default outline flattening tolerance (as the original implementation).</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Core.Extruder.DefaultSmoothingAngle">
+            <summary>Default smoothing angle in cycles (vvvv standard unit; 1/6 = 60°) —
+            its cosine matches the original hard-coded 0.5 threshold.</summary>
+        </member>
+        <member name="M:VL.Stride.Text3d.Core.ExtrudingSink.#ctor(System.Collections.Generic.List{Stride.Graphics.VertexPositionNormalTexture},System.Single,System.Single,System.Single,Stride.Core.Mathematics.Vector2,Stride.Core.Mathematics.Vector2)">
+            <param name="zFront">Z of the front face (was +height/2 in the original).</param>
+            <param name="zBack">Z of the back face (was -height/2 in the original).</param>
+            <param name="smoothingThreshold">Adjacent edge normals are averaged when their dot
+            product exceeds this (cos of the smoothing angle; the original hard-coded 0.5).</param>
+        </member>
+        <member name="M:VL.Stride.Text3d.Core.OutlineRenderer.GetGeometry">
+            <summary>Accumulated geometry (null for empty text). The caller takes ownership.</summary>
+        </member>
+        <member name="M:VL.Stride.Text3d.Core.OutlineRenderer.AddTransformedGeometry(Silk.NET.Direct2D.ID2D1PathGeometry*,System.Single,System.Single)">
+            <summary>Wraps pg in translate(baseline) x scale(1,-1), releases pg, accumulates.</summary>
+        </member>
+        <member name="P:VL.Stride.Text3d.Core.Text3dBase.ExtrudeOrigin">
+            <summary>Where the extruded mesh sits relative to Z = 0.</summary>
+        </member>
+        <member name="P:VL.Stride.Text3d.Core.Text3dBase.FlatteningTolerance">
+            <summary>Maximum outline flattening deviation; smaller values yield finer curves (and more vertices).</summary>
+        </member>
+        <member name="P:VL.Stride.Text3d.Core.Text3dBase.SmoothingAngle">
+            <summary>Side-wall edges sharper than this angle (in cycles, vvvv standard unit) stay hard; flatter ones are smoothed.</summary>
+        </member>
+        <member name="M:VL.Stride.Text3d.Core.Text3dBase.ExtractVertices(Silk.NET.DirectWrite.IDWriteTextLayout*)">
+            <summary>Draws the layout into an OutlineRenderer and extrudes the result into vertexList.</summary>
+        </member>
+        <member name="T:VL.Stride.Text3d.Core.Text3dModel">
+            <summary>Generates an extruded 3D text mesh from simple text/font/alignment settings.</summary>
+        </member>
+        <member name="T:VL.Stride.Text3d.Core.Text3dAdvancedModel">
+            <summary>Generates an extruded 3D text mesh from an externally built text layout.</summary>
+        </member>
+        <member name="T:VL.Stride.Text3d.Core.TextFormatHandle">
+            <summary>Owns a native IDWriteTextFormat reference.</summary>
+        </member>
+        <member name="M:VL.Stride.Text3d.Core.TextFormatHandle.FromPointer(System.IntPtr,System.Boolean)">
+            <summary>Wraps a native pointer. When addRef is false the handle takes over the caller's reference.</summary>
+        </member>
+        <member name="T:VL.Stride.Text3d.Core.TextLayoutHandle">
+            <summary>Owns a native IDWriteTextLayout reference.</summary>
+        </member>
+        <member name="M:VL.Stride.Text3d.Core.TextLayoutHandle.FromPointer(System.IntPtr,System.Boolean)">
+            <summary>Wraps a native pointer. When addRef is false the handle takes over the caller's reference.</summary>
+        </member>
+        <member name="M:VL.Stride.Text3d.Core.TextLayoutHandle.QueryInterface(System.Guid@)">
+            <summary>QIs to a versioned layout interface (e.g. IDWriteTextLayout1/2). Caller must Marshal.Release the result.</summary>
+        </member>
+        <member name="T:VL.Stride.Text3d.Core.ITextStyle">
+            <summary>A styling operation applied to a text range of a layout (see the TextStyles category).</summary>
+        </member>
+        <member name="P:VL.Stride.Text3d.Core.ITextStyle.Version">
+            <summary>Increments whenever any setting of the style changes.</summary>
+        </member>
+        <member name="M:VL.Stride.Text3d.Core.ITextStyle.Apply(VL.Stride.Text3d.Core.TextLayoutHandle)">
+            <summary>Applies the style to the given layout (no-op when disabled).</summary>
+        </member>
+        <member name="M:VL.Stride.Text3d.Core.TextStyleBase.BumpVersion">
+            <summary>Marks the style changed; called by the owning style node when a value changes.</summary>
+        </member>
+        <member name="T:VL.Stride.Text3d.Enums.TextAlignment">
+            <summary>Alignment of paragraph text along the reading direction axis (DWRITE_TEXT_ALIGNMENT).</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.TextAlignment.Leading">
+            <summary>Text is aligned to the leading edge of the layout box (left for left-to-right text).</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.TextAlignment.Trailing">
+            <summary>Text is aligned to the trailing edge of the layout box (right for left-to-right text).</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.TextAlignment.Center">
+            <summary>Text is centered within the layout box.</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.TextAlignment.Justified">
+            <summary>Text is spread to fill the width of the layout box.</summary>
+        </member>
+        <member name="T:VL.Stride.Text3d.Enums.ParagraphAlignment">
+            <summary>Alignment option of a paragraph relative to the layout box's top and bottom edge (DWRITE_PARAGRAPH_ALIGNMENT).</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.ParagraphAlignment.Near">
+            <summary>The first line is aligned to the flow's beginning edge (top for top-to-bottom flow).</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.ParagraphAlignment.Far">
+            <summary>The last line is aligned to the flow's ending edge (bottom for top-to-bottom flow).</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.ParagraphAlignment.Center">
+            <summary>Lines are centered between the flow's beginning and ending edge.</summary>
+        </member>
+        <member name="T:VL.Stride.Text3d.Enums.WordWrapping">
+            <summary>Word wrapping in multiline paragraphs (DWRITE_WORD_WRAPPING).</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.WordWrapping.Wrap">
+            <summary>Words are broken across lines to keep text within the layout box.</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.WordWrapping.NoWrap">
+            <summary>Words may overflow the layout box; text only breaks at explicit line breaks.</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.WordWrapping.EmergencyBreak">
+            <summary>Like Wrap, but a word wider than the layout box is broken mid-word.</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.WordWrapping.WholeWord">
+            <summary>Only whole words wrap; a too-wide word overflows instead of breaking.</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.WordWrapping.Character">
+            <summary>Text may wrap after any character.</summary>
+        </member>
+        <member name="T:VL.Stride.Text3d.Enums.FontStretch">
+            <summary>Font stretch as a percentage of normal width (DWRITE_FONT_STRETCH).</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.FontStretch.Undefined">
+            <summary>No stretch information is available.</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.FontStretch.UltraCondensed">
+            <summary>50% of normal width.</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.FontStretch.ExtraCondensed">
+            <summary>62.5% of normal width.</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.FontStretch.Condensed">
+            <summary>75% of normal width.</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.FontStretch.SemiCondensed">
+            <summary>87.5% of normal width.</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.FontStretch.Normal">
+            <summary>Normal width (100%).</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.FontStretch.Medium">
+            <summary>Normal width (100%); alias of Normal.</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.FontStretch.SemiExpanded">
+            <summary>112.5% of normal width.</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.FontStretch.Expanded">
+            <summary>125% of normal width.</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.FontStretch.ExtraExpanded">
+            <summary>150% of normal width.</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.FontStretch.UltraExpanded">
+            <summary>200% of normal width.</summary>
+        </member>
+        <member name="T:VL.Stride.Text3d.Enums.FontStyle">
+            <summary>Font slope style: normal, italic or oblique (DWRITE_FONT_STYLE).</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.FontStyle.Normal">
+            <summary>Upright glyphs.</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.FontStyle.Oblique">
+            <summary>Upright glyphs artificially slanted.</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.FontStyle.Italic">
+            <summary>The font's true italic glyph forms.</summary>
+        </member>
+        <member name="T:VL.Stride.Text3d.Enums.FontWeight">
+            <summary>Font weight from thin to black (DWRITE_FONT_WEIGHT).</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.FontWeight.Thin">
+            <summary>Thin (100).</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.FontWeight.ExtraLight">
+            <summary>Extra light (200).</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.FontWeight.UltraLight">
+            <summary>Ultra light (200); alias of ExtraLight.</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.FontWeight.Light">
+            <summary>Light (300).</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.FontWeight.SemiLight">
+            <summary>Semi light (350).</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.FontWeight.Normal">
+            <summary>Normal (400).</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.FontWeight.Regular">
+            <summary>Regular (400); alias of Normal.</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.FontWeight.Medium">
+            <summary>Medium (500).</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.FontWeight.DemiBold">
+            <summary>Demi bold (600).</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.FontWeight.SemiBold">
+            <summary>Semi bold (600); alias of DemiBold.</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.FontWeight.Bold">
+            <summary>Bold (700).</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.FontWeight.ExtraBold">
+            <summary>Extra bold (800).</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.FontWeight.UltraBold">
+            <summary>Ultra bold (800); alias of ExtraBold.</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.FontWeight.Black">
+            <summary>Black (900).</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.FontWeight.Heavy">
+            <summary>Heavy (900); alias of Black.</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.FontWeight.ExtraBlack">
+            <summary>Extra black (950).</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.FontWeight.UltraBlack">
+            <summary>Ultra black (950); alias of ExtraBlack.</summary>
+        </member>
+        <member name="T:VL.Stride.Text3d.Enums.LineSpacingMethod">
+            <summary>Method used for line spacing in a text layout (DWRITE_LINE_SPACING_METHOD).</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.LineSpacingMethod.Default">
+            <summary>Line spacing depends solely on the content.</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.LineSpacingMethod.Uniform">
+            <summary>Uniform line spacing regardless of content; Line Spacing and Baseline are used.</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.LineSpacingMethod.Proportional">
+            <summary>Line spacing and baseline distance proportional to the content's computed values.</summary>
+        </member>
+        <member name="T:VL.Stride.Text3d.Enums.ReadingDirection">
+            <summary>Direction for how reading progresses (DWRITE_READING_DIRECTION).</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.ReadingDirection.LeftToRight">
+            <summary>Reading progresses left to right.</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.ReadingDirection.RightToLeft">
+            <summary>Reading progresses right to left.</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.ReadingDirection.TopToBottom">
+            <summary>Reading progresses top to bottom.</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.ReadingDirection.BottomToTop">
+            <summary>Reading progresses bottom to top.</summary>
+        </member>
+        <member name="T:VL.Stride.Text3d.Enums.FlowDirection">
+            <summary>Direction for how lines of text are placed relative to one another (DWRITE_FLOW_DIRECTION).</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.FlowDirection.TopToBottom">
+            <summary>Lines flow top to bottom.</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.FlowDirection.BottomToTop">
+            <summary>Lines flow bottom to top.</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.FlowDirection.LeftToRight">
+            <summary>Lines flow left to right.</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.FlowDirection.RightToLeft">
+            <summary>Lines flow right to left.</summary>
+        </member>
+        <member name="T:VL.Stride.Text3d.Enums.TrimmingGranularity">
+            <summary>Text granularity used to trim text overflowing the layout box (DWRITE_TRIMMING_GRANULARITY).</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.TrimmingGranularity.None">
+            <summary>No trimming; text overflows the layout box.</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.TrimmingGranularity.Character">
+            <summary>Text is trimmed at a character boundary.</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.TrimmingGranularity.Word">
+            <summary>Text is trimmed at a word boundary.</summary>
+        </member>
+        <member name="T:VL.Stride.Text3d.Enums.OpticalAlignment">
+            <summary>How to align glyphs to the margin (DWRITE_OPTICAL_ALIGNMENT).</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.OpticalAlignment.None">
+            <summary>Default alignment respecting the glyphs' side bearings.</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.OpticalAlignment.NoSideBearings">
+            <summary>Glyph edges align optically to the margins, ignoring side bearings.</summary>
+        </member>
+        <member name="T:VL.Stride.Text3d.Enums.VerticalGlyphOrientation">
+            <summary>Orientation of glyphs when a vertical reading direction is used (DWRITE_VERTICAL_GLYPH_ORIENTATION).</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.VerticalGlyphOrientation.Default">
+            <summary>Latin script rotates 90° clockwise in vertical flow; ideographs stay upright.</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.VerticalGlyphOrientation.Stacked">
+            <summary>All glyphs stay upright (stacked) in vertical flow.</summary>
+        </member>
+        <member name="T:VL.Stride.Text3d.Enums.ExtrudeOrigin">
+            <summary>Where the extruded mesh sits relative to Z = 0 (library-specific, since 2.2).</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.ExtrudeOrigin.Center">
+            <summary>The extrusion is centered on Z = 0 (from +amount/2 to -amount/2).</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.ExtrudeOrigin.Front">
+            <summary>The front face sits at Z = 0; the mesh extends backwards (negative Z).</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.ExtrudeOrigin.Back">
+            <summary>The back face sits at Z = 0; the mesh extends forwards (positive Z).</summary>
+        </member>
+        <member name="T:VL.Stride.Text3d.Enums.FontFeatureTag">
+            <summary>Typographic feature of text supplied by the font (used by the Typography text style).</summary>
+        </member>
+        <member name="T:VL.Stride.Text3d.Interop.Point2F">
+            <summary>D2D1_POINT_2F — 8-byte by-value point used by BeginFigure.</summary>
+        </member>
+        <member name="T:VL.Stride.Text3d.Interop.ComCallbackHelper">
+            <summary>Bridges managed callback objects to native COM interface pointers.</summary>
+        </member>
+        <member name="M:VL.Stride.Text3d.Interop.ComCallbackHelper.GetComPointer(System.Object,System.Guid@)">
+            <summary>
+            Returns a native COM interface pointer (AddRef'd) for the given managed object and
+            interface IID. Caller must release it via <see cref="M:System.Runtime.InteropServices.Marshal.Release(System.IntPtr)"/>.
+            </summary>
+        </member>
+        <member name="M:VL.Stride.Text3d.Interop.Native.CreateTextFormat(System.String,System.Single,Silk.NET.DirectWrite.FontWeight,Silk.NET.DirectWrite.FontStyle,Silk.NET.DirectWrite.FontStretch)">
+            <summary>
+            Creates a TextFormat with SharpDX-convenience-constructor semantics
+            (system font collection, locale "").
+            Family name and locale are passed as pinned UTF-16 pointers — do NOT use the
+            Silk.NET managed-string overloads here: they marshal DWrite's WCHAR parameters
+            with the wrong encoding (observed in the Phase 1 spike: garbage family name
+            causing silent font fallback plus intermittent E_INVALIDARG).
+            </summary>
+        </member>
+        <member name="M:VL.Stride.Text3d.Interop.Native.CreateTextLayout(System.String,Silk.NET.DirectWrite.IDWriteTextFormat*,System.Single,System.Single)">
+            <summary>Creates a TextLayout over the given format (pinned UTF-16 text).</summary>
+        </member>
+        <member name="T:VL.Stride.Text3d.Nodes.FontAndParagraph">
+            <summary>
+            Builds a DirectWrite text layout from font, paragraph and text settings.
+            Feed it into Text3d (Advanced), Text3dMesh (Advanced), TextLayoutMetrics or LineMetrics.
+            </summary>
+        </member>
+        <member name="M:VL.Stride.Text3d.Nodes.FontAndParagraph.SetBasicFontProperties(VL.Lib.Text.FontList,VL.Stride.Text3d.Enums.FontWeight,VL.Stride.Text3d.Enums.FontStyle,VL.Stride.Text3d.Enums.FontStretch,System.Single)">
+            <summary>Sets font family, weight, style, stretch and size.</summary>
+            <param name="font">The name of the font family.</param>
+            <param name="fontWeight">The weight (thickness of the strokes) of the font.</param>
+            <param name="fontStyle">The style (normal, italic or oblique) of the font.</param>
+            <param name="fontStretch">The stretch (width relative to normal) of the font.</param>
+            <param name="fontSize">The logical size of the font in DIP units (1 DIP = 1/96 inch).</param>
+        </member>
+        <member name="M:VL.Stride.Text3d.Nodes.FontAndParagraph.SetTextAlignment(VL.Stride.Text3d.Enums.TextAlignment)">
+            <summary>Sets the alignment of text along the reading direction axis.</summary>
+            <param name="textAlignment">The alignment of paragraph text relative to the leading and trailing edge of the layout box.</param>
+        </member>
+        <member name="M:VL.Stride.Text3d.Nodes.FontAndParagraph.SetParagraphAlignment(VL.Stride.Text3d.Enums.ParagraphAlignment)">
+            <summary>Sets the alignment of the paragraph relative to the layout box.</summary>
+            <param name="paragraphAlignment">The alignment of the paragraph relative to the top and bottom edge of the layout box.</param>
+        </member>
+        <member name="M:VL.Stride.Text3d.Nodes.FontAndParagraph.SetWordWrapping(VL.Stride.Text3d.Enums.WordWrapping,System.Boolean)">
+            <summary>Sets word wrapping (and whether the last line wraps).</summary>
+            <param name="wordWrapping">The word wrapping option applied to the whole layout.</param>
+            <param name="lastLineWrapping">Whether the last word on the last line is wrapped.</param>
+        </member>
+        <member name="M:VL.Stride.Text3d.Nodes.FontAndParagraph.SetLineSpacing(VL.Stride.Text3d.Enums.LineSpacingMethod,System.Single,System.Single)">
+            <summary>Sets line spacing method, line height and baseline distance.</summary>
+            <param name="method">How line height is determined (from content, uniform, or proportional).</param>
+            <param name="lineSpacing">The line height — the distance from one baseline to the next (used by the Uniform method).</param>
+            <param name="baseline">The distance from the top of the line to its baseline; a reasonable ratio is 80% of the line spacing.</param>
+        </member>
+        <member name="M:VL.Stride.Text3d.Nodes.FontAndParagraph.SetReadingDirection(VL.Stride.Text3d.Enums.ReadingDirection)">
+            <summary>Sets the direction reading progresses in.</summary>
+            <param name="readingDirection">The text reading direction (for example right-to-left) set for the paragraph.</param>
+        </member>
+        <member name="M:VL.Stride.Text3d.Nodes.FontAndParagraph.SetFlowDirection(VL.Stride.Text3d.Enums.FlowDirection)">
+            <summary>Sets the direction lines are placed in.</summary>
+            <param name="flowDirection">The direction in which lines of text are placed relative to one another.</param>
+        </member>
+        <member name="M:VL.Stride.Text3d.Nodes.FontAndParagraph.SetText(System.String)">
+            <summary>Sets the text of the layout.</summary>
+            <param name="text">The string the text layout is created from.</param>
+        </member>
+        <member name="M:VL.Stride.Text3d.Nodes.FontAndParagraph.SetMaxWidth(System.Single)">
+            <summary>Sets the layout box width (0 = unconstrained).</summary>
+            <param name="maxWidth">The maximum width of the layout box, in DIP units; alignment, wrapping and trimming are computed against it.</param>
+        </member>
+        <member name="M:VL.Stride.Text3d.Nodes.FontAndParagraph.SetMaxHeight(System.Single)">
+            <summary>Sets the layout box height.</summary>
+            <param name="maxHeight">The maximum height of the layout box, in DIP units; paragraph alignment is computed against it.</param>
+        </member>
+        <member name="M:VL.Stride.Text3d.Nodes.FontAndParagraph.SetTrimming(VL.Stride.Text3d.Enums.TrimmingGranularity,System.String,System.Int32,System.Boolean)">
+            <summary>Sets trimming for text overflowing the layout box.</summary>
+            <param name="granularity">The text granularity (character or word) at which trimming applies.</param>
+            <param name="delimiter">A character that signals the beginning of the portion of text to preserve — most useful for path ellipsis, where the delimiter would be a slash. Empty for none.</param>
+            <param name="delimiterCount">How many occurrences of the delimiter to step back from the end.</param>
+            <param name="ellipsisTrimmingSign">Whether an ellipsis (…) sign is shown at the trimming position.</param>
+        </member>
+        <member name="M:VL.Stride.Text3d.Nodes.FontAndParagraph.SetOpticalAlignment(VL.Stride.Text3d.Enums.OpticalAlignment)">
+            <summary>Sets how glyphs align to the margins.</summary>
+            <param name="opticalAlignment">How glyphs align to the margins: default, or ignoring the glyphs' side bearings so their edges align optically.</param>
+        </member>
+        <member name="M:VL.Stride.Text3d.Nodes.FontAndParagraph.SetVerticalGlyphOrientation(VL.Stride.Text3d.Enums.VerticalGlyphOrientation)">
+            <summary>Sets the orientation of glyphs when a vertical reading direction is used.</summary>
+            <param name="verticalGlyphOrientation">The preferred orientation of glyphs in a vertical reading direction: rotated per script defaults, or all upright (stacked).</param>
+        </member>
+        <member name="M:VL.Stride.Text3d.Nodes.FontAndParagraph.ApplyStyles(System.Collections.Generic.IReadOnlyList{VL.Stride.Text3d.Core.ITextStyle})">
+            <summary>Applies per-range text styles (see the TextStyles category).</summary>
+            <param name="styles">The text styles applied to the layout, in order — later styles override earlier ones on overlapping ranges.</param>
+        </member>
+        <member name="M:VL.Stride.Text3d.Nodes.FontAndParagraph.GetIsDirty">
+            <summary>True when the next GetTextLayout/GetTextFormat call will rebuild the layout.</summary>
+        </member>
+        <member name="M:VL.Stride.Text3d.Nodes.FontAndParagraph.GetVersion">
+            <summary>Increments whenever the layout is rebuilt (change signal for consumers).</summary>
+        </member>
+        <member name="M:VL.Stride.Text3d.Nodes.FontAndParagraph.GetTextLayout">
+            <summary>The built text layout.</summary>
+        </member>
+        <member name="M:VL.Stride.Text3d.Nodes.FontAndParagraph.GetTextFormat">
+            <summary>The built text format.</summary>
+        </member>
+        <member name="T:VL.Stride.Text3d.Nodes.Meshes.Text3dMesh">
+            <summary>Renders a string of text as an extruded 3D mesh.</summary>
+        </member>
+        <member name="M:VL.Stride.Text3d.Nodes.Meshes.Text3dMesh.Update(Stride.Rendering.Mesh@,System.String,VL.Lib.Text.FontList,System.Int32,VL.Stride.Text3d.Enums.TextAlignment,VL.Stride.Text3d.Enums.ParagraphAlignment,System.Single,VL.Stride.Text3d.Enums.ExtrudeOrigin,System.Single,System.Single)">
+            <param name="output">The generated text mesh.</param>
+            <param name="text">The string to render.</param>
+            <param name="font">The name of the font family.</param>
+            <param name="fontSize">The logical size of the font in DIP units (1 DIP = 1/96 inch).</param>
+            <param name="textAlignment">The alignment of paragraph text relative to the leading and trailing edge of the layout box.</param>
+            <param name="paragraphAlignment">The alignment of the paragraph relative to the top and bottom edge of the layout box.</param>
+            <param name="extrudeAmount">The depth of the extrusion along Z.</param>
+            <param name="extrudeOrigin">Where the extruded mesh sits relative to Z = 0.</param>
+            <param name="flatteningTolerance">The maximum deviation allowed when flattening the outlines; smaller values yield finer curves and more vertices.</param>
+            <param name="smoothingAngle">In cycles: side-wall edges sharper than this angle stay hard, flatter ones are shaded smooth.</param>
+        </member>
+        <member name="T:VL.Stride.Text3d.Nodes.Meshes.Text3dMeshAdvanced">
+            <summary>Renders a FontAndParagraph text layout as an extruded 3D mesh.</summary>
+        </member>
+        <member name="M:VL.Stride.Text3d.Nodes.Meshes.Text3dMeshAdvanced.Update(Stride.Rendering.Mesh@,VL.Stride.Text3d.Nodes.FontAndParagraph,System.Single,VL.Stride.Text3d.Enums.ExtrudeOrigin,System.Single,System.Single)">
+            <param name="output">The generated text mesh.</param>
+            <param name="fontAndParagraph">The FontAndParagraph providing the text layout to render.</param>
+            <param name="extrudeAmount">The depth of the extrusion along Z.</param>
+            <param name="extrudeOrigin">Where the extruded mesh sits relative to Z = 0.</param>
+            <param name="flatteningTolerance">The maximum deviation allowed when flattening the outlines; smaller values yield finer curves and more vertices.</param>
+            <param name="smoothingAngle">In cycles: side-wall edges sharper than this angle stay hard, flatter ones are shaded smooth.</param>
+        </member>
+        <member name="T:VL.Stride.Text3d.Nodes.TextLayoutMetrics">
+            <summary>Reads the overall metrics of a FontAndParagraph's text layout.</summary>
+        </member>
+        <member name="M:VL.Stride.Text3d.Nodes.TextLayoutMetrics.Update(System.Single@,System.Single@,System.Single@,System.Single@,System.Single@,System.Single@,System.Single@,System.Single@,System.Int32@,System.Int32@,VL.Stride.Text3d.Nodes.FontAndParagraph,System.Boolean)">
+            <param name="left">The left-most point of formatted text relative to the layout box, excluding any glyph overhang.</param>
+            <param name="top">The top-most point of formatted text relative to the layout box, excluding any glyph overhang.</param>
+            <param name="width">The width of the formatted text, ignoring trailing whitespace at the end of each line.</param>
+            <param name="height">The height of the formatted text; for an empty string this is the height of the default font.</param>
+            <param name="heightIncludingTrailingWhitespace">The height of the formatted text, taking trailing whitespace into account.</param>
+            <param name="widthIncludingTrailingWhitespace">The width of the formatted text, taking the trailing whitespace at the end of each line into account.</param>
+            <param name="layoutWidth">The initial width given to the layout (Max Width).</param>
+            <param name="layoutHeight">The initial height given to the layout (Max Height).</param>
+            <param name="lineCount">Total number of lines.</param>
+            <param name="maxBidiReorderingDepth">The maximum bidirectional reordering count of any line of text; 1 if there is no bidirectional text or no text at all.</param>
+            <param name="input">The FontAndParagraph whose text layout is measured.</param>
+            <param name="forceUpdate">Re-reads the metrics even when the layout did not change.</param>
+        </member>
+        <member name="T:VL.Stride.Text3d.Nodes.LineMetrics">
+            <summary>Reads the per-line metrics of a FontAndParagraph's text layout.</summary>
+        </member>
+        <member name="M:VL.Stride.Text3d.Nodes.LineMetrics.Update(VL.Lib.Collections.Spread{System.Single}@,VL.Lib.Collections.Spread{System.Single}@,VL.Lib.Collections.Spread{System.Boolean}@,VL.Lib.Collections.Spread{System.Int32}@,VL.Lib.Collections.Spread{System.Int32}@,VL.Lib.Collections.Spread{System.Int32}@,VL.Stride.Text3d.Nodes.FontAndParagraph,System.Boolean)">
+            <param name="baseline">Per line: the distance from the top of the text line to its baseline.</param>
+            <param name="height">Per line: the height of the text line.</param>
+            <param name="isTrimmed">Per line: whether the line is trimmed.</param>
+            <param name="length">Per line: the number of text positions, including trailing whitespace and newline characters.</param>
+            <param name="newlineLength">Per line: the number of characters in the newline sequence at its end; 0 if the line was wrapped or is the end of the text.</param>
+            <param name="trailingWhitespaceLength">Per line: the number of whitespace positions at its end (newline sequences count as whitespace).</param>
+            <param name="input">The FontAndParagraph whose text layout is measured.</param>
+            <param name="forceUpdate">Re-reads the metrics even when the layout did not change.</param>
+        </member>
+        <member name="M:VL.Stride.Text3d.Nodes.Models.Text3dModelBuilder.Build(VL.Stride.Text3d.Core.Text3dBase,Stride.Engine.Game)">
+            <summary>Generates a Stride Model from the procedural text model.</summary>
+        </member>
+        <member name="M:VL.Stride.Text3d.Nodes.Models.Text3dModelBuilder.ApplyTransformation(Stride.Engine.Entity,System.Nullable{Stride.Core.Mathematics.Matrix})">
+            <summary>Applies the optional Transformation matrix to the entity's transform.</summary>
+        </member>
+        <member name="M:VL.Stride.Text3d.Nodes.Models.Text3dModelBuilder.SyncComponents(Stride.Engine.Entity,Stride.Engine.ModelComponent,VL.Lib.Collections.Spread{Stride.Engine.EntityComponent}@,VL.Lib.Collections.Spread{Stride.Engine.EntityComponent})">
+            <summary>Syncs user-provided extra components onto the entity (never touches ownComponent).</summary>
+        </member>
+        <member name="M:VL.Stride.Text3d.Nodes.Models.Text3dModelBuilder.SyncChildren(Stride.Engine.Entity,VL.Lib.Collections.Spread{Stride.Engine.Entity}@,VL.Lib.Collections.Spread{Stride.Engine.Entity})">
+            <summary>Syncs user-provided child entities under the entity's transform.</summary>
+        </member>
+        <member name="T:VL.Stride.Text3d.Nodes.Models.Text3d">
+            <summary>Renders a string of text as an extruded 3D model entity.</summary>
+        </member>
+        <member name="M:VL.Stride.Text3d.Nodes.Models.Text3d.Update(Stride.Engine.Entity@,System.String,VL.Lib.Text.FontList,System.Int32,VL.Stride.Text3d.Enums.TextAlignment,VL.Stride.Text3d.Enums.ParagraphAlignment,System.Single,VL.Stride.Text3d.Enums.ExtrudeOrigin,System.Single,System.Single,System.Nullable{Stride.Core.Mathematics.Matrix},Stride.Rendering.Material,System.Boolean,VL.Lib.Collections.Spread{Stride.Engine.EntityComponent},VL.Lib.Collections.Spread{Stride.Engine.Entity},System.String,System.Boolean)">
+            <param name="output">The entity holding the generated text model.</param>
+            <param name="text">The string to render.</param>
+            <param name="font">The name of the font family.</param>
+            <param name="fontSize">The logical size of the font in DIP units (1 DIP = 1/96 inch).</param>
+            <param name="textAlignment">The alignment of paragraph text relative to the leading and trailing edge of the layout box.</param>
+            <param name="paragraphAlignment">The alignment of the paragraph relative to the top and bottom edge of the layout box.</param>
+            <param name="extrudeAmount">The depth of the extrusion along Z.</param>
+            <param name="extrudeOrigin">Where the extruded mesh sits relative to Z = 0.</param>
+            <param name="flatteningTolerance">The maximum deviation allowed when flattening the outlines; smaller values yield finer curves and more vertices.</param>
+            <param name="smoothingAngle">In cycles: side-wall edges sharper than this angle stay hard, flatter ones are shaded smooth.</param>
+            <param name="transformation">The transformation applied to the entity; when not set the entity keeps its default transform.</param>
+            <param name="material">The material used to render the model.</param>
+            <param name="isShadowCaster">Whether the model casts shadows.</param>
+            <param name="components">Additional components attached to the entity.</param>
+            <param name="children">Entities parented under this entity's transform.</param>
+            <param name="name">The name of the entity.</param>
+            <param name="enabled">Whether the model is rendered.</param>
+        </member>
+        <member name="T:VL.Stride.Text3d.Nodes.Models.Text3dAdvanced">
+            <summary>Renders a FontAndParagraph text layout as an extruded 3D model entity.</summary>
+        </member>
+        <member name="M:VL.Stride.Text3d.Nodes.Models.Text3dAdvanced.Update(Stride.Engine.Entity@,VL.Stride.Text3d.Nodes.FontAndParagraph,System.Single,VL.Stride.Text3d.Enums.ExtrudeOrigin,System.Single,System.Single,System.Nullable{Stride.Core.Mathematics.Matrix},Stride.Rendering.Material,System.Boolean,VL.Lib.Collections.Spread{Stride.Engine.EntityComponent},VL.Lib.Collections.Spread{Stride.Engine.Entity},System.String,System.Boolean)">
+            <param name="output">The entity holding the generated text model.</param>
+            <param name="fontAndParagraph">The FontAndParagraph providing the text layout to render.</param>
+            <param name="extrudeAmount">The depth of the extrusion along Z.</param>
+            <param name="extrudeOrigin">Where the extruded mesh sits relative to Z = 0.</param>
+            <param name="flatteningTolerance">The maximum deviation allowed when flattening the outlines; smaller values yield finer curves and more vertices.</param>
+            <param name="smoothingAngle">In cycles: side-wall edges sharper than this angle stay hard, flatter ones are shaded smooth.</param>
+            <param name="transformation">The transformation applied to the entity; when not set the entity keeps its default transform.</param>
+            <param name="material">The material used to render the model.</param>
+            <param name="isShadowCaster">Whether the model casts shadows.</param>
+            <param name="components">Additional components attached to the entity.</param>
+            <param name="children">Entities parented under this entity's transform.</param>
+            <param name="name">The name of the entity.</param>
+            <param name="enabled">Whether the model is rendered.</param>
+        </member>
+        <member name="M:VL.Stride.Text3d.TextStyles.LayoutInterop.GetLayout1(VL.Stride.Text3d.Core.TextLayoutHandle)">
+            <summary>QIs to IDWriteTextLayout1; caller must Marshal.Release the returned pointer.</summary>
+        </member>
+        <member name="T:VL.Stride.Text3d.TextStyles.FontFamily">
+            <summary>Sets the font family for a text range.</summary>
+        </member>
+        <member name="M:VL.Stride.Text3d.TextStyles.FontFamily.Update(System.Int32,System.Int32,VL.Lib.Text.FontList,System.Boolean)">
+            <param name="startPosition">The start text position of the range the style applies to.</param>
+            <param name="length">The number of text positions in the range.</param>
+            <param name="font">The font family name applied to the text range.</param>
+            <param name="enabled">Whether the style is applied.</param>
+        </member>
+        <member name="T:VL.Stride.Text3d.TextStyles.FontSize">
+            <summary>Sets the font size for a text range.</summary>
+        </member>
+        <member name="M:VL.Stride.Text3d.TextStyles.FontSize.Update(System.Int32,System.Int32,System.Single,System.Boolean)">
+            <param name="startPosition">The start text position of the range the style applies to.</param>
+            <param name="length">The number of text positions in the range.</param>
+            <param name="fontSize">The font size in DIP units (1 DIP = 1/96 inch) applied to the text range.</param>
+            <param name="enabled">Whether the style is applied.</param>
+        </member>
+        <member name="T:VL.Stride.Text3d.TextStyles.FontStretch">
+            <summary>Sets the font stretch for a text range.</summary>
+        </member>
+        <member name="M:VL.Stride.Text3d.TextStyles.FontStretch.Update(System.Int32,System.Int32,VL.Stride.Text3d.Enums.FontStretch,System.Boolean)">
+            <param name="startPosition">The start text position of the range the style applies to.</param>
+            <param name="length">The number of text positions in the range.</param>
+            <param name="fontStretch">The font stretch (width relative to normal) applied to the text range.</param>
+            <param name="enabled">Whether the style is applied.</param>
+        </member>
+        <member name="T:VL.Stride.Text3d.TextStyles.FontStyle">
+            <summary>Sets the font style (normal, italic, oblique) for a text range.</summary>
+        </member>
+        <member name="M:VL.Stride.Text3d.TextStyles.FontStyle.Update(System.Int32,System.Int32,VL.Stride.Text3d.Enums.FontStyle,System.Boolean)">
+            <param name="startPosition">The start text position of the range the style applies to.</param>
+            <param name="length">The number of text positions in the range.</param>
+            <param name="fontStyle">The font style (normal, italic or oblique) applied to the text range.</param>
+            <param name="enabled">Whether the style is applied.</param>
+        </member>
+        <member name="T:VL.Stride.Text3d.TextStyles.FontWeight">
+            <summary>Sets the font weight for a text range.</summary>
+        </member>
+        <member name="M:VL.Stride.Text3d.TextStyles.FontWeight.Update(System.Int32,System.Int32,VL.Stride.Text3d.Enums.FontWeight,System.Boolean)">
+            <param name="startPosition">The start text position of the range the style applies to.</param>
+            <param name="length">The number of text positions in the range.</param>
+            <param name="fontWeight">The font weight (thickness of the strokes) applied to the text range.</param>
+            <param name="enabled">Whether the style is applied.</param>
+        </member>
+        <member name="T:VL.Stride.Text3d.TextStyles.StrikeThrough">
+            <summary>Strikes through a text range.</summary>
+        </member>
+        <member name="M:VL.Stride.Text3d.TextStyles.StrikeThrough.Update(System.Int32,System.Int32,System.Boolean,System.Boolean)">
+            <param name="startPosition">The start text position of the range the style applies to.</param>
+            <param name="length">The number of text positions in the range.</param>
+            <param name="strikeThrough">Whether strikethrough takes place within the text range.</param>
+            <param name="enabled">Whether the style is applied.</param>
+        </member>
+        <member name="T:VL.Stride.Text3d.TextStyles.Underline">
+            <summary>Underlines a text range.</summary>
+        </member>
+        <member name="M:VL.Stride.Text3d.TextStyles.Underline.Update(System.Int32,System.Int32,System.Boolean,System.Boolean)">
+            <param name="startPosition">The start text position of the range the style applies to.</param>
+            <param name="length">The number of text positions in the range.</param>
+            <param name="underline">Whether underline takes place within the text range.</param>
+            <param name="enabled">Whether the style is applied.</param>
+        </member>
+        <member name="T:VL.Stride.Text3d.TextStyles.PairKerning">
+            <summary>Enables pair kerning for a text range.</summary>
+        </member>
+        <member name="M:VL.Stride.Text3d.TextStyles.PairKerning.Update(System.Int32,System.Int32,System.Boolean,System.Boolean)">
+            <param name="startPosition">The start text position of the range the style applies to.</param>
+            <param name="length">The number of text positions in the range.</param>
+            <param name="pairKerning">Whether the text in the range is pair-kerned using the font's kerning pair adjustments.</param>
+            <param name="enabled">Whether the style is applied.</param>
+        </member>
+        <member name="T:VL.Stride.Text3d.TextStyles.CharacterSpacing">
+            <summary>Sets leading/trailing character spacing and minimum advance width for a text range.</summary>
+        </member>
+        <member name="M:VL.Stride.Text3d.TextStyles.CharacterSpacing.Update(System.Int32,System.Int32,System.Single,System.Single,System.Single,System.Boolean)">
+            <param name="startPosition">The start text position of the range the style applies to.</param>
+            <param name="length">The number of text positions in the range.</param>
+            <param name="leadingSpacing">The spacing before each character, in reading order.</param>
+            <param name="trailingSpacing">The spacing after each character, in reading order.</param>
+            <param name="minimumAdvanceWidth">The minimum advance of each character — prevents characters from becoming too thin or zero-width; must be zero or greater.</param>
+            <param name="enabled">Whether the style is applied.</param>
+        </member>
+        <member name="T:VL.Stride.Text3d.TextStyles.Typography">
+            <summary>Applies an OpenType typography feature to a text range.</summary>
+        </member>
+        <member name="M:VL.Stride.Text3d.TextStyles.Typography.Update(System.Int32,System.Int32,VL.Stride.Text3d.Enums.FontFeatureTag,System.Int32,System.Boolean)">
+            <param name="startPosition">The start text position of the range the style applies to.</param>
+            <param name="length">The number of text positions in the range.</param>
+            <param name="fontFeature">The OpenType feature (by name tag) applied to the text range.</param>
+            <param name="parameter">The execution parameter of the feature: non-zero generally enables it, zero disables it; features requiring a selector use this as the selector index.</param>
+            <param name="enabled">Whether the style is applied.</param>
+        </member>
+    </members>
+</doc>

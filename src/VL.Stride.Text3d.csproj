@@ -12,6 +12,9 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <OutputPath>..\lib\net8.0\</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <!-- vvvv reads pin/node tooltips from the XML documentation file -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

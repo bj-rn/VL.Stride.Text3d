@@ -22,6 +22,7 @@
   </metadata>
   <files>
     <file src="..\lib\net8.0\VL.Stride.Text3d.dll" target="lib\net8.0" />
+    <file src="..\lib\net8.0\VL.Stride.Text3d.xml" target="lib\net8.0" />
     <file src="..\lib\net8.0\Silk.NET.Direct2D.dll" target="lib\net8.0" />
     <file src="..\*.vl" />
     <file src="..\help\*.vl" target="help" />
