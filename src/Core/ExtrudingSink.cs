@@ -58,6 +58,8 @@ public sealed unsafe partial class ExtrudingSink : ID2D1SimplifiedGeometrySinkCa
     private readonly float smoothingThreshold;
     private readonly Vector2 min;
     private readonly Vector2 max;
+    private readonly Enums.SideUVMapping sideUVMapping;
+    private readonly float textureScale;
 
     private struct Vertex2D
     {
@@ -74,8 +76,12 @@ public sealed unsafe partial class ExtrudingSink : ID2D1SimplifiedGeometrySinkCa
     /// <param name="zBack">Z of the back face (was -height/2 in the original).</param>
     /// <param name="smoothingThreshold">Adjacent edge normals are averaged when their dot
     /// product exceeds this (cos of the smoothing angle; the original hard-coded 0.5).</param>
+    /// <param name="sideUVMapping">How the side walls are UV-mapped; ContourDepthTiled also
+    /// switches the caps to absolute density.</param>
+    /// <param name="textureScale">Surface distance covered by one texture repeat (ContourDepthTiled only).</param>
     public ExtrudingSink(List<VertexPositionNormalTexture> vertices, float zFront, float zBack,
-        float smoothingThreshold, Vector2 min, Vector2 max)
+        float smoothingThreshold, Vector2 min, Vector2 max,
+        Enums.SideUVMapping sideUVMapping, float textureScale)
     {
         this.vertices = vertices;
         this.zFront = zFront;
@@ -83,6 +89,8 @@ public sealed unsafe partial class ExtrudingSink : ID2D1SimplifiedGeometrySinkCa
         this.smoothingThreshold = smoothingThreshold;
         this.min = min;
         this.max = max;
+        this.sideUVMapping = sideUVMapping;
+        this.textureScale = textureScale;
     }
 
     private Vector2 GetNormal(int i)
@@ -104,6 +112,12 @@ public sealed unsafe partial class ExtrudingSink : ID2D1SimplifiedGeometrySinkCa
 
     private Vector2 GetUV(float x, float y)
     {
+        // ContourDepthTiled switches the caps to absolute density so walls and caps tile
+        // uniformly; min.Y is the top of the silhouette (the bounds are Y-swapped), so V
+        // grows downward like the planar projection.
+        if (sideUVMapping == Enums.SideUVMapping.ContourDepthTiled)
+            return new Vector2((x - min.X) / textureScale, (min.Y - y) / textureScale);
+
         var uv = new Vector2(x, y);
         return (uv - min) / (max - min);
     }
@@ -189,6 +203,24 @@ public sealed unsafe partial class ExtrudingSink : ID2D1SimplifiedGeometrySinkCa
                 m_figureVertices[i] = v;
             }
 
+            // Cumulative arc length for the contour UV modes; arc[n] is the perimeter
+            // including the closing edge back to the first point.
+            float[]? arc = null;
+            if (sideUVMapping != Enums.SideUVMapping.Silhouette)
+            {
+                int n = m_figureVertices.Count;
+                arc = new float[n + 1];
+                for (int i = 1; i <= n; i++)
+                    arc[i] = arc[i - 1] + (m_figureVertices[i % n].pt - m_figureVertices[i - 1].pt).Length();
+                if (arc[n] <= 0f)
+                    arc[n] = 1f;
+            }
+
+            float vFront = 0f;
+            float vBack = sideUVMapping == Enums.SideUVMapping.ContourDepthTiled
+                ? Math.Abs(zFront - zBack) / textureScale
+                : 1f;
+
             // Output side-wall triangles
             for (int i = 0; i < m_figureVertices.Count; i++)
             {
@@ -200,16 +232,36 @@ public sealed unsafe partial class ExtrudingSink : ID2D1SimplifiedGeometrySinkCa
                 Vector2 ptNorm3 = m_figureVertices[i].inter2;
                 Vector2 nextPtNorm2 = m_figureVertices[j].inter1;
 
-                Vector2 uv = m_figureVertices[i].uv;
-                Vector2 nextUV = m_figureVertices[j].uv;
+                Vector2 uvFrontI, uvBackI, uvFrontJ, uvBackJ;
+                if (sideUVMapping == Enums.SideUVMapping.Silhouette)
+                {
+                    // Planar silhouette projection, constant along the depth (original behavior)
+                    uvFrontI = uvBackI = m_figureVertices[i].uv;
+                    uvFrontJ = uvBackJ = m_figureVertices[j].uv;
+                }
+                else
+                {
+                    // U along the contour; the closing edge ends at arc[n] (the perimeter),
+                    // not at 0, which duplicates the seam vertices instead of interpolating
+                    // backwards through the whole texture.
+                    float divisor = sideUVMapping == Enums.SideUVMapping.ContourDepth
+                        ? arc![m_figureVertices.Count]
+                        : textureScale;
+                    float uI = arc![i] / divisor;
+                    float uJ = arc[i + 1] / divisor;
+                    uvFrontI = new Vector2(uI, vFront);
+                    uvBackI = new Vector2(uI, vBack);
+                    uvFrontJ = new Vector2(uJ, vFront);
+                    uvBackJ = new Vector2(uJ, vBack);
+                }
 
-                vertices.Add(new VertexPositionNormalTexture { Position = new Vector3(pt.X, pt.Y, zFront), Normal = new Vector3(ptNorm3.X, ptNorm3.Y, 0.0f), TextureCoordinate = uv });
-                vertices.Add(new VertexPositionNormalTexture { Position = new Vector3(nextPt.X, nextPt.Y, zBack), Normal = new Vector3(nextPtNorm2.X, nextPtNorm2.Y, 0.0f), TextureCoordinate = nextUV });
-                vertices.Add(new VertexPositionNormalTexture { Position = new Vector3(pt.X, pt.Y, zBack), Normal = new Vector3(ptNorm3.X, ptNorm3.Y, 0.0f), TextureCoordinate = uv });
+                vertices.Add(new VertexPositionNormalTexture { Position = new Vector3(pt.X, pt.Y, zFront), Normal = new Vector3(ptNorm3.X, ptNorm3.Y, 0.0f), TextureCoordinate = uvFrontI });
+                vertices.Add(new VertexPositionNormalTexture { Position = new Vector3(nextPt.X, nextPt.Y, zBack), Normal = new Vector3(nextPtNorm2.X, nextPtNorm2.Y, 0.0f), TextureCoordinate = uvBackJ });
+                vertices.Add(new VertexPositionNormalTexture { Position = new Vector3(pt.X, pt.Y, zBack), Normal = new Vector3(ptNorm3.X, ptNorm3.Y, 0.0f), TextureCoordinate = uvBackI });
 
-                vertices.Add(new VertexPositionNormalTexture { Position = new Vector3(nextPt.X, nextPt.Y, zBack), Normal = new Vector3(nextPtNorm2.X, nextPtNorm2.Y, 0.0f), TextureCoordinate = nextUV });
-                vertices.Add(new VertexPositionNormalTexture { Position = new Vector3(pt.X, pt.Y, zFront), Normal = new Vector3(ptNorm3.X, ptNorm3.Y, 0.0f), TextureCoordinate = uv });
-                vertices.Add(new VertexPositionNormalTexture { Position = new Vector3(nextPt.X, nextPt.Y, zFront), Normal = new Vector3(nextPtNorm2.X, nextPtNorm2.Y, 0.0f), TextureCoordinate = nextUV });
+                vertices.Add(new VertexPositionNormalTexture { Position = new Vector3(nextPt.X, nextPt.Y, zBack), Normal = new Vector3(nextPtNorm2.X, nextPtNorm2.Y, 0.0f), TextureCoordinate = uvBackJ });
+                vertices.Add(new VertexPositionNormalTexture { Position = new Vector3(pt.X, pt.Y, zFront), Normal = new Vector3(ptNorm3.X, ptNorm3.Y, 0.0f), TextureCoordinate = uvFrontI });
+                vertices.Add(new VertexPositionNormalTexture { Position = new Vector3(nextPt.X, nextPt.Y, zFront), Normal = new Vector3(nextPtNorm2.X, nextPtNorm2.Y, 0.0f), TextureCoordinate = uvFrontJ });
             }
         }
     }

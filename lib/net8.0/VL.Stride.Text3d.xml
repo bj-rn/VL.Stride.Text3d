@@ -23,16 +23,22 @@
             <summary>Default smoothing angle in cycles (vvvv standard unit; 1/6 = 60°);
             its cosine matches the original hard-coded 0.5 threshold.</summary>
         </member>
-        <member name="M:VL.Stride.Text3d.Core.ExtrudingSink.#ctor(System.Collections.Generic.List{Stride.Graphics.VertexPositionNormalTexture},System.Single,System.Single,System.Single,Stride.Core.Mathematics.Vector2,Stride.Core.Mathematics.Vector2)">
+        <member name="F:VL.Stride.Text3d.Core.Extruder.DefaultTextureScale">
+            <summary>Default surface distance covered by one texture repeat (ContourDepthTiled only).</summary>
+        </member>
+        <member name="M:VL.Stride.Text3d.Core.ExtrudingSink.#ctor(System.Collections.Generic.List{Stride.Graphics.VertexPositionNormalTexture},System.Single,System.Single,System.Single,Stride.Core.Mathematics.Vector2,Stride.Core.Mathematics.Vector2,VL.Stride.Text3d.Enums.SideUVMapping,System.Single)">
             <param name="zFront">Z of the front face (was +height/2 in the original).</param>
             <param name="zBack">Z of the back face (was -height/2 in the original).</param>
             <param name="smoothingThreshold">Adjacent edge normals are averaged when their dot
             product exceeds this (cos of the smoothing angle; the original hard-coded 0.5).</param>
+            <param name="sideUVMapping">How the side walls are UV-mapped; ContourDepthTiled also
+            switches the caps to absolute density.</param>
+            <param name="textureScale">Surface distance covered by one texture repeat (ContourDepthTiled only).</param>
         </member>
         <member name="T:VL.Stride.Text3d.Core.GlyphOutlineCollector">
             <summary>Collects one outline geometry per glyph (local coordinates) plus its baseline pen position.</summary>
         </member>
-        <member name="M:VL.Stride.Text3d.Core.GlyphMeshBuilder.ExtractGlyphVertices(Silk.NET.DirectWrite.IDWriteTextLayout*,System.Single,VL.Stride.Text3d.Enums.ExtrudeOrigin,System.Single,System.Single)">
+        <member name="M:VL.Stride.Text3d.Core.GlyphMeshBuilder.ExtractGlyphVertices(Silk.NET.DirectWrite.IDWriteTextLayout*,System.Single,VL.Stride.Text3d.Enums.ExtrudeOrigin,System.Single,System.Single,VL.Stride.Text3d.Enums.SideUVMapping,System.Single)">
             <summary>
             Extracts one extruded vertex array per visible glyph (local coordinates, pivot on
             the baseline at the glyph's pen position) plus the world-space baseline position.
@@ -68,6 +74,12 @@
         </member>
         <member name="P:VL.Stride.Text3d.Core.Text3dBase.WeldVertices">
             <summary>Welds identical vertices into an indexed mesh (visually lossless, smaller buffers; changes the mesh topology).</summary>
+        </member>
+        <member name="P:VL.Stride.Text3d.Core.Text3dBase.SideUVMapping">
+            <summary>How the side walls of the extrusion are UV-mapped.</summary>
+        </member>
+        <member name="P:VL.Stride.Text3d.Core.Text3dBase.TextureScale">
+            <summary>Surface distance covered by one texture repeat (ContourDepthTiled only).</summary>
         </member>
         <member name="M:VL.Stride.Text3d.Core.Text3dBase.ExtractVertices(Silk.NET.DirectWrite.IDWriteTextLayout*)">
             <summary>Draws the layout into an OutlineRenderer and extrudes the result into vertexList.</summary>
@@ -324,6 +336,18 @@
         <member name="F:VL.Stride.Text3d.Enums.VerticalGlyphOrientation.Stacked">
             <summary>All glyphs stay upright (stacked) in vertical flow.</summary>
         </member>
+        <member name="T:VL.Stride.Text3d.Enums.SideUVMapping">
+            <summary>How the side walls of the extrusion are UV-mapped (library-specific, since 2.2).</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.SideUVMapping.Silhouette">
+            <summary>Side walls reuse the caps' planar silhouette projection; constant along the depth (the original behavior).</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.SideUVMapping.ContourDepth">
+            <summary>U runs once around each contour (0 to 1, wrap seam where the contour closes), V runs along the depth (0 front, 1 back).</summary>
+        </member>
+        <member name="F:VL.Stride.Text3d.Enums.SideUVMapping.ContourDepthTiled">
+            <summary>U and V carry absolute surface distances divided by Texture Scale, on walls and caps alike; uniform texel density, use wrapping texture addressing.</summary>
+        </member>
         <member name="T:VL.Stride.Text3d.Enums.ExtrudeOrigin">
             <summary>Where the extruded mesh sits relative to Z = 0 (library-specific, since 2.2).</summary>
         </member>
@@ -451,7 +475,7 @@
         <member name="T:VL.Stride.Text3d.Nodes.Meshes.Text3dMeshAsync">
             <summary>Like Text3dMesh, but generates the mesh on a background thread; the last completed mesh is output while a new one is computed.</summary>
         </member>
-        <member name="M:VL.Stride.Text3d.Nodes.Meshes.Text3dMeshAsync.Update(Stride.Rendering.Mesh@,System.Boolean@,System.String,VL.Lib.Text.FontList,System.Int32,VL.Stride.Text3d.Enums.TextAlignment,VL.Stride.Text3d.Enums.ParagraphAlignment,System.Single,VL.Stride.Text3d.Enums.ExtrudeOrigin,System.Single,System.Single,System.Boolean)">
+        <member name="M:VL.Stride.Text3d.Nodes.Meshes.Text3dMeshAsync.Update(Stride.Rendering.Mesh@,System.Boolean@,System.String,VL.Lib.Text.FontList,System.Int32,VL.Stride.Text3d.Enums.TextAlignment,VL.Stride.Text3d.Enums.ParagraphAlignment,System.Single,VL.Stride.Text3d.Enums.ExtrudeOrigin,System.Single,System.Single,VL.Stride.Text3d.Enums.SideUVMapping,System.Single,System.Boolean)">
             <param name="output">The generated text mesh (the last completed one while a computation is in progress).</param>
             <param name="inProgress">True while a mesh is being computed in the background.</param>
             <param name="text">The string to render.</param>
@@ -463,12 +487,14 @@
             <param name="extrudeOrigin">Where the extruded mesh sits relative to Z = 0.</param>
             <param name="flatteningTolerance">The maximum deviation allowed when flattening the outlines; smaller values yield finer curves and more vertices.</param>
             <param name="smoothingAngle">In cycles: side-wall edges sharper than this angle stay hard, flatter ones are shaded smooth.</param>
+            <param name="sideUVMapping">How the side walls are UV-mapped: Silhouette keeps the caps' planar projection (constant along the depth), ContourDepth runs U once around each contour and V along the depth, ContourDepthTiled tiles absolute surface distances by Texture Scale on walls and caps (use wrapping texture addressing).</param>
+            <param name="textureScale">Surface distance covered by one texture repeat; only used by ContourDepthTiled.</param>
             <param name="weldVertices">Welds identical vertices into an indexed mesh: visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle list).</param>
         </member>
         <member name="T:VL.Stride.Text3d.Nodes.Meshes.Text3dMeshAdvancedAsync">
             <summary>Like Text3dMesh (Advanced), but generates the mesh on a background thread; the last completed mesh is output while a new one is computed.</summary>
         </member>
-        <member name="M:VL.Stride.Text3d.Nodes.Meshes.Text3dMeshAdvancedAsync.Update(Stride.Rendering.Mesh@,System.Boolean@,VL.Stride.Text3d.Nodes.FontAndParagraph,System.Single,VL.Stride.Text3d.Enums.ExtrudeOrigin,System.Single,System.Single,System.Boolean)">
+        <member name="M:VL.Stride.Text3d.Nodes.Meshes.Text3dMeshAdvancedAsync.Update(Stride.Rendering.Mesh@,System.Boolean@,VL.Stride.Text3d.Nodes.FontAndParagraph,System.Single,VL.Stride.Text3d.Enums.ExtrudeOrigin,System.Single,System.Single,VL.Stride.Text3d.Enums.SideUVMapping,System.Single,System.Boolean)">
             <param name="output">The generated text mesh (the last completed one while a computation is in progress).</param>
             <param name="inProgress">True while a mesh is being computed in the background.</param>
             <param name="fontAndParagraph">The FontAndParagraph providing the text layout to render.</param>
@@ -476,12 +502,14 @@
             <param name="extrudeOrigin">Where the extruded mesh sits relative to Z = 0.</param>
             <param name="flatteningTolerance">The maximum deviation allowed when flattening the outlines; smaller values yield finer curves and more vertices.</param>
             <param name="smoothingAngle">In cycles: side-wall edges sharper than this angle stay hard, flatter ones are shaded smooth.</param>
+            <param name="sideUVMapping">How the side walls are UV-mapped: Silhouette keeps the caps' planar projection (constant along the depth), ContourDepth runs U once around each contour and V along the depth, ContourDepthTiled tiles absolute surface distances by Texture Scale on walls and caps (use wrapping texture addressing).</param>
+            <param name="textureScale">Surface distance covered by one texture repeat; only used by ContourDepthTiled.</param>
             <param name="weldVertices">Welds identical vertices into an indexed mesh: visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle list).</param>
         </member>
         <member name="T:VL.Stride.Text3d.Nodes.Meshes.Text3dMeshesAsync">
             <summary>Like Text3dMeshes, but generates the per-glyph meshes on a background thread; the last completed set is output while a new one is computed.</summary>
         </member>
-        <member name="M:VL.Stride.Text3d.Nodes.Meshes.Text3dMeshesAsync.Update(VL.Lib.Collections.Spread{Stride.Rendering.Mesh}@,VL.Lib.Collections.Spread{Stride.Core.Mathematics.Matrix}@,System.Boolean@,System.String,VL.Lib.Text.FontList,System.Int32,VL.Stride.Text3d.Enums.TextAlignment,VL.Stride.Text3d.Enums.ParagraphAlignment,System.Single,VL.Stride.Text3d.Enums.ExtrudeOrigin,System.Single,System.Single,System.Boolean)">
+        <member name="M:VL.Stride.Text3d.Nodes.Meshes.Text3dMeshesAsync.Update(VL.Lib.Collections.Spread{Stride.Rendering.Mesh}@,VL.Lib.Collections.Spread{Stride.Core.Mathematics.Matrix}@,System.Boolean@,System.String,VL.Lib.Text.FontList,System.Int32,VL.Stride.Text3d.Enums.TextAlignment,VL.Stride.Text3d.Enums.ParagraphAlignment,System.Single,VL.Stride.Text3d.Enums.ExtrudeOrigin,System.Single,System.Single,VL.Stride.Text3d.Enums.SideUVMapping,System.Single,System.Boolean)">
             <param name="meshes">One mesh per visible glyph, in draw order (the last completed set while a computation is in progress).</param>
             <param name="transformations">Per glyph: the translation placing the mesh at its position in the text.</param>
             <param name="inProgress">True while the meshes are being computed in the background.</param>
@@ -494,12 +522,14 @@
             <param name="extrudeOrigin">Where the extruded meshes sit relative to Z = 0.</param>
             <param name="flatteningTolerance">The maximum deviation allowed when flattening the outlines; smaller values yield finer curves and more vertices.</param>
             <param name="smoothingAngle">In cycles: side-wall edges sharper than this angle stay hard, flatter ones are shaded smooth.</param>
+            <param name="sideUVMapping">How the side walls are UV-mapped: Silhouette keeps the caps' planar projection (constant along the depth), ContourDepth runs U once around each contour and V along the depth, ContourDepthTiled tiles absolute surface distances by Texture Scale on walls and caps (use wrapping texture addressing).</param>
+            <param name="textureScale">Surface distance covered by one texture repeat; only used by ContourDepthTiled.</param>
             <param name="weldVertices">Welds identical vertices into indexed meshes: visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle lists).</param>
         </member>
         <member name="T:VL.Stride.Text3d.Nodes.Meshes.Text3dMeshesAdvancedAsync">
             <summary>Like Text3dMeshes (Advanced), but generates the per-glyph meshes on a background thread; the last completed set is output while a new one is computed.</summary>
         </member>
-        <member name="M:VL.Stride.Text3d.Nodes.Meshes.Text3dMeshesAdvancedAsync.Update(VL.Lib.Collections.Spread{Stride.Rendering.Mesh}@,VL.Lib.Collections.Spread{Stride.Core.Mathematics.Matrix}@,System.Boolean@,VL.Stride.Text3d.Nodes.FontAndParagraph,System.Single,VL.Stride.Text3d.Enums.ExtrudeOrigin,System.Single,System.Single,System.Boolean)">
+        <member name="M:VL.Stride.Text3d.Nodes.Meshes.Text3dMeshesAdvancedAsync.Update(VL.Lib.Collections.Spread{Stride.Rendering.Mesh}@,VL.Lib.Collections.Spread{Stride.Core.Mathematics.Matrix}@,System.Boolean@,VL.Stride.Text3d.Nodes.FontAndParagraph,System.Single,VL.Stride.Text3d.Enums.ExtrudeOrigin,System.Single,System.Single,VL.Stride.Text3d.Enums.SideUVMapping,System.Single,System.Boolean)">
             <param name="meshes">One mesh per visible glyph, in draw order (the last completed set while a computation is in progress).</param>
             <param name="transformations">Per glyph: the translation placing the mesh at its position in the text.</param>
             <param name="inProgress">True while the meshes are being computed in the background.</param>
@@ -508,9 +538,11 @@
             <param name="extrudeOrigin">Where the extruded meshes sit relative to Z = 0.</param>
             <param name="flatteningTolerance">The maximum deviation allowed when flattening the outlines; smaller values yield finer curves and more vertices.</param>
             <param name="smoothingAngle">In cycles: side-wall edges sharper than this angle stay hard, flatter ones are shaded smooth.</param>
+            <param name="sideUVMapping">How the side walls are UV-mapped: Silhouette keeps the caps' planar projection (constant along the depth), ContourDepth runs U once around each contour and V along the depth, ContourDepthTiled tiles absolute surface distances by Texture Scale on walls and caps (use wrapping texture addressing).</param>
+            <param name="textureScale">Surface distance covered by one texture repeat; only used by ContourDepthTiled.</param>
             <param name="weldVertices">Welds identical vertices into indexed meshes: visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle lists).</param>
         </member>
-        <member name="M:VL.Stride.Text3d.Nodes.Meshes.GlyphMeshNodeHelper.Build(Stride.Engine.Game,Silk.NET.DirectWrite.IDWriteTextLayout*,System.Single,VL.Stride.Text3d.Enums.ExtrudeOrigin,System.Single,System.Single,System.Boolean,VL.Lib.Collections.Spread{Stride.Rendering.Mesh}@,VL.Lib.Collections.Spread{Stride.Core.Mathematics.Matrix}@)">
+        <member name="M:VL.Stride.Text3d.Nodes.Meshes.GlyphMeshNodeHelper.Build(Stride.Engine.Game,Silk.NET.DirectWrite.IDWriteTextLayout*,System.Single,VL.Stride.Text3d.Enums.ExtrudeOrigin,System.Single,System.Single,VL.Stride.Text3d.Enums.SideUVMapping,System.Single,System.Boolean,VL.Lib.Collections.Spread{Stride.Rendering.Mesh}@,VL.Lib.Collections.Spread{Stride.Core.Mathematics.Matrix}@)">
             <summary>Builds one Stride mesh per visible glyph plus its translation matrix.</summary>
         </member>
         <member name="M:VL.Stride.Text3d.Nodes.Meshes.GlyphMeshNodeHelper.BuildMeshes(Stride.Engine.Game,System.Collections.Generic.List{System.ValueTuple{Stride.Graphics.VertexPositionNormalTexture[],Stride.Core.Mathematics.Vector2}},System.Boolean,VL.Lib.Collections.Spread{Stride.Rendering.Mesh}@,VL.Lib.Collections.Spread{Stride.Core.Mathematics.Matrix}@)">
@@ -525,7 +557,7 @@
         <member name="T:VL.Stride.Text3d.Nodes.Meshes.Text3dMesh">
             <summary>Renders a string of text as an extruded 3D mesh.</summary>
         </member>
-        <member name="M:VL.Stride.Text3d.Nodes.Meshes.Text3dMesh.Update(Stride.Rendering.Mesh@,System.String,VL.Lib.Text.FontList,System.Int32,VL.Stride.Text3d.Enums.TextAlignment,VL.Stride.Text3d.Enums.ParagraphAlignment,System.Single,VL.Stride.Text3d.Enums.ExtrudeOrigin,System.Single,System.Single,System.Boolean)">
+        <member name="M:VL.Stride.Text3d.Nodes.Meshes.Text3dMesh.Update(Stride.Rendering.Mesh@,System.String,VL.Lib.Text.FontList,System.Int32,VL.Stride.Text3d.Enums.TextAlignment,VL.Stride.Text3d.Enums.ParagraphAlignment,System.Single,VL.Stride.Text3d.Enums.ExtrudeOrigin,System.Single,System.Single,VL.Stride.Text3d.Enums.SideUVMapping,System.Single,System.Boolean)">
             <param name="output">The generated text mesh.</param>
             <param name="text">The string to render.</param>
             <param name="font">The name of the font family.</param>
@@ -536,6 +568,8 @@
             <param name="extrudeOrigin">Where the extruded mesh sits relative to Z = 0.</param>
             <param name="flatteningTolerance">The maximum deviation allowed when flattening the outlines; smaller values yield finer curves and more vertices.</param>
             <param name="smoothingAngle">In cycles: side-wall edges sharper than this angle stay hard, flatter ones are shaded smooth.</param>
+            <param name="sideUVMapping">How the side walls are UV-mapped: Silhouette keeps the caps' planar projection (constant along the depth), ContourDepth runs U once around each contour and V along the depth, ContourDepthTiled tiles absolute surface distances by Texture Scale on walls and caps (use wrapping texture addressing).</param>
+            <param name="textureScale">Surface distance covered by one texture repeat; only used by ContourDepthTiled.</param>
             <param name="weldVertices">Welds identical vertices into an indexed mesh: visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle list).</param>
         </member>
         <member name="T:VL.Stride.Text3d.Nodes.Meshes.Text3dMeshes">
@@ -546,7 +580,7 @@
             strikethrough are not included.
             </summary>
         </member>
-        <member name="M:VL.Stride.Text3d.Nodes.Meshes.Text3dMeshes.Update(VL.Lib.Collections.Spread{Stride.Rendering.Mesh}@,VL.Lib.Collections.Spread{Stride.Core.Mathematics.Matrix}@,System.String,VL.Lib.Text.FontList,System.Int32,VL.Stride.Text3d.Enums.TextAlignment,VL.Stride.Text3d.Enums.ParagraphAlignment,System.Single,VL.Stride.Text3d.Enums.ExtrudeOrigin,System.Single,System.Single,System.Boolean)">
+        <member name="M:VL.Stride.Text3d.Nodes.Meshes.Text3dMeshes.Update(VL.Lib.Collections.Spread{Stride.Rendering.Mesh}@,VL.Lib.Collections.Spread{Stride.Core.Mathematics.Matrix}@,System.String,VL.Lib.Text.FontList,System.Int32,VL.Stride.Text3d.Enums.TextAlignment,VL.Stride.Text3d.Enums.ParagraphAlignment,System.Single,VL.Stride.Text3d.Enums.ExtrudeOrigin,System.Single,System.Single,VL.Stride.Text3d.Enums.SideUVMapping,System.Single,System.Boolean)">
             <param name="meshes">One mesh per visible glyph, in draw order, each in local coordinates around its baseline pivot.</param>
             <param name="transformations">Per glyph: the translation placing the mesh at its position in the text.</param>
             <param name="text">The string to render.</param>
@@ -558,6 +592,8 @@
             <param name="extrudeOrigin">Where the extruded meshes sit relative to Z = 0.</param>
             <param name="flatteningTolerance">The maximum deviation allowed when flattening the outlines; smaller values yield finer curves and more vertices.</param>
             <param name="smoothingAngle">In cycles: side-wall edges sharper than this angle stay hard, flatter ones are shaded smooth.</param>
+            <param name="sideUVMapping">How the side walls are UV-mapped: Silhouette keeps the caps' planar projection (constant along the depth), ContourDepth runs U once around each contour and V along the depth, ContourDepthTiled tiles absolute surface distances by Texture Scale on walls and caps (use wrapping texture addressing).</param>
+            <param name="textureScale">Surface distance covered by one texture repeat; only used by ContourDepthTiled.</param>
             <param name="weldVertices">Welds identical vertices into indexed meshes: visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle lists).</param>
         </member>
         <member name="T:VL.Stride.Text3d.Nodes.Meshes.Text3dMeshesAdvanced">
@@ -568,7 +604,7 @@
             characters; underline and strikethrough are not included.
             </summary>
         </member>
-        <member name="M:VL.Stride.Text3d.Nodes.Meshes.Text3dMeshesAdvanced.Update(VL.Lib.Collections.Spread{Stride.Rendering.Mesh}@,VL.Lib.Collections.Spread{Stride.Core.Mathematics.Matrix}@,VL.Stride.Text3d.Nodes.FontAndParagraph,System.Single,VL.Stride.Text3d.Enums.ExtrudeOrigin,System.Single,System.Single,System.Boolean)">
+        <member name="M:VL.Stride.Text3d.Nodes.Meshes.Text3dMeshesAdvanced.Update(VL.Lib.Collections.Spread{Stride.Rendering.Mesh}@,VL.Lib.Collections.Spread{Stride.Core.Mathematics.Matrix}@,VL.Stride.Text3d.Nodes.FontAndParagraph,System.Single,VL.Stride.Text3d.Enums.ExtrudeOrigin,System.Single,System.Single,VL.Stride.Text3d.Enums.SideUVMapping,System.Single,System.Boolean)">
             <param name="meshes">One mesh per visible glyph, in draw order, each in local coordinates around its baseline pivot.</param>
             <param name="transformations">Per glyph: the translation placing the mesh at its position in the text.</param>
             <param name="fontAndParagraph">The FontAndParagraph providing the text layout to render.</param>
@@ -576,18 +612,22 @@
             <param name="extrudeOrigin">Where the extruded meshes sit relative to Z = 0.</param>
             <param name="flatteningTolerance">The maximum deviation allowed when flattening the outlines; smaller values yield finer curves and more vertices.</param>
             <param name="smoothingAngle">In cycles: side-wall edges sharper than this angle stay hard, flatter ones are shaded smooth.</param>
+            <param name="sideUVMapping">How the side walls are UV-mapped: Silhouette keeps the caps' planar projection (constant along the depth), ContourDepth runs U once around each contour and V along the depth, ContourDepthTiled tiles absolute surface distances by Texture Scale on walls and caps (use wrapping texture addressing).</param>
+            <param name="textureScale">Surface distance covered by one texture repeat; only used by ContourDepthTiled.</param>
             <param name="weldVertices">Welds identical vertices into indexed meshes: visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle lists).</param>
         </member>
         <member name="T:VL.Stride.Text3d.Nodes.Meshes.Text3dMeshAdvanced">
             <summary>Renders a FontAndParagraph text layout as an extruded 3D mesh.</summary>
         </member>
-        <member name="M:VL.Stride.Text3d.Nodes.Meshes.Text3dMeshAdvanced.Update(Stride.Rendering.Mesh@,VL.Stride.Text3d.Nodes.FontAndParagraph,System.Single,VL.Stride.Text3d.Enums.ExtrudeOrigin,System.Single,System.Single,System.Boolean)">
+        <member name="M:VL.Stride.Text3d.Nodes.Meshes.Text3dMeshAdvanced.Update(Stride.Rendering.Mesh@,VL.Stride.Text3d.Nodes.FontAndParagraph,System.Single,VL.Stride.Text3d.Enums.ExtrudeOrigin,System.Single,System.Single,VL.Stride.Text3d.Enums.SideUVMapping,System.Single,System.Boolean)">
             <param name="output">The generated text mesh.</param>
             <param name="fontAndParagraph">The FontAndParagraph providing the text layout to render.</param>
             <param name="extrudeAmount">The depth of the extrusion along Z.</param>
             <param name="extrudeOrigin">Where the extruded mesh sits relative to Z = 0.</param>
             <param name="flatteningTolerance">The maximum deviation allowed when flattening the outlines; smaller values yield finer curves and more vertices.</param>
             <param name="smoothingAngle">In cycles: side-wall edges sharper than this angle stay hard, flatter ones are shaded smooth.</param>
+            <param name="sideUVMapping">How the side walls are UV-mapped: Silhouette keeps the caps' planar projection (constant along the depth), ContourDepth runs U once around each contour and V along the depth, ContourDepthTiled tiles absolute surface distances by Texture Scale on walls and caps (use wrapping texture addressing).</param>
+            <param name="textureScale">Surface distance covered by one texture repeat; only used by ContourDepthTiled.</param>
             <param name="weldVertices">Welds identical vertices into an indexed mesh: visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle list).</param>
         </member>
         <member name="T:VL.Stride.Text3d.Nodes.TextLayoutMetrics">
@@ -635,7 +675,7 @@
         <member name="T:VL.Stride.Text3d.Nodes.Models.Text3d">
             <summary>Renders a string of text as an extruded 3D model entity.</summary>
         </member>
-        <member name="M:VL.Stride.Text3d.Nodes.Models.Text3d.Update(Stride.Engine.Entity@,System.String,VL.Lib.Text.FontList,System.Int32,VL.Stride.Text3d.Enums.TextAlignment,VL.Stride.Text3d.Enums.ParagraphAlignment,System.Single,VL.Stride.Text3d.Enums.ExtrudeOrigin,System.Single,System.Single,System.Boolean,System.Nullable{Stride.Core.Mathematics.Matrix},Stride.Rendering.Material,System.Boolean,VL.Lib.Collections.Spread{Stride.Engine.EntityComponent},VL.Lib.Collections.Spread{Stride.Engine.Entity},System.String,System.Boolean)">
+        <member name="M:VL.Stride.Text3d.Nodes.Models.Text3d.Update(Stride.Engine.Entity@,System.String,VL.Lib.Text.FontList,System.Int32,VL.Stride.Text3d.Enums.TextAlignment,VL.Stride.Text3d.Enums.ParagraphAlignment,System.Single,VL.Stride.Text3d.Enums.ExtrudeOrigin,System.Single,System.Single,VL.Stride.Text3d.Enums.SideUVMapping,System.Single,System.Boolean,System.Nullable{Stride.Core.Mathematics.Matrix},Stride.Rendering.Material,System.Boolean,VL.Lib.Collections.Spread{Stride.Engine.EntityComponent},VL.Lib.Collections.Spread{Stride.Engine.Entity},System.String,System.Boolean)">
             <param name="output">The entity holding the generated text model.</param>
             <param name="text">The string to render.</param>
             <param name="font">The name of the font family.</param>
@@ -646,6 +686,8 @@
             <param name="extrudeOrigin">Where the extruded mesh sits relative to Z = 0.</param>
             <param name="flatteningTolerance">The maximum deviation allowed when flattening the outlines; smaller values yield finer curves and more vertices.</param>
             <param name="smoothingAngle">In cycles: side-wall edges sharper than this angle stay hard, flatter ones are shaded smooth.</param>
+            <param name="sideUVMapping">How the side walls are UV-mapped: Silhouette keeps the caps' planar projection (constant along the depth), ContourDepth runs U once around each contour and V along the depth, ContourDepthTiled tiles absolute surface distances by Texture Scale on walls and caps (use wrapping texture addressing).</param>
+            <param name="textureScale">Surface distance covered by one texture repeat; only used by ContourDepthTiled.</param>
             <param name="weldVertices">Welds identical vertices into an indexed mesh: visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle list).</param>
             <param name="transformation">The transformation applied to the entity; when not set the entity keeps its default transform.</param>
             <param name="material">The material used to render the model.</param>
@@ -658,13 +700,15 @@
         <member name="T:VL.Stride.Text3d.Nodes.Models.Text3dAdvanced">
             <summary>Renders a FontAndParagraph text layout as an extruded 3D model entity.</summary>
         </member>
-        <member name="M:VL.Stride.Text3d.Nodes.Models.Text3dAdvanced.Update(Stride.Engine.Entity@,VL.Stride.Text3d.Nodes.FontAndParagraph,System.Single,VL.Stride.Text3d.Enums.ExtrudeOrigin,System.Single,System.Single,System.Boolean,System.Nullable{Stride.Core.Mathematics.Matrix},Stride.Rendering.Material,System.Boolean,VL.Lib.Collections.Spread{Stride.Engine.EntityComponent},VL.Lib.Collections.Spread{Stride.Engine.Entity},System.String,System.Boolean)">
+        <member name="M:VL.Stride.Text3d.Nodes.Models.Text3dAdvanced.Update(Stride.Engine.Entity@,VL.Stride.Text3d.Nodes.FontAndParagraph,System.Single,VL.Stride.Text3d.Enums.ExtrudeOrigin,System.Single,System.Single,VL.Stride.Text3d.Enums.SideUVMapping,System.Single,System.Boolean,System.Nullable{Stride.Core.Mathematics.Matrix},Stride.Rendering.Material,System.Boolean,VL.Lib.Collections.Spread{Stride.Engine.EntityComponent},VL.Lib.Collections.Spread{Stride.Engine.Entity},System.String,System.Boolean)">
             <param name="output">The entity holding the generated text model.</param>
             <param name="fontAndParagraph">The FontAndParagraph providing the text layout to render.</param>
             <param name="extrudeAmount">The depth of the extrusion along Z.</param>
             <param name="extrudeOrigin">Where the extruded mesh sits relative to Z = 0.</param>
             <param name="flatteningTolerance">The maximum deviation allowed when flattening the outlines; smaller values yield finer curves and more vertices.</param>
             <param name="smoothingAngle">In cycles: side-wall edges sharper than this angle stay hard, flatter ones are shaded smooth.</param>
+            <param name="sideUVMapping">How the side walls are UV-mapped: Silhouette keeps the caps' planar projection (constant along the depth), ContourDepth runs U once around each contour and V along the depth, ContourDepthTiled tiles absolute surface distances by Texture Scale on walls and caps (use wrapping texture addressing).</param>
+            <param name="textureScale">Surface distance covered by one texture repeat; only used by ContourDepthTiled.</param>
             <param name="weldVertices">Welds identical vertices into an indexed mesh: visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle list).</param>
             <param name="transformation">The transformation applied to the entity; when not set the entity keeps its default transform.</param>
             <param name="material">The material used to render the model.</param>

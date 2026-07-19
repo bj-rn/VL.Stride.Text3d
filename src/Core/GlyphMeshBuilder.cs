@@ -158,7 +158,9 @@ public static unsafe class GlyphMeshBuilder
         IDWriteTextLayout* textLayout, float extrudeAmount,
         ExtrudeOrigin extrudeOrigin = ExtrudeOrigin.Center,
         float flatteningTolerance = Extruder.DefaultFlatteningTolerance,
-        float smoothingAngle = Extruder.DefaultSmoothingAngle)
+        float smoothingAngle = Extruder.DefaultSmoothingAngle,
+        Enums.SideUVMapping sideUVMapping = Enums.SideUVMapping.Silhouette,
+        float textureScale = Extruder.DefaultTextureScale)
     {
         var result = new List<(VertexPositionNormalTexture[], Vector2)>();
         var collector = new GlyphOutlineCollector(Native.D2DFactory);
@@ -172,7 +174,7 @@ public static unsafe class GlyphMeshBuilder
             foreach (var glyph in collector.Glyphs)
             {
                 extruder.GetVertices(glyph.Geometry, vertices, extrudeAmount,
-                    extrudeOrigin, flatteningTolerance, smoothingAngle);
+                    extrudeOrigin, flatteningTolerance, smoothingAngle, sideUVMapping, textureScale);
                 if (vertices.Count > 0)
                     result.Add((vertices.ToArray(), new Vector2(glyph.X, glyph.Y)));
             }

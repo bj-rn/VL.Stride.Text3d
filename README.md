@@ -37,6 +37,11 @@ Download: http://visualprogramming.net
 
 ## Changes in 2.2
 
+- New `Side UV Mapping` pin on all mesh/model producing nodes (default Silhouette, the
+  previous behavior): ContourDepth unwraps the side walls, running U once around each
+  contour and V along the extrusion depth; ContourDepthTiled tiles absolute surface
+  distances by the new `Texture Scale` pin on walls and caps alike for uniform texel
+  density (use wrapping texture addressing).
 - New `Weld Vertices` pin on all mesh/model producing nodes (default off): welds
   identical vertices into an indexed mesh, visually lossless with roughly 2 to 3 times
   smaller vertex buffers. Off by default because it changes the mesh topology, which

@@ -55,6 +55,9 @@ public sealed unsafe class Extruder
     /// its cosine matches the original hard-coded 0.5 threshold.</summary>
     public const float DefaultSmoothingAngle = 1f / 6f;
 
+    /// <summary>Default surface distance covered by one texture repeat (ContourDepthTiled only).</summary>
+    public const float DefaultTextureScale = 32f;
+
     private const float D2DDefaultFlatteningTolerance = 0.25f;
 
     private readonly ID2D1Factory* factory;
@@ -98,7 +101,9 @@ public sealed unsafe class Extruder
         float height = 24.0f,
         ExtrudeOrigin origin = ExtrudeOrigin.Center,
         float flatteningTolerance = DefaultFlatteningTolerance,
-        float smoothingAngle = DefaultSmoothingAngle)
+        float smoothingAngle = DefaultSmoothingAngle,
+        SideUVMapping sideUVMapping = SideUVMapping.Silhouette,
+        float textureScale = DefaultTextureScale)
     {
         vertices.Clear();
 
@@ -114,6 +119,9 @@ public sealed unsafe class Extruder
 
         // D2D requires a positive tolerance
         flatteningTolerance = Math.Max(flatteningTolerance, 1e-4f);
+
+        // Guard against division by zero in the tiled UV mode
+        textureScale = Math.Max(textureScale, 1e-3f);
 
         // Smoothing angle is in cycles (vvvv standard unit, 0..0.5 covers 0°..180°).
         // The default 1/6 must reproduce the original hard-coded 0.5 threshold exactly,
@@ -139,7 +147,8 @@ public sealed unsafe class Extruder
         var min = new Vector2(bounds.Min.X, bounds.Max.Y);
         var max = new Vector2(bounds.Max.X, bounds.Min.Y);
 
-        var sink = new ExtrudingSink(vertices, zFront, zBack, smoothingThreshold, min, max);
+        var sink = new ExtrudingSink(vertices, zFront, zBack, smoothingThreshold, min, max,
+            sideUVMapping, textureScale);
         var simplifiedPtr = (ID2D1SimplifiedGeometrySink*)GetComPointer(sink, typeof(ID2D1SimplifiedGeometrySinkCallback).GUID);
         var tessellationPtr = (ID2D1TessellationSink*)GetComPointer(sink, typeof(ID2D1TessellationSinkCallback).GUID);
         try

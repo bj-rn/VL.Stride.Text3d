@@ -190,6 +190,17 @@ public enum VerticalGlyphOrientation
     Stacked = 1,
 }
 
+/// <summary>How the side walls of the extrusion are UV-mapped (library-specific, since 2.2).</summary>
+public enum SideUVMapping
+{
+    /// <summary>Side walls reuse the caps' planar silhouette projection; constant along the depth (the original behavior).</summary>
+    Silhouette = 0,
+    /// <summary>U runs once around each contour (0 to 1, wrap seam where the contour closes), V runs along the depth (0 front, 1 back).</summary>
+    ContourDepth = 1,
+    /// <summary>U and V carry absolute surface distances divided by Texture Scale, on walls and caps alike; uniform texel density, use wrapping texture addressing.</summary>
+    ContourDepthTiled = 2,
+}
+
 /// <summary>Where the extruded mesh sits relative to Z = 0 (library-specific, since 2.2).</summary>
 public enum ExtrudeOrigin
 {

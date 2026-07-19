@@ -24,7 +24,9 @@ namespace VL.Stride.Text3d.Core;
 public static unsafe class TextOutlineExtractor
 {
     public static void ExtractVertices(IDWriteTextLayout* textLayout, List<VertexPositionNormalTexture> vertices,
-        float extrudeAmount, Enums.ExtrudeOrigin extrudeOrigin, float flatteningTolerance, float smoothingAngle)
+        float extrudeAmount, Enums.ExtrudeOrigin extrudeOrigin, float flatteningTolerance, float smoothingAngle,
+        Enums.SideUVMapping sideUVMapping = Enums.SideUVMapping.Silhouette,
+        float textureScale = Extruder.DefaultTextureScale)
     {
         var renderer = new OutlineRenderer(Native.D2DFactory);
         var rendererPtr = (IDWriteTextRenderer*)GetComPointer(renderer, typeof(IDWriteTextRendererCallback).GUID);
@@ -34,7 +36,8 @@ public static unsafe class TextOutlineExtractor
 
             var geometry = renderer.GetGeometry();
             var extruder = new Extruder(Native.D2DFactory);
-            extruder.GetVertices(geometry, vertices, extrudeAmount, extrudeOrigin, flatteningTolerance, smoothingAngle);
+            extruder.GetVertices(geometry, vertices, extrudeAmount, extrudeOrigin, flatteningTolerance,
+                smoothingAngle, sideUVMapping, textureScale);
             if (geometry != null)
                 geometry->Release();
         }
@@ -63,6 +66,12 @@ public abstract unsafe class Text3dBase : PrimitiveProceduralModelBase
     /// <summary>Welds identical vertices into an indexed mesh (visually lossless, smaller buffers; changes the mesh topology).</summary>
     public bool WeldVertices { get; set; }
 
+    /// <summary>How the side walls of the extrusion are UV-mapped.</summary>
+    public Enums.SideUVMapping SideUVMapping { get; set; } = Enums.SideUVMapping.Silhouette;
+
+    /// <summary>Surface distance covered by one texture repeat (ContourDepthTiled only).</summary>
+    public float TextureScale { get; set; } = Extruder.DefaultTextureScale;
+
     protected static int[] GetDefaultIndicesArray(int size)
     {
         var result = new int[size];
@@ -74,7 +83,7 @@ public abstract unsafe class Text3dBase : PrimitiveProceduralModelBase
     /// <summary>Draws the layout into an OutlineRenderer and extrudes the result into vertexList.</summary>
     protected void ExtractVertices(IDWriteTextLayout* textLayout)
         => TextOutlineExtractor.ExtractVertices(textLayout, vertexList,
-            ExtrudeAmount, ExtrudeOrigin, FlatteningTolerance, SmoothingAngle);
+            ExtrudeAmount, ExtrudeOrigin, FlatteningTolerance, SmoothingAngle, SideUVMapping, TextureScale);
 
     protected GeometricMeshData<VertexPositionNormalTexture> BuildMeshData(string name)
     {

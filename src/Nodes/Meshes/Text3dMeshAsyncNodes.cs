@@ -21,6 +21,7 @@ using VL.Stride.Text3d.Nodes.Models;
 using ExtrudeOrigin = VL.Stride.Text3d.Enums.ExtrudeOrigin;
 using GlyphList = System.Collections.Generic.List<(Stride.Graphics.VertexPositionNormalTexture[] Vertices, Stride.Core.Mathematics.Vector2 Position)>;
 using ParagraphAlignment = VL.Stride.Text3d.Enums.ParagraphAlignment;
+using SideUVMapping = VL.Stride.Text3d.Enums.SideUVMapping;
 using TextAlignment = VL.Stride.Text3d.Enums.TextAlignment;
 
 namespace VL.Stride.Text3d.Nodes.Meshes;
@@ -51,6 +52,8 @@ public class Text3dMeshAsync : IDisposable
     /// <param name="extrudeOrigin">Where the extruded mesh sits relative to Z = 0.</param>
     /// <param name="flatteningTolerance">The maximum deviation allowed when flattening the outlines; smaller values yield finer curves and more vertices.</param>
     /// <param name="smoothingAngle">In cycles: side-wall edges sharper than this angle stay hard, flatter ones are shaded smooth.</param>
+    /// <param name="sideUVMapping">How the side walls are UV-mapped: Silhouette keeps the caps' planar projection (constant along the depth), ContourDepth runs U once around each contour and V along the depth, ContourDepthTiled tiles absolute surface distances by Texture Scale on walls and caps (use wrapping texture addressing).</param>
+    /// <param name="textureScale">Surface distance covered by one texture repeat; only used by ContourDepthTiled.</param>
     /// <param name="weldVertices">Welds identical vertices into an indexed mesh: visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle list).</param>
     public unsafe void Update(out Mesh? output, out bool inProgress,
         string text = "hello world", FontList? font = null, int fontSize = 32,
@@ -59,6 +62,8 @@ public class Text3dMeshAsync : IDisposable
         float extrudeAmount = 1f, ExtrudeOrigin extrudeOrigin = ExtrudeOrigin.Center,
         float flatteningTolerance = Core.Extruder.DefaultFlatteningTolerance,
         float smoothingAngle = Core.Extruder.DefaultSmoothingAngle,
+        SideUVMapping sideUVMapping = SideUVMapping.Silhouette,
+        float textureScale = Core.Extruder.DefaultTextureScale,
         bool weldVertices = false)
     {
         var hashCode = new HashCode();
@@ -66,6 +71,7 @@ public class Text3dMeshAsync : IDisposable
         hashCode.Add(textAlignment); hashCode.Add(paragraphAlignment);
         hashCode.Add(extrudeAmount); hashCode.Add(extrudeOrigin);
         hashCode.Add(flatteningTolerance); hashCode.Add(smoothingAngle);
+        hashCode.Add(sideUVMapping); hashCode.Add(textureScale);
         int hash = hashCode.ToHashCode();
 
         bool adopted = computation.Poll(hash, out var vertices, out bool needsStart, out inProgress);
@@ -80,7 +86,9 @@ public class Text3dMeshAsync : IDisposable
             var eo = extrudeOrigin;
             var ft = flatteningTolerance;
             var sa = smoothingAngle;
-            computation.Start(hash, () => ComputeVertices(t, f, size, ta, pa, ea, eo, ft, sa));
+            var uv = sideUVMapping;
+            var ts = textureScale;
+            computation.Start(hash, () => ComputeVertices(t, f, size, ta, pa, ea, eo, ft, sa, uv, ts));
             inProgress = true;
         }
         // Welding is a main-thread post-process: toggling it re-welds the cached
@@ -98,14 +106,14 @@ public class Text3dMeshAsync : IDisposable
     private static unsafe VertexPositionNormalTexture[] ComputeVertices(
         string text, string font, int fontSize, TextAlignment textAlignment,
         ParagraphAlignment paragraphAlignment, float extrudeAmount, ExtrudeOrigin extrudeOrigin,
-        float flatteningTolerance, float smoothingAngle)
+        float flatteningTolerance, float smoothingAngle, SideUVMapping sideUVMapping, float textureScale)
     {
         var layout = GlyphMeshNodeHelper.CreateSimpleLayout(text, font, fontSize, textAlignment, paragraphAlignment);
         try
         {
             var vertices = new List<VertexPositionNormalTexture>(1024);
             TextOutlineExtractor.ExtractVertices(layout, vertices, extrudeAmount, extrudeOrigin,
-                flatteningTolerance, smoothingAngle);
+                flatteningTolerance, smoothingAngle, sideUVMapping, textureScale);
             return vertices.ToArray();
         }
         finally
@@ -139,12 +147,16 @@ public class Text3dMeshAdvancedAsync : IDisposable
     /// <param name="extrudeOrigin">Where the extruded mesh sits relative to Z = 0.</param>
     /// <param name="flatteningTolerance">The maximum deviation allowed when flattening the outlines; smaller values yield finer curves and more vertices.</param>
     /// <param name="smoothingAngle">In cycles: side-wall edges sharper than this angle stay hard, flatter ones are shaded smooth.</param>
+    /// <param name="sideUVMapping">How the side walls are UV-mapped: Silhouette keeps the caps' planar projection (constant along the depth), ContourDepth runs U once around each contour and V along the depth, ContourDepthTiled tiles absolute surface distances by Texture Scale on walls and caps (use wrapping texture addressing).</param>
+    /// <param name="textureScale">Surface distance covered by one texture repeat; only used by ContourDepthTiled.</param>
     /// <param name="weldVertices">Welds identical vertices into an indexed mesh: visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle list).</param>
     public unsafe void Update(out Mesh? output, out bool inProgress,
         FontAndParagraph? fontAndParagraph = null, float extrudeAmount = 1f,
         ExtrudeOrigin extrudeOrigin = ExtrudeOrigin.Center,
         float flatteningTolerance = Core.Extruder.DefaultFlatteningTolerance,
         float smoothingAngle = Core.Extruder.DefaultSmoothingAngle,
+        SideUVMapping sideUVMapping = SideUVMapping.Silhouette,
+        float textureScale = Core.Extruder.DefaultTextureScale,
         bool weldVertices = false)
     {
         var layout = fontAndParagraph?.GetTextLayout();
@@ -160,6 +172,7 @@ public class Text3dMeshAdvancedAsync : IDisposable
         hashCode.Add(layout); hashCode.Add(fontAndParagraph!.GetVersion());
         hashCode.Add(extrudeAmount); hashCode.Add(extrudeOrigin);
         hashCode.Add(flatteningTolerance); hashCode.Add(smoothingAngle);
+        hashCode.Add(sideUVMapping); hashCode.Add(textureScale);
         int hash = hashCode.ToHashCode();
 
         bool adopted = computation.Poll(hash, out var vertices, out bool needsStart, out inProgress);
@@ -172,7 +185,9 @@ public class Text3dMeshAdvancedAsync : IDisposable
             var eo = extrudeOrigin;
             var ft = flatteningTolerance;
             var sa = smoothingAngle;
-            computation.Start(hash, () => ComputeVertices(layoutPtr, ea, eo, ft, sa));
+            var uv = sideUVMapping;
+            var ts = textureScale;
+            computation.Start(hash, () => ComputeVertices(layoutPtr, ea, eo, ft, sa, uv, ts));
             inProgress = true;
         }
         // Welding is a main-thread post-process: toggling it re-welds the cached
@@ -188,13 +203,15 @@ public class Text3dMeshAdvancedAsync : IDisposable
     }
 
     private static unsafe VertexPositionNormalTexture[] ComputeVertices(nint layoutPtr,
-        float extrudeAmount, ExtrudeOrigin extrudeOrigin, float flatteningTolerance, float smoothingAngle)
+        float extrudeAmount, ExtrudeOrigin extrudeOrigin, float flatteningTolerance, float smoothingAngle,
+        SideUVMapping sideUVMapping, float textureScale)
     {
         try
         {
             var vertices = new List<VertexPositionNormalTexture>(1024);
             TextOutlineExtractor.ExtractVertices((Silk.NET.DirectWrite.IDWriteTextLayout*)layoutPtr,
-                vertices, extrudeAmount, extrudeOrigin, flatteningTolerance, smoothingAngle);
+                vertices, extrudeAmount, extrudeOrigin, flatteningTolerance, smoothingAngle,
+                sideUVMapping, textureScale);
             return vertices.ToArray();
         }
         finally
@@ -233,6 +250,8 @@ public class Text3dMeshesAsync : IDisposable
     /// <param name="extrudeOrigin">Where the extruded meshes sit relative to Z = 0.</param>
     /// <param name="flatteningTolerance">The maximum deviation allowed when flattening the outlines; smaller values yield finer curves and more vertices.</param>
     /// <param name="smoothingAngle">In cycles: side-wall edges sharper than this angle stay hard, flatter ones are shaded smooth.</param>
+    /// <param name="sideUVMapping">How the side walls are UV-mapped: Silhouette keeps the caps' planar projection (constant along the depth), ContourDepth runs U once around each contour and V along the depth, ContourDepthTiled tiles absolute surface distances by Texture Scale on walls and caps (use wrapping texture addressing).</param>
+    /// <param name="textureScale">Surface distance covered by one texture repeat; only used by ContourDepthTiled.</param>
     /// <param name="weldVertices">Welds identical vertices into indexed meshes: visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle lists).</param>
     public unsafe void Update(out Spread<Mesh> meshes, out Spread<Matrix> transformations, out bool inProgress,
         string text = "hello world", FontList? font = null, int fontSize = 32,
@@ -241,6 +260,8 @@ public class Text3dMeshesAsync : IDisposable
         float extrudeAmount = 1f, ExtrudeOrigin extrudeOrigin = ExtrudeOrigin.Center,
         float flatteningTolerance = Core.Extruder.DefaultFlatteningTolerance,
         float smoothingAngle = Core.Extruder.DefaultSmoothingAngle,
+        SideUVMapping sideUVMapping = SideUVMapping.Silhouette,
+        float textureScale = Core.Extruder.DefaultTextureScale,
         bool weldVertices = false)
     {
         var hashCode = new HashCode();
@@ -248,6 +269,7 @@ public class Text3dMeshesAsync : IDisposable
         hashCode.Add(textAlignment); hashCode.Add(paragraphAlignment);
         hashCode.Add(extrudeAmount); hashCode.Add(extrudeOrigin);
         hashCode.Add(flatteningTolerance); hashCode.Add(smoothingAngle);
+        hashCode.Add(sideUVMapping); hashCode.Add(textureScale);
         int hash = hashCode.ToHashCode();
 
         bool adopted = computation.Poll(hash, out var glyphs, out bool needsStart, out inProgress);
@@ -262,7 +284,9 @@ public class Text3dMeshesAsync : IDisposable
             var eo = extrudeOrigin;
             var ft = flatteningTolerance;
             var sa = smoothingAngle;
-            computation.Start(hash, () => ComputeGlyphs(t, f, size, ta, pa, ea, eo, ft, sa));
+            var uv = sideUVMapping;
+            var ts = textureScale;
+            computation.Start(hash, () => ComputeGlyphs(t, f, size, ta, pa, ea, eo, ft, sa, uv, ts));
             inProgress = true;
         }
         // Welding is a main-thread post-process: toggling it re-welds the cached
@@ -280,13 +304,13 @@ public class Text3dMeshesAsync : IDisposable
     private static unsafe GlyphList ComputeGlyphs(
         string text, string font, int fontSize, TextAlignment textAlignment,
         ParagraphAlignment paragraphAlignment, float extrudeAmount, ExtrudeOrigin extrudeOrigin,
-        float flatteningTolerance, float smoothingAngle)
+        float flatteningTolerance, float smoothingAngle, SideUVMapping sideUVMapping, float textureScale)
     {
         var layout = GlyphMeshNodeHelper.CreateSimpleLayout(text, font, fontSize, textAlignment, paragraphAlignment);
         try
         {
             return GlyphMeshBuilder.ExtractGlyphVertices(layout, extrudeAmount, extrudeOrigin,
-                flatteningTolerance, smoothingAngle);
+                flatteningTolerance, smoothingAngle, sideUVMapping, textureScale);
         }
         finally
         {
@@ -320,12 +344,16 @@ public class Text3dMeshesAdvancedAsync : IDisposable
     /// <param name="extrudeOrigin">Where the extruded meshes sit relative to Z = 0.</param>
     /// <param name="flatteningTolerance">The maximum deviation allowed when flattening the outlines; smaller values yield finer curves and more vertices.</param>
     /// <param name="smoothingAngle">In cycles: side-wall edges sharper than this angle stay hard, flatter ones are shaded smooth.</param>
+    /// <param name="sideUVMapping">How the side walls are UV-mapped: Silhouette keeps the caps' planar projection (constant along the depth), ContourDepth runs U once around each contour and V along the depth, ContourDepthTiled tiles absolute surface distances by Texture Scale on walls and caps (use wrapping texture addressing).</param>
+    /// <param name="textureScale">Surface distance covered by one texture repeat; only used by ContourDepthTiled.</param>
     /// <param name="weldVertices">Welds identical vertices into indexed meshes: visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle lists).</param>
     public unsafe void Update(out Spread<Mesh> meshes, out Spread<Matrix> transformations, out bool inProgress,
         FontAndParagraph? fontAndParagraph = null, float extrudeAmount = 1f,
         ExtrudeOrigin extrudeOrigin = ExtrudeOrigin.Center,
         float flatteningTolerance = Core.Extruder.DefaultFlatteningTolerance,
         float smoothingAngle = Core.Extruder.DefaultSmoothingAngle,
+        SideUVMapping sideUVMapping = SideUVMapping.Silhouette,
+        float textureScale = Core.Extruder.DefaultTextureScale,
         bool weldVertices = false)
     {
         var layout = fontAndParagraph?.GetTextLayout();
@@ -343,6 +371,7 @@ public class Text3dMeshesAdvancedAsync : IDisposable
         hashCode.Add(layout); hashCode.Add(fontAndParagraph!.GetVersion());
         hashCode.Add(extrudeAmount); hashCode.Add(extrudeOrigin);
         hashCode.Add(flatteningTolerance); hashCode.Add(smoothingAngle);
+        hashCode.Add(sideUVMapping); hashCode.Add(textureScale);
         int hash = hashCode.ToHashCode();
 
         bool adopted = computation.Poll(hash, out var glyphs, out bool needsStart, out inProgress);
@@ -355,7 +384,9 @@ public class Text3dMeshesAdvancedAsync : IDisposable
             var eo = extrudeOrigin;
             var ft = flatteningTolerance;
             var sa = smoothingAngle;
-            computation.Start(hash, () => ComputeGlyphs(layoutPtr, ea, eo, ft, sa));
+            var uv = sideUVMapping;
+            var ts = textureScale;
+            computation.Start(hash, () => ComputeGlyphs(layoutPtr, ea, eo, ft, sa, uv, ts));
             inProgress = true;
         }
         // Welding is a main-thread post-process: toggling it re-welds the cached
@@ -371,12 +402,14 @@ public class Text3dMeshesAdvancedAsync : IDisposable
     }
 
     private static unsafe GlyphList ComputeGlyphs(nint layoutPtr,
-        float extrudeAmount, ExtrudeOrigin extrudeOrigin, float flatteningTolerance, float smoothingAngle)
+        float extrudeAmount, ExtrudeOrigin extrudeOrigin, float flatteningTolerance, float smoothingAngle,
+        SideUVMapping sideUVMapping, float textureScale)
     {
         try
         {
             return GlyphMeshBuilder.ExtractGlyphVertices((Silk.NET.DirectWrite.IDWriteTextLayout*)layoutPtr,
-                extrudeAmount, extrudeOrigin, flatteningTolerance, smoothingAngle);
+                extrudeAmount, extrudeOrigin, flatteningTolerance, smoothingAngle,
+                sideUVMapping, textureScale);
         }
         finally
         {
