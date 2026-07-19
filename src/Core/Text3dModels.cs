@@ -32,7 +32,7 @@ public abstract unsafe class Text3dBase : PrimitiveProceduralModelBase
     /// <summary>Maximum outline flattening deviation; smaller values yield finer curves (and more vertices).</summary>
     public float FlatteningTolerance { get; set; } = Extruder.DefaultFlatteningTolerance;
 
-    /// <summary>Side-wall edges sharper than this angle (degrees) stay hard; flatter ones are smoothed.</summary>
+    /// <summary>Side-wall edges sharper than this angle (in cycles, vvvv standard unit) stay hard; flatter ones are smoothed.</summary>
     public float SmoothingAngle { get; set; } = Extruder.DefaultSmoothingAngle;
 
     protected static int[] GetDefaultIndicesArray(int size)

@@ -42,8 +42,8 @@ Download: http://visualprogramming.net
   - `Extrude Origin` (Center/Front/Back) — where the mesh sits relative to Z = 0.
   - `Flattening Tolerance` (default 0.1) — curve quality of the outlines; smaller
     values give finer curves and more vertices.
-  - `Smoothing Angle` (default 60°) — side-wall edges sharper than this stay hard,
-    flatter ones are shaded smooth.
+  - `Smoothing Angle` (in cycles, default 1/6 = 60°) — side-wall edges sharper than
+    this stay hard, flatter ones are shaded smooth.
 - The entity nodes regained the `Name` pin.
 - All enum members now carry tooltips.
 

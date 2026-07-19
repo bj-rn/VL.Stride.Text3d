@@ -58,11 +58,12 @@ public class GeometryOptionTests
     [Test]
     public void SmoothingAngleControlsHardEdges()
     {
-        // Rectangle glyph: at 0° nothing is smoothed (corner normals stay per-edge);
-        // at 180° adjacent edge normals are always averaged. Positions must be
-        // identical, only side-wall normals may differ.
+        // Angle is in cycles (vvvv standard unit). Rectangle glyph: at 0 nothing is
+        // smoothed (corner normals stay per-edge); at 0.5 (=180°) adjacent edge normals
+        // are always averaged. Positions must be identical, only side-wall normals may
+        // differ.
         var hard = Build("I", "Arial", 64, extrude: 4f, smoothingAngle: 0f);
-        var smooth = Build("I", "Arial", 64, extrude: 4f, smoothingAngle: 180f);
+        var smooth = Build("I", "Arial", 64, extrude: 4f, smoothingAngle: 0.5f);
 
         Assert.That(smooth.Length, Is.EqualTo(hard.Length));
         bool anyNormalDiffers = false;

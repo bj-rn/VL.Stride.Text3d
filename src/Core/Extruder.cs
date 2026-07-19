@@ -51,8 +51,9 @@ public sealed unsafe class Extruder
     /// <summary>Default outline flattening tolerance (as the original implementation).</summary>
     public const float DefaultFlatteningTolerance = .1f;
 
-    /// <summary>Default smoothing angle in degrees; cos(60°) = 0.5 matches the original threshold.</summary>
-    public const float DefaultSmoothingAngle = 60f;
+    /// <summary>Default smoothing angle in cycles (vvvv standard unit; 1/6 = 60°) —
+    /// its cosine matches the original hard-coded 0.5 threshold.</summary>
+    public const float DefaultSmoothingAngle = 1f / 6f;
 
     private const float D2DDefaultFlatteningTolerance = 0.25f;
 
@@ -114,8 +115,12 @@ public sealed unsafe class Extruder
         // D2D requires a positive tolerance
         flatteningTolerance = Math.Max(flatteningTolerance, 1e-4f);
 
-        // cos of the smoothing angle; computed in double so 60° yields exactly 0.5f
-        float smoothingThreshold = (float)Math.Cos(Math.Clamp(smoothingAngle, 0f, 180f) * Math.PI / 180.0);
+        // Smoothing angle is in cycles (vvvv standard unit, 0..0.5 covers 0°..180°).
+        // The default 1/6 must reproduce the original hard-coded 0.5 threshold exactly,
+        // which float(1/6)*2π*cos would miss by 1 ulp — hence the special case.
+        float smoothingThreshold = smoothingAngle == DefaultSmoothingAngle
+            ? 0.5f
+            : (float)Math.Cos(Math.Clamp(smoothingAngle, 0f, 0.5f) * 2.0 * Math.PI);
 
         var (zFront, zBack) = origin switch
         {
