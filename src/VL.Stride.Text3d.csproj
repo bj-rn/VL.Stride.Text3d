@@ -25,8 +25,13 @@
     <!-- Pinned exactly: must match the Silk.NET family bundled with vvvv gamma 7.4 -->
     <PackageReference Include="Silk.NET.Direct2D" Version="[2.22.0]" GeneratePathProperty="true" />
     <PackageReference Include="Stride.Core.Mathematics" Version="4.2.1.2487" />
+    <PackageReference Include="Stride.Engine" Version="4.2.1.2487" />
+    <PackageReference Include="Stride.Games" Version="4.2.1.2487" />
     <PackageReference Include="Stride.Graphics" Version="4.2.1.2487" />
     <PackageReference Include="Stride.Rendering" Version="4.2.1.2487" />
+    <!-- VL node import + FontList dynamic enum; wildcard patch version per vvvv 2025.7 -->
+    <PackageReference Include="VL.Core" Version="2025.7.*" />
+    <PackageReference Include="VL.CoreLib" Version="2025.7.*" />
   </ItemGroup>
 
   <!--
