@@ -8,8 +8,8 @@
 // implementation never reads (glyph run description, drawing effects, inline objects)
 // are typed void*.
 //
-// Verified in the Phase 1 spike (tests/Spike.Console): this interop reproduces the
-// SharpDX implementation's vertex output bit-exactly and is leak-free over 3000
+// Verified during the port (Phase 1 spike, see git history): this interop reproduced
+// the SharpDX implementation's vertex output bit-exactly and was leak-free over 3000
 // iterations.
 
 using System.Runtime.CompilerServices;

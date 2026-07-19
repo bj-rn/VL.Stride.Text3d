@@ -1,8 +1,11 @@
 // Regression tests: the implementation must reproduce the committed baseline fixtures.
-// History: the fixtures were captured in Phase 0 from the SharpDX 1.0.2 build
-// (tests/Baseline.Console) and proved the 2.0 Silk.NET port bit-exact; for 2.1 they
-// were deliberately regenerated from the fixed implementation (corrected side-wall
-// normals — positions, UVs and cap normals guarded unchanged during regeneration).
+// History: the fixtures were captured in Phase 0 from the SharpDX 1.0.2 build (by the
+// since-removed tests/Baseline.Console tool, see git history) and proved the 2.0
+// Silk.NET port bit-exact; for 2.1 they were deliberately regenerated from the fixed
+// implementation (corrected side-wall normals — positions, UVs and cap normals guarded
+// unchanged during regeneration).
+// Note: DirectWrite output depends on the installed fonts, so the fixtures are tied to
+// the machine they were generated on — regenerate once when moving to a new machine.
 //
 // To regenerate deliberately: set REGENERATE_BASELINES=1 and run the suite once.
 
