@@ -10,6 +10,7 @@ using Stride.Rendering;
 using VL.Core;
 using VL.Core.Import;
 using VL.Lib.Basics.Resources;
+using VL.Lib.Collections;
 using VL.Lib.Text;
 using VL.Stride.Text3d.Core;
 using ParagraphAlignment = VL.Stride.Text3d.Enums.ParagraphAlignment;
@@ -69,6 +70,60 @@ internal static class Text3dModelBuilder
             entity.Transform.UseTRS = true;
         }
     }
+
+    /// <summary>Syncs user-provided extra components onto the entity (never touches ownComponent).</summary>
+    public static void SyncComponents(Entity entity, ModelComponent ownComponent,
+        ref Spread<EntityComponent>? current, Spread<EntityComponent>? target)
+    {
+        if (ReferenceEquals(current, target))
+            return;
+
+        if (current != null)
+        {
+            foreach (var component in current)
+            {
+                if (component != null && !ReferenceEquals(component, ownComponent)
+                    && (target == null || !target.Contains(component)))
+                    entity.Remove(component);
+            }
+        }
+        if (target != null)
+        {
+            foreach (var component in target)
+            {
+                if (component != null && !ReferenceEquals(component, ownComponent)
+                    && !entity.Components.Contains(component))
+                    entity.Add(component);
+            }
+        }
+        current = target;
+    }
+
+    /// <summary>Syncs user-provided child entities under the entity's transform.</summary>
+    public static void SyncChildren(Entity entity, ref Spread<Entity>? current, Spread<Entity>? target)
+    {
+        if (ReferenceEquals(current, target))
+            return;
+
+        if (current != null)
+        {
+            foreach (var child in current)
+            {
+                if (child != null && (target == null || !target.Contains(child))
+                    && child.Transform.Parent == entity.Transform)
+                    child.Transform.Parent = null;
+            }
+        }
+        if (target != null)
+        {
+            foreach (var child in target)
+            {
+                if (child != null && child.Transform.Parent != entity.Transform)
+                    child.Transform.Parent = entity.Transform;
+            }
+        }
+        current = target;
+    }
 }
 
 /// <summary>Renders a string of text as an extruded 3D model entity.</summary>
@@ -80,6 +135,8 @@ public class Text3d : IDisposable
     private readonly Entity entity;
     private readonly ModelComponent modelComponent;
     private int lastHash;
+    private Spread<EntityComponent>? lastComponents;
+    private Spread<Entity>? lastChildren;
 
     public Text3d(NodeContext nodeContext)
     {
@@ -92,7 +149,8 @@ public class Text3d : IDisposable
         TextAlignment textAlignment = TextAlignment.Leading,
         ParagraphAlignment paragraphAlignment = ParagraphAlignment.Near,
         float extrudeAmount = 1f,
-        Matrix? transformation = null, Material? material = null, bool isShadowCaster = true)
+        Matrix? transformation = null, Material? material = null, bool isShadowCaster = true,
+        Spread<EntityComponent>? components = null, Spread<Entity>? children = null, bool enabled = true)
     {
         int hash = HashCode.Combine(text, font?.Value, fontSize, textAlignment, paragraphAlignment, extrudeAmount, material);
         if (hash != lastHash || modelComponent.Model == null)
@@ -108,7 +166,10 @@ public class Text3d : IDisposable
             lastHash = hash;
         }
         Text3dModelBuilder.ApplyTransformation(entity, transformation);
+        Text3dModelBuilder.SyncComponents(entity, modelComponent, ref lastComponents, components);
+        Text3dModelBuilder.SyncChildren(entity, ref lastChildren, children);
         modelComponent.IsShadowCaster = isShadowCaster;
+        modelComponent.Enabled = enabled;
         output = entity;
     }
 
@@ -127,6 +188,8 @@ public class Text3dAdvanced : IDisposable
     private int lastVersion = -1;
     private float lastExtrude = float.NaN;
     private Material? lastMaterial;
+    private Spread<EntityComponent>? lastComponents;
+    private Spread<Entity>? lastChildren;
 
     public Text3dAdvanced(NodeContext nodeContext)
     {
@@ -136,7 +199,8 @@ public class Text3dAdvanced : IDisposable
 
     public void Update(out Entity output,
         FontAndParagraph? fontAndParagraph = null, float extrudeAmount = 1f,
-        Matrix? transformation = null, Material? material = null, bool isShadowCaster = true)
+        Matrix? transformation = null, Material? material = null, bool isShadowCaster = true,
+        Spread<EntityComponent>? components = null, Spread<Entity>? children = null, bool enabled = true)
     {
         var layout = fontAndParagraph?.GetTextLayout();
         int version = fontAndParagraph?.GetVersion() ?? -1;
@@ -159,7 +223,10 @@ public class Text3dAdvanced : IDisposable
             lastMaterial = material;
         }
         Text3dModelBuilder.ApplyTransformation(entity, transformation);
+        Text3dModelBuilder.SyncComponents(entity, modelComponent, ref lastComponents, components);
+        Text3dModelBuilder.SyncChildren(entity, ref lastChildren, children);
         modelComponent.IsShadowCaster = isShadowCaster;
+        modelComponent.Enabled = enabled;
         output = entity;
     }
 
