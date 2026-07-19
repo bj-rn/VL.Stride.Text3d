@@ -31,21 +31,21 @@ internal static unsafe class GlyphMeshNodeHelper
     /// <summary>Builds one Stride mesh per visible glyph plus its translation matrix.</summary>
     public static void Build(Game game, IDWriteTextLayout* textLayout,
         float extrudeAmount, ExtrudeOrigin extrudeOrigin, float flatteningTolerance, float smoothingAngle,
-        out Spread<Mesh> meshes, out Spread<Matrix> transformations)
+        bool weldVertices, out Spread<Mesh> meshes, out Spread<Matrix> transformations)
     {
         var glyphs = GlyphMeshBuilder.ExtractGlyphVertices(textLayout, extrudeAmount,
             extrudeOrigin, flatteningTolerance, smoothingAngle);
-        BuildMeshes(game, glyphs, out meshes, out transformations);
+        BuildMeshes(game, glyphs, weldVertices, out meshes, out transformations);
     }
 
     /// <summary>Turns precomputed per-glyph vertices into GPU meshes (main thread).</summary>
     public static void BuildMeshes(Game game,
         List<(VertexPositionNormalTexture[] Vertices, Vector2 Position)> glyphs,
-        out Spread<Mesh> meshes, out Spread<Matrix> transformations)
+        bool weldVertices, out Spread<Mesh> meshes, out Spread<Matrix> transformations)
     {
         var meshBuilder = new SpreadBuilder<Mesh>(glyphs.Count);
         var transformationBuilder = new SpreadBuilder<Matrix>(glyphs.Count);
-        var model = new PrebuiltMeshModel();
+        var model = new PrebuiltMeshModel { WeldVertices = weldVertices };
         foreach (var (vertices, position) in glyphs)
         {
             model.Vertices = vertices;
@@ -108,19 +108,22 @@ public class Text3dMesh : IDisposable
     /// <param name="extrudeOrigin">Where the extruded mesh sits relative to Z = 0.</param>
     /// <param name="flatteningTolerance">The maximum deviation allowed when flattening the outlines; smaller values yield finer curves and more vertices.</param>
     /// <param name="smoothingAngle">In cycles: side-wall edges sharper than this angle stay hard, flatter ones are shaded smooth.</param>
+    /// <param name="weldVertices">Welds identical vertices into an indexed mesh — visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle list).</param>
     public void Update(out Mesh? output,
         string text = "hello world", FontList? font = null, int fontSize = 32,
         TextAlignment textAlignment = TextAlignment.Leading,
         ParagraphAlignment paragraphAlignment = ParagraphAlignment.Near,
         float extrudeAmount = 1f, ExtrudeOrigin extrudeOrigin = ExtrudeOrigin.Center,
         float flatteningTolerance = Core.Extruder.DefaultFlatteningTolerance,
-        float smoothingAngle = Core.Extruder.DefaultSmoothingAngle)
+        float smoothingAngle = Core.Extruder.DefaultSmoothingAngle,
+        bool weldVertices = false)
     {
         var hashCode = new HashCode();
         hashCode.Add(text); hashCode.Add(font?.Value); hashCode.Add(fontSize);
         hashCode.Add(textAlignment); hashCode.Add(paragraphAlignment);
         hashCode.Add(extrudeAmount); hashCode.Add(extrudeOrigin);
         hashCode.Add(flatteningTolerance); hashCode.Add(smoothingAngle);
+        hashCode.Add(weldVertices);
         int hash = hashCode.ToHashCode();
         if (hash != lastHash || mesh == null)
         {
@@ -133,6 +136,7 @@ public class Text3dMesh : IDisposable
             model.ExtrudeOrigin = extrudeOrigin;
             model.FlatteningTolerance = flatteningTolerance;
             model.SmoothingAngle = smoothingAngle;
+            model.WeldVertices = weldVertices;
             var strideModel = Text3dModelBuilder.Build(model, services.Game);
             mesh = strideModel.Meshes.Count > 0 ? strideModel.Meshes[0] : null;
             lastHash = hash;
@@ -174,19 +178,22 @@ public class Text3dMeshes : IDisposable
     /// <param name="extrudeOrigin">Where the extruded meshes sit relative to Z = 0.</param>
     /// <param name="flatteningTolerance">The maximum deviation allowed when flattening the outlines; smaller values yield finer curves and more vertices.</param>
     /// <param name="smoothingAngle">In cycles: side-wall edges sharper than this angle stay hard, flatter ones are shaded smooth.</param>
+    /// <param name="weldVertices">Welds identical vertices into indexed meshes — visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle lists).</param>
     public unsafe void Update(out Spread<Mesh> meshes, out Spread<Matrix> transformations,
         string text = "hello world", FontList? font = null, int fontSize = 32,
         TextAlignment textAlignment = TextAlignment.Leading,
         ParagraphAlignment paragraphAlignment = ParagraphAlignment.Near,
         float extrudeAmount = 1f, ExtrudeOrigin extrudeOrigin = ExtrudeOrigin.Center,
         float flatteningTolerance = Core.Extruder.DefaultFlatteningTolerance,
-        float smoothingAngle = Core.Extruder.DefaultSmoothingAngle)
+        float smoothingAngle = Core.Extruder.DefaultSmoothingAngle,
+        bool weldVertices = false)
     {
         var hashCode = new HashCode();
         hashCode.Add(text); hashCode.Add(font?.Value); hashCode.Add(fontSize);
         hashCode.Add(textAlignment); hashCode.Add(paragraphAlignment);
         hashCode.Add(extrudeAmount); hashCode.Add(extrudeOrigin);
         hashCode.Add(flatteningTolerance); hashCode.Add(smoothingAngle);
+        hashCode.Add(weldVertices);
         int hash = hashCode.ToHashCode();
         if (hash != lastHash || !built)
         {
@@ -195,7 +202,7 @@ public class Text3dMeshes : IDisposable
             try
             {
                 GlyphMeshNodeHelper.Build(services.Game, layout, extrudeAmount, extrudeOrigin,
-                    flatteningTolerance, smoothingAngle, out this.meshes, out this.transformations);
+                    flatteningTolerance, smoothingAngle, weldVertices, out this.meshes, out this.transformations);
             }
             finally
             {
@@ -238,11 +245,13 @@ public class Text3dMeshesAdvanced : IDisposable
     /// <param name="extrudeOrigin">Where the extruded meshes sit relative to Z = 0.</param>
     /// <param name="flatteningTolerance">The maximum deviation allowed when flattening the outlines; smaller values yield finer curves and more vertices.</param>
     /// <param name="smoothingAngle">In cycles: side-wall edges sharper than this angle stay hard, flatter ones are shaded smooth.</param>
+    /// <param name="weldVertices">Welds identical vertices into indexed meshes — visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle lists).</param>
     public unsafe void Update(out Spread<Mesh> meshes, out Spread<Matrix> transformations,
         FontAndParagraph? fontAndParagraph = null, float extrudeAmount = 1f,
         ExtrudeOrigin extrudeOrigin = ExtrudeOrigin.Center,
         float flatteningTolerance = Core.Extruder.DefaultFlatteningTolerance,
-        float smoothingAngle = Core.Extruder.DefaultSmoothingAngle)
+        float smoothingAngle = Core.Extruder.DefaultSmoothingAngle,
+        bool weldVertices = false)
     {
         var layout = fontAndParagraph?.GetTextLayout();
         if (layout == null)
@@ -257,11 +266,12 @@ public class Text3dMeshesAdvanced : IDisposable
             hashCode.Add(layout); hashCode.Add(fontAndParagraph!.GetVersion());
             hashCode.Add(extrudeAmount); hashCode.Add(extrudeOrigin);
             hashCode.Add(flatteningTolerance); hashCode.Add(smoothingAngle);
+            hashCode.Add(weldVertices);
             int hash = hashCode.ToHashCode();
             if (!ReferenceEquals(layout, lastLayout) || hash != lastHash)
             {
                 GlyphMeshNodeHelper.Build(services.Game, layout.Pointer, extrudeAmount, extrudeOrigin,
-                    flatteningTolerance, smoothingAngle, out this.meshes, out this.transformations);
+                    flatteningTolerance, smoothingAngle, weldVertices, out this.meshes, out this.transformations);
                 lastLayout = layout;
                 lastHash = hash;
             }
@@ -294,11 +304,13 @@ public class Text3dMeshAdvanced : IDisposable
     /// <param name="extrudeOrigin">Where the extruded mesh sits relative to Z = 0.</param>
     /// <param name="flatteningTolerance">The maximum deviation allowed when flattening the outlines; smaller values yield finer curves and more vertices.</param>
     /// <param name="smoothingAngle">In cycles: side-wall edges sharper than this angle stay hard, flatter ones are shaded smooth.</param>
+    /// <param name="weldVertices">Welds identical vertices into an indexed mesh — visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle list).</param>
     public void Update(out Mesh? output,
         FontAndParagraph? fontAndParagraph = null, float extrudeAmount = 1f,
         ExtrudeOrigin extrudeOrigin = ExtrudeOrigin.Center,
         float flatteningTolerance = Core.Extruder.DefaultFlatteningTolerance,
-        float smoothingAngle = Core.Extruder.DefaultSmoothingAngle)
+        float smoothingAngle = Core.Extruder.DefaultSmoothingAngle,
+        bool weldVertices = false)
     {
         var layout = fontAndParagraph?.GetTextLayout();
         if (layout == null)
@@ -312,6 +324,7 @@ public class Text3dMeshAdvanced : IDisposable
             hashCode.Add(layout); hashCode.Add(fontAndParagraph!.GetVersion());
             hashCode.Add(extrudeAmount); hashCode.Add(extrudeOrigin);
             hashCode.Add(flatteningTolerance); hashCode.Add(smoothingAngle);
+            hashCode.Add(weldVertices);
             int hash = hashCode.ToHashCode();
             if (!ReferenceEquals(layout, lastLayout) || hash != lastHash)
             {
@@ -320,6 +333,7 @@ public class Text3dMeshAdvanced : IDisposable
                 model.ExtrudeOrigin = extrudeOrigin;
                 model.FlatteningTolerance = flatteningTolerance;
                 model.SmoothingAngle = smoothingAngle;
+                model.WeldVertices = weldVertices;
                 var strideModel = Text3dModelBuilder.Build(model, services.Game);
                 mesh = strideModel.Meshes.Count > 0 ? strideModel.Meshes[0] : null;
                 lastLayout = layout;

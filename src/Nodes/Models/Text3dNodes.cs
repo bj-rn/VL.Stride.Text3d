@@ -155,6 +155,7 @@ public class Text3d : IDisposable
     /// <param name="extrudeOrigin">Where the extruded mesh sits relative to Z = 0.</param>
     /// <param name="flatteningTolerance">The maximum deviation allowed when flattening the outlines; smaller values yield finer curves and more vertices.</param>
     /// <param name="smoothingAngle">In cycles: side-wall edges sharper than this angle stay hard, flatter ones are shaded smooth.</param>
+    /// <param name="weldVertices">Welds identical vertices into an indexed mesh — visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle list).</param>
     /// <param name="transformation">The transformation applied to the entity; when not set the entity keeps its default transform.</param>
     /// <param name="material">The material used to render the model.</param>
     /// <param name="isShadowCaster">Whether the model casts shadows.</param>
@@ -169,6 +170,7 @@ public class Text3d : IDisposable
         float extrudeAmount = 1f, ExtrudeOrigin extrudeOrigin = ExtrudeOrigin.Center,
         float flatteningTolerance = Core.Extruder.DefaultFlatteningTolerance,
         float smoothingAngle = Core.Extruder.DefaultSmoothingAngle,
+        bool weldVertices = false,
         Matrix? transformation = null, Material? material = null, bool isShadowCaster = true,
         Spread<EntityComponent>? components = null, Spread<Entity>? children = null,
         string name = "Text3d", bool enabled = true)
@@ -178,7 +180,7 @@ public class Text3d : IDisposable
         hashCode.Add(textAlignment); hashCode.Add(paragraphAlignment);
         hashCode.Add(extrudeAmount); hashCode.Add(extrudeOrigin);
         hashCode.Add(flatteningTolerance); hashCode.Add(smoothingAngle);
-        hashCode.Add(material);
+        hashCode.Add(weldVertices); hashCode.Add(material);
         int hash = hashCode.ToHashCode();
         if (hash != lastHash || modelComponent.Model == null)
         {
@@ -191,6 +193,7 @@ public class Text3d : IDisposable
             model.ExtrudeOrigin = extrudeOrigin;
             model.FlatteningTolerance = flatteningTolerance;
             model.SmoothingAngle = smoothingAngle;
+            model.WeldVertices = weldVertices;
             model.MaterialInstance.Material = material;
             modelComponent.Model = Text3dModelBuilder.Build(model, services.Game);
             lastHash = hash;
@@ -232,6 +235,7 @@ public class Text3dAdvanced : IDisposable
     /// <param name="extrudeOrigin">Where the extruded mesh sits relative to Z = 0.</param>
     /// <param name="flatteningTolerance">The maximum deviation allowed when flattening the outlines; smaller values yield finer curves and more vertices.</param>
     /// <param name="smoothingAngle">In cycles: side-wall edges sharper than this angle stay hard, flatter ones are shaded smooth.</param>
+    /// <param name="weldVertices">Welds identical vertices into an indexed mesh — visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle list).</param>
     /// <param name="transformation">The transformation applied to the entity; when not set the entity keeps its default transform.</param>
     /// <param name="material">The material used to render the model.</param>
     /// <param name="isShadowCaster">Whether the model casts shadows.</param>
@@ -244,6 +248,7 @@ public class Text3dAdvanced : IDisposable
         ExtrudeOrigin extrudeOrigin = ExtrudeOrigin.Center,
         float flatteningTolerance = Core.Extruder.DefaultFlatteningTolerance,
         float smoothingAngle = Core.Extruder.DefaultSmoothingAngle,
+        bool weldVertices = false,
         Matrix? transformation = null, Material? material = null, bool isShadowCaster = true,
         Spread<EntityComponent>? components = null, Spread<Entity>? children = null,
         string name = "Text3d", bool enabled = true)
@@ -260,7 +265,7 @@ public class Text3dAdvanced : IDisposable
             hashCode.Add(layout); hashCode.Add(fontAndParagraph!.GetVersion());
             hashCode.Add(extrudeAmount); hashCode.Add(extrudeOrigin);
             hashCode.Add(flatteningTolerance); hashCode.Add(smoothingAngle);
-            hashCode.Add(material);
+            hashCode.Add(weldVertices); hashCode.Add(material);
             int hash = hashCode.ToHashCode();
             if (!ReferenceEquals(layout, lastLayout) || hash != lastHash)
             {
@@ -269,6 +274,7 @@ public class Text3dAdvanced : IDisposable
                 model.ExtrudeOrigin = extrudeOrigin;
                 model.FlatteningTolerance = flatteningTolerance;
                 model.SmoothingAngle = smoothingAngle;
+                model.WeldVertices = weldVertices;
                 model.MaterialInstance.Material = material;
                 modelComponent.Model = Text3dModelBuilder.Build(model, services.Game);
                 lastLayout = layout;

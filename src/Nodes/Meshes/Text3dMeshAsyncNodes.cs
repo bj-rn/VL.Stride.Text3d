@@ -33,6 +33,7 @@ public class Text3dMeshAsync : IDisposable
     private readonly PrebuiltMeshModel model = new();
     private readonly BackgroundComputation<VertexPositionNormalTexture[]> computation = new();
     private Mesh? mesh;
+    private bool lastWeld;
 
     public Text3dMeshAsync(NodeContext nodeContext)
     {
@@ -50,13 +51,15 @@ public class Text3dMeshAsync : IDisposable
     /// <param name="extrudeOrigin">Where the extruded mesh sits relative to Z = 0.</param>
     /// <param name="flatteningTolerance">The maximum deviation allowed when flattening the outlines; smaller values yield finer curves and more vertices.</param>
     /// <param name="smoothingAngle">In cycles: side-wall edges sharper than this angle stay hard, flatter ones are shaded smooth.</param>
+    /// <param name="weldVertices">Welds identical vertices into an indexed mesh — visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle list).</param>
     public unsafe void Update(out Mesh? output, out bool inProgress,
         string text = "hello world", FontList? font = null, int fontSize = 32,
         TextAlignment textAlignment = TextAlignment.Leading,
         ParagraphAlignment paragraphAlignment = ParagraphAlignment.Near,
         float extrudeAmount = 1f, ExtrudeOrigin extrudeOrigin = ExtrudeOrigin.Center,
         float flatteningTolerance = Core.Extruder.DefaultFlatteningTolerance,
-        float smoothingAngle = Core.Extruder.DefaultSmoothingAngle)
+        float smoothingAngle = Core.Extruder.DefaultSmoothingAngle,
+        bool weldVertices = false)
     {
         var hashCode = new HashCode();
         hashCode.Add(text); hashCode.Add(font?.Value); hashCode.Add(fontSize);
@@ -80,8 +83,14 @@ public class Text3dMeshAsync : IDisposable
             computation.Start(hash, () => ComputeVertices(t, f, size, ta, pa, ea, eo, ft, sa));
             inProgress = true;
         }
-        if (adopted && vertices != null)
+        // Welding is a main-thread post-process: toggling it re-welds the cached
+        // vertices without re-running the background extraction.
+        if ((adopted || weldVertices != lastWeld) && vertices != null)
+        {
+            model.WeldVertices = weldVertices;
             mesh = GlyphMeshNodeHelper.BuildMesh(services.Game, model, vertices);
+            lastWeld = weldVertices;
+        }
 
         output = mesh;
     }
@@ -116,6 +125,7 @@ public class Text3dMeshAdvancedAsync : IDisposable
     private readonly PrebuiltMeshModel model = new();
     private readonly BackgroundComputation<VertexPositionNormalTexture[]> computation = new();
     private Mesh? mesh;
+    private bool lastWeld;
 
     public Text3dMeshAdvancedAsync(NodeContext nodeContext)
     {
@@ -129,11 +139,13 @@ public class Text3dMeshAdvancedAsync : IDisposable
     /// <param name="extrudeOrigin">Where the extruded mesh sits relative to Z = 0.</param>
     /// <param name="flatteningTolerance">The maximum deviation allowed when flattening the outlines; smaller values yield finer curves and more vertices.</param>
     /// <param name="smoothingAngle">In cycles: side-wall edges sharper than this angle stay hard, flatter ones are shaded smooth.</param>
+    /// <param name="weldVertices">Welds identical vertices into an indexed mesh — visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle list).</param>
     public unsafe void Update(out Mesh? output, out bool inProgress,
         FontAndParagraph? fontAndParagraph = null, float extrudeAmount = 1f,
         ExtrudeOrigin extrudeOrigin = ExtrudeOrigin.Center,
         float flatteningTolerance = Core.Extruder.DefaultFlatteningTolerance,
-        float smoothingAngle = Core.Extruder.DefaultSmoothingAngle)
+        float smoothingAngle = Core.Extruder.DefaultSmoothingAngle,
+        bool weldVertices = false)
     {
         var layout = fontAndParagraph?.GetTextLayout();
         if (layout == null)
@@ -163,8 +175,14 @@ public class Text3dMeshAdvancedAsync : IDisposable
             computation.Start(hash, () => ComputeVertices(layoutPtr, ea, eo, ft, sa));
             inProgress = true;
         }
-        if (adopted && vertices != null)
+        // Welding is a main-thread post-process: toggling it re-welds the cached
+        // vertices without re-running the background extraction.
+        if ((adopted || weldVertices != lastWeld) && vertices != null)
+        {
+            model.WeldVertices = weldVertices;
             mesh = GlyphMeshNodeHelper.BuildMesh(services.Game, model, vertices);
+            lastWeld = weldVertices;
+        }
 
         output = mesh;
     }
@@ -196,6 +214,7 @@ public class Text3dMeshesAsync : IDisposable
     private readonly BackgroundComputation<GlyphList> computation = new();
     private Spread<Mesh> meshes = Spread<Mesh>.Empty;
     private Spread<Matrix> transformations = Spread<Matrix>.Empty;
+    private bool lastWeld;
 
     public Text3dMeshesAsync(NodeContext nodeContext)
     {
@@ -214,13 +233,15 @@ public class Text3dMeshesAsync : IDisposable
     /// <param name="extrudeOrigin">Where the extruded meshes sit relative to Z = 0.</param>
     /// <param name="flatteningTolerance">The maximum deviation allowed when flattening the outlines; smaller values yield finer curves and more vertices.</param>
     /// <param name="smoothingAngle">In cycles: side-wall edges sharper than this angle stay hard, flatter ones are shaded smooth.</param>
+    /// <param name="weldVertices">Welds identical vertices into indexed meshes — visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle lists).</param>
     public unsafe void Update(out Spread<Mesh> meshes, out Spread<Matrix> transformations, out bool inProgress,
         string text = "hello world", FontList? font = null, int fontSize = 32,
         TextAlignment textAlignment = TextAlignment.Leading,
         ParagraphAlignment paragraphAlignment = ParagraphAlignment.Near,
         float extrudeAmount = 1f, ExtrudeOrigin extrudeOrigin = ExtrudeOrigin.Center,
         float flatteningTolerance = Core.Extruder.DefaultFlatteningTolerance,
-        float smoothingAngle = Core.Extruder.DefaultSmoothingAngle)
+        float smoothingAngle = Core.Extruder.DefaultSmoothingAngle,
+        bool weldVertices = false)
     {
         var hashCode = new HashCode();
         hashCode.Add(text); hashCode.Add(font?.Value); hashCode.Add(fontSize);
@@ -244,8 +265,13 @@ public class Text3dMeshesAsync : IDisposable
             computation.Start(hash, () => ComputeGlyphs(t, f, size, ta, pa, ea, eo, ft, sa));
             inProgress = true;
         }
-        if (adopted && glyphs != null)
-            GlyphMeshNodeHelper.BuildMeshes(services.Game, glyphs, out this.meshes, out this.transformations);
+        // Welding is a main-thread post-process: toggling it re-welds the cached
+        // vertices without re-running the background extraction.
+        if ((adopted || weldVertices != lastWeld) && glyphs != null)
+        {
+            GlyphMeshNodeHelper.BuildMeshes(services.Game, glyphs, weldVertices, out this.meshes, out this.transformations);
+            lastWeld = weldVertices;
+        }
 
         meshes = this.meshes;
         transformations = this.transformations;
@@ -279,6 +305,7 @@ public class Text3dMeshesAdvancedAsync : IDisposable
     private readonly BackgroundComputation<GlyphList> computation = new();
     private Spread<Mesh> meshes = Spread<Mesh>.Empty;
     private Spread<Matrix> transformations = Spread<Matrix>.Empty;
+    private bool lastWeld;
 
     public Text3dMeshesAdvancedAsync(NodeContext nodeContext)
     {
@@ -293,11 +320,13 @@ public class Text3dMeshesAdvancedAsync : IDisposable
     /// <param name="extrudeOrigin">Where the extruded meshes sit relative to Z = 0.</param>
     /// <param name="flatteningTolerance">The maximum deviation allowed when flattening the outlines; smaller values yield finer curves and more vertices.</param>
     /// <param name="smoothingAngle">In cycles: side-wall edges sharper than this angle stay hard, flatter ones are shaded smooth.</param>
+    /// <param name="weldVertices">Welds identical vertices into indexed meshes — visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle lists).</param>
     public unsafe void Update(out Spread<Mesh> meshes, out Spread<Matrix> transformations, out bool inProgress,
         FontAndParagraph? fontAndParagraph = null, float extrudeAmount = 1f,
         ExtrudeOrigin extrudeOrigin = ExtrudeOrigin.Center,
         float flatteningTolerance = Core.Extruder.DefaultFlatteningTolerance,
-        float smoothingAngle = Core.Extruder.DefaultSmoothingAngle)
+        float smoothingAngle = Core.Extruder.DefaultSmoothingAngle,
+        bool weldVertices = false)
     {
         var layout = fontAndParagraph?.GetTextLayout();
         if (layout == null)
@@ -329,8 +358,13 @@ public class Text3dMeshesAdvancedAsync : IDisposable
             computation.Start(hash, () => ComputeGlyphs(layoutPtr, ea, eo, ft, sa));
             inProgress = true;
         }
-        if (adopted && glyphs != null)
-            GlyphMeshNodeHelper.BuildMeshes(services.Game, glyphs, out this.meshes, out this.transformations);
+        // Welding is a main-thread post-process: toggling it re-welds the cached
+        // vertices without re-running the background extraction.
+        if ((adopted || weldVertices != lastWeld) && glyphs != null)
+        {
+            GlyphMeshNodeHelper.BuildMeshes(services.Game, glyphs, weldVertices, out this.meshes, out this.transformations);
+            lastWeld = weldVertices;
+        }
 
         meshes = this.meshes;
         transformations = this.transformations;

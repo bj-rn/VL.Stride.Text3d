@@ -60,6 +60,9 @@ public abstract unsafe class Text3dBase : PrimitiveProceduralModelBase
     /// <summary>Side-wall edges sharper than this angle (in cycles, vvvv standard unit) stay hard; flatter ones are smoothed.</summary>
     public float SmoothingAngle { get; set; } = Extruder.DefaultSmoothingAngle;
 
+    /// <summary>Welds identical vertices into an indexed mesh (visually lossless, smaller buffers; changes the mesh topology).</summary>
+    public bool WeldVertices { get; set; }
+
     protected static int[] GetDefaultIndicesArray(int size)
     {
         var result = new int[size];
@@ -75,6 +78,13 @@ public abstract unsafe class Text3dBase : PrimitiveProceduralModelBase
 
     protected GeometricMeshData<VertexPositionNormalTexture> BuildMeshData(string name)
     {
+        if (WeldVertices)
+        {
+            var (welded, indices) = MeshWelder.Weld(vertexList);
+            return new GeometricMeshData<VertexPositionNormalTexture>(welded, indices, isLeftHanded: false)
+            { Name = name };
+        }
+
         var vertices = vertexList.ToArray();
         return new GeometricMeshData<VertexPositionNormalTexture>(
             vertices, GetDefaultIndicesArray(vertices.Length), isLeftHanded: false)

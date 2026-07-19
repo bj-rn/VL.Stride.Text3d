@@ -191,12 +191,22 @@ public sealed class PrebuiltMeshModel : PrimitiveProceduralModelBase
 {
     public VertexPositionNormalTexture[] Vertices { get; set; } = Array.Empty<VertexPositionNormalTexture>();
 
+    /// <summary>Welds identical vertices into an indexed mesh (visually lossless, smaller buffers; changes the mesh topology).</summary>
+    public bool WeldVertices { get; set; }
+
     protected override GeometricMeshData<VertexPositionNormalTexture> CreatePrimitiveMeshData()
     {
-        var indices = new int[Vertices.Length];
-        for (int i = 0; i < indices.Length; ++i)
-            indices[i] = i;
-        return new GeometricMeshData<VertexPositionNormalTexture>(Vertices, indices, isLeftHanded: false)
+        if (WeldVertices)
+        {
+            var (welded, indices) = MeshWelder.Weld(Vertices);
+            return new GeometricMeshData<VertexPositionNormalTexture>(welded, indices, isLeftHanded: false)
+            { Name = "Text3dGlyph" };
+        }
+
+        var sequential = new int[Vertices.Length];
+        for (int i = 0; i < sequential.Length; ++i)
+            sequential[i] = i;
+        return new GeometricMeshData<VertexPositionNormalTexture>(Vertices, sequential, isLeftHanded: false)
         { Name = "Text3dGlyph" };
     }
 }

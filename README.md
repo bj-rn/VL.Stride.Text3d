@@ -37,6 +37,10 @@ Download: http://visualprogramming.net
 
 ## Changes in 2.2
 
+- New `Weld Vertices` pin on all mesh/model producing nodes (default off): welds
+  identical vertices into an indexed mesh — visually lossless with roughly 2–3× smaller
+  vertex buffers. Off by default because it changes the mesh topology, which per-face
+  techniques relying on the plain triangle list may depend on.
 - Async variants of all mesh nodes — `Text3dMesh (Async)`, `Text3dMesh (Advanced Async)`,
   `Text3dMeshes (Async)` and `Text3dMeshes (Advanced Async)`: geometry is computed on a
   background thread (an `In Progress` output reports activity), the last completed
