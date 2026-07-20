@@ -301,7 +301,7 @@ public class Text3dMeshesAsync : IDisposable
     /// <param name="meshes">One mesh per visible glyph, in draw order (the last completed set while a computation is in progress).</param>
     /// <param name="transformations">Per glyph: the translation placing the mesh at its position in the text.</param>
     /// <param name="inProgress">True while the meshes are being computed in the background.</param>
-    /// <param name="pointGroups">Per glyph: distinct vertex positions in text-local space (the space of Meshes composed with Transformations), made for HullsFromPointGroups (Async) from VL.Stride.BepuPhysics. For per-glyph bodies subtract the Transformations translation. Empty unless Compute Points is enabled.</param>
+    /// <param name="pointGroups">Per glyph: distinct vertex positions in text-local space (the space of Meshes composed with Transformations), made for HullsFromPointGroups (Async) from VL.Stride.BepuPhysics. For per-glyph bodies set the ConvexHullCollider's Position Local to the negated glyph translation (or subtract it from the points). Empty unless Compute Points is enabled.</param>
     /// <param name="text">The string to render.</param>
     /// <param name="font">The name of the font family.</param>
     /// <param name="fontSize">The logical size of the font in DIP units (1 DIP = 1/96 inch).</param>
@@ -424,7 +424,7 @@ public class Text3dMeshesAdvancedAsync : IDisposable
     /// <param name="meshes">One mesh per visible glyph, in draw order (the last completed set while a computation is in progress).</param>
     /// <param name="transformations">Per glyph: the translation placing the mesh at its position in the text.</param>
     /// <param name="inProgress">True while the meshes are being computed in the background.</param>
-    /// <param name="pointGroups">Per glyph: distinct vertex positions in text-local space (the space of Meshes composed with Transformations), made for HullsFromPointGroups (Async) from VL.Stride.BepuPhysics. For per-glyph bodies subtract the Transformations translation. Empty unless Compute Points is enabled.</param>
+    /// <param name="pointGroups">Per glyph: distinct vertex positions in text-local space (the space of Meshes composed with Transformations), made for HullsFromPointGroups (Async) from VL.Stride.BepuPhysics. For per-glyph bodies set the ConvexHullCollider's Position Local to the negated glyph translation (or subtract it from the points). Empty unless Compute Points is enabled.</param>
     /// <param name="fontAndParagraph">The FontAndParagraph providing the text layout to render.</param>
     /// <param name="extrudeAmount">The depth of the extrusion along Z.</param>
     /// <param name="extrudeOrigin">Where the extruded meshes sit relative to Z = 0.</param>
