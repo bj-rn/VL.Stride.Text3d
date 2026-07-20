@@ -1,6 +1,8 @@
 // VL.TestFramework compile checks: loads the package's .vl documents inside a headless
 // VL host and asserts they compile without errors. This exercises the forwarding
-// document and the C# node import (ImportNamespace attributes) end-to-end.
+// document and the C# node import (ImportNamespace attributes) end-to-end. Every patch
+// under help/ is discovered automatically, so new help patches are covered the moment
+// the file exists (same pattern as VL.Stride.BepuPhysics' PackageTests).
 //
 // Setup follows the working pattern of VL.Stride.BepuPhysics.Tests:
 //  - entryAssembly is the path to vvvv.exe — vvvv's own standard libraries are then
@@ -48,15 +50,18 @@ public class VlDocumentTests
         await testEnvironment!.LoadAndTestAsync(Path.Combine(TestData.RepoRoot, "VL.Stride.Text3d.vl"));
     }
 
-    [Test]
-    public async Task HelpText3dCompiles()
+    [TestCaseSource(nameof(HelpPatches))]
+    public async Task HelpPatchCompiles(string path)
     {
-        await testEnvironment!.LoadAndTestAsync(Path.Combine(TestData.RepoRoot, "help", "Explanation Overview Text3d.vl"));
+        await testEnvironment!.LoadAndTestAsync(path);
     }
 
-    [Test]
-    public async Task HelpTextStylesCompiles()
+    public static IEnumerable<string> HelpPatches()
     {
-        await testEnvironment!.LoadAndTestAsync(Path.Combine(TestData.RepoRoot, "help", "Explanation Overview TextStyles.vl"));
+        var helpDir = Path.Combine(TestData.RepoRoot, "help");
+        if (!Directory.Exists(helpDir))
+            yield break;
+        foreach (var file in Directory.EnumerateFiles(helpDir, "*.vl", SearchOption.AllDirectories))
+            yield return file;
     }
 }
