@@ -91,6 +91,23 @@ Download: http://visualprogramming.net
   `FontAndParagraph`.
 - Empty text no longer throws, it yields an empty mesh.
 
+### Upgrading a 1.x patch
+
+Nodes from this library show up red once; re-pick each via the node browser (double
+click the red node). Pin names were kept, so links reconnect automatically. The
+mapping:
+
+| 1.x node | 2.x replacement | Note |
+|---|---|---|
+| Text3d / Text3dMesh (simple) | same names | `FontSize` pin is now `Font Size`, re-draw that link |
+| Text3d / Text3dMesh (FontAndParagraph overload) | `Text3d (Advanced)` / `Text3dMesh (Advanced)` | renamed |
+| Text3dMesh (Async) | removed | was obsolete; 2.2 added new async variants |
+| FontAndParagraph and its Set* operations | same names | `SetBasicFontPorperties` is now `SetBasicFontProperties` |
+| TextStyles (FontFamily, FontSize, FontStretch, FontStyle, FontWeight, StrikeThrough, Underline, PairKerning, CharacterSpacing, Typography) | same names and category | |
+| TextLayoutMetrics / LineMetrics | same names | same output pins |
+| Enum types (TextAlignment, FontWeight, WordWrapping, …) | same names and member names | new type identity, re-create enum IOBoxes and re-enter their values |
+| Services (Internal) | removed | nodes obtain the Game themselves |
+
 ## Maintenance notes
 
 The 2.x package is version-coupled to what vvvv bundles:
