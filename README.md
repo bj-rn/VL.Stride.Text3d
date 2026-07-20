@@ -179,6 +179,15 @@ suite. Two things to preserve when touching the interop:
 - The `HelpPhysical3dTextCompiles` test needs VL.Stride.BepuPhysics resolvable: a
   sibling checkout next to this repo works out of the box, otherwise install the nuget
   (the test setup also searches `%LOCALAPPDATA%\vvvv\gamma\nugets`).
+- `src/Core/BackgroundComputation.cs` (the poll based helper behind the async nodes)
+  is intentionally duplicated in
+  [VL.Stride.BepuPhysics](https://github.com/bj-rn/VL.Stride.BepuPhysics) as
+  `src/Internal/BackgroundComputation.cs`: only namespace and visibility differ.
+  Duplicating 75 stable lines beats a cross package dependency (or a shared micro
+  nuget) that would couple the two packages' releases. When changing the helper,
+  change it in both repos; each carries the same semantics tests
+  (`BackgroundComputationTests`), so a divergence shows up in whichever suite was not
+  updated.
 
 ### Possible future direction
 
