@@ -157,6 +157,48 @@ mapping:
 | Enum types (TextAlignment, FontWeight, WordWrapping, …) | same names and member names | new type identity, re-create enum IOBoxes and re-enter their values |
 | Services (Internal) | removed | nodes obtain the Game themselves |
 
+## Testing
+
+```
+dotnet test tests\VL.Stride.Text3d.Tests
+```
+
+The NUnit project covers two things in one run:
+
+- **Unit tests** for the geometry pipeline: extrusion, vertex welding, side UV
+  mapping, per glyph placement (incl. RTL and multiline), collider point extraction
+  and vertex output regression against the fixtures in `tests/baselines`.
+- **Headless compile checks** via **VL.TestFramework**: the VL compiler is booted
+  headlessly and verifies that the main `VL.Stride.Text3d.vl` document and every
+  patch in `help/` compile without errors. Help patches are discovered
+  automatically, so a new patch is covered the moment the file exists. Each document
+  runs through the full compiler pipeline (load, dependency resolution, type
+  checking, code emission) but nothing is executed, no window opens. Run it after
+  any C# pin or signature change, it is exactly the check that catches a renamed pin
+  breaking a help patch. vvvv can stay open while the tests run.
+
+Useful variations:
+
+```
+dotnet test tests\VL.Stride.Text3d.Tests --filter "Name~MainDocumentCompiles"  # just the main document
+dotnet test tests\VL.Stride.Text3d.Tests --filter "Name~HelpPatchCompiles"     # all help patches
+dotnet test tests\VL.Stride.Text3d.Tests --filter "Name~TextMeshes"            # a specific patch (path is the test name)
+dotnet test tests\VL.Stride.Text3d.Tests --logger "console;verbosity=detailed" # full compiler messages on failure
+```
+
+Against a different vvvv installation (PowerShell):
+
+```
+$env:VVVV_DIR = "D:\vvvv\vvvv_gamma_7.4-win-x64"; dotnet test tests\VL.Stride.Text3d.Tests
+```
+
+Preconditions: a local vvvv installation (the fixture's default path matches the
+author's machine, on any other machine set the `VVVV_DIR` environment variable as
+shown above). The baseline fixtures are font/machine dependent, see the regeneration
+note under Maintenance notes. `TestEnvironmentLoader.Load` is called with
+`preCompilePackages: true` and that must stay, see the comment in
+`tests/VL.Stride.Text3d.Tests/VlDocumentTests.cs`.
+
 ## Maintenance notes
 
 The 2.x package is version-coupled to what vvvv bundles:
