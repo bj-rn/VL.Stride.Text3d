@@ -28,7 +28,7 @@ public sealed unsafe class TextLayoutMetrics
     /// <param name="width">The width of the formatted text, ignoring trailing whitespace at the end of each line.</param>
     /// <param name="height">The height of the formatted text; for an empty string this is the height of the default font.</param>
     /// <param name="heightIncludingTrailingWhitespace">The height of the formatted text, taking trailing whitespace into account. Differs from Height only for vertical reading directions; for horizontal text the trailing whitespace extends the width instead.</param>
-    /// <param name="widthIncludingTrailingWhitespace">The width of the formatted text, taking the trailing whitespace at the end of each line into account.</param>
+    /// <param name="widthIncludingTrailingWhitespace">The width of the formatted text, taking the trailing whitespace at the end of each line into account. Differs from Width only for horizontal reading directions; for vertical text the trailing whitespace extends the height instead.</param>
     /// <param name="layoutWidth">The initial width given to the layout (Max Width).</param>
     /// <param name="layoutHeight">The initial height given to the layout (Max Height).</param>
     /// <param name="lineCount">Total number of lines.</param>

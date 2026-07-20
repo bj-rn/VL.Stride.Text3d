@@ -129,10 +129,13 @@ public class FontAndParagraphTests
         vertical.SetReadingDirection(Enums.ReadingDirection.TopToBottom);
         vertical.SetFlowDirection(Enums.FlowDirection.LeftToRight);
 
-        layoutMetrics.Update(out _, out _, out _, out float verticalHeight,
-            out float verticalHeightIncl, out _, out _, out _, out _, out _, vertical);
+        layoutMetrics.Update(out _, out _, out float verticalWidth, out float verticalHeight,
+            out float verticalHeightIncl, out float verticalWidthIncl, out _, out _, out _, out _, vertical);
 
         Assert.That(verticalHeightIncl, Is.GreaterThan(verticalHeight));
+        // ...and the mirror image: vertically the trailing whitespace no longer
+        // extends the width.
+        Assert.That(verticalWidthIncl, Is.EqualTo(verticalWidth).Within(0.001f));
     }
 
     [Test]
