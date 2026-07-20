@@ -55,8 +55,8 @@ public class Text3dMeshAsync : IDisposable
     }
 
     /// <param name="output">The generated text mesh (the last completed one while a computation is in progress).</param>
-    /// <param name="inProgress">True while a mesh is being computed in the background.</param>
     /// <param name="points">Distinct vertex positions of the mesh (mesh-local space), made for convex hull baking with HullFromPoints (Async) from VL.Stride.BepuPhysics. Empty unless Compute Points is enabled.</param>
+    /// <param name="inProgress">True while a mesh is being computed in the background.</param>
     /// <param name="text">The string to render.</param>
     /// <param name="font">The name of the font family.</param>
     /// <param name="fontSize">The logical size of the font in DIP units (1 DIP = 1/96 inch).</param>
@@ -73,7 +73,7 @@ public class Text3dMeshAsync : IDisposable
     /// <param name="textureScale">Surface distance covered by one texture repeat; only used by ContourDepthTiled.</param>
     /// <param name="weldVertices">Welds identical vertices into an indexed mesh: visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle list).</param>
     /// <param name="computePoints">Also extracts the distinct vertex positions as collider points (see Points). Off by default so the extra pass costs nothing; toggling it triggers one background recomputation whose adoption also rebuilds the mesh output.</param>
-    public unsafe void Update(out Mesh? output, out bool inProgress, out Spread<Vector3> points,
+    public unsafe void Update(out Mesh? output, out Spread<Vector3> points, out bool inProgress,
         string text = "hello world", FontList? font = null, int fontSize = 32,
         TextAlignment textAlignment = TextAlignment.Leading,
         ParagraphAlignment paragraphAlignment = ParagraphAlignment.Near,
@@ -176,8 +176,8 @@ public class Text3dMeshAdvancedAsync : IDisposable
     }
 
     /// <param name="output">The generated text mesh (the last completed one while a computation is in progress).</param>
-    /// <param name="inProgress">True while a mesh is being computed in the background.</param>
     /// <param name="points">Distinct vertex positions of the mesh (mesh-local space), made for convex hull baking with HullFromPoints (Async) from VL.Stride.BepuPhysics. Empty unless Compute Points is enabled.</param>
+    /// <param name="inProgress">True while a mesh is being computed in the background.</param>
     /// <param name="fontAndParagraph">The FontAndParagraph providing the text layout to render.</param>
     /// <param name="extrudeAmount">The depth of the extrusion along Z.</param>
     /// <param name="extrudeOrigin">Where the extruded mesh sits relative to Z = 0.</param>
@@ -190,7 +190,7 @@ public class Text3dMeshAdvancedAsync : IDisposable
     /// <param name="textureScale">Surface distance covered by one texture repeat; only used by ContourDepthTiled.</param>
     /// <param name="weldVertices">Welds identical vertices into an indexed mesh: visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle list).</param>
     /// <param name="computePoints">Also extracts the distinct vertex positions as collider points (see Points). Off by default so the extra pass costs nothing; toggling it triggers one background recomputation whose adoption also rebuilds the mesh output.</param>
-    public unsafe void Update(out Mesh? output, out bool inProgress, out Spread<Vector3> points,
+    public unsafe void Update(out Mesh? output, out Spread<Vector3> points, out bool inProgress,
         FontAndParagraph? fontAndParagraph = null, float extrudeAmount = 1f,
         ExtrudeOrigin extrudeOrigin = ExtrudeOrigin.Center,
         float flatteningTolerance = Core.Extruder.DefaultFlatteningTolerance,
@@ -300,8 +300,8 @@ public class Text3dMeshesAsync : IDisposable
 
     /// <param name="meshes">One mesh per visible glyph, in draw order (the last completed set while a computation is in progress).</param>
     /// <param name="transformations">Per glyph: the translation placing the mesh at its position in the text.</param>
-    /// <param name="inProgress">True while the meshes are being computed in the background.</param>
     /// <param name="pointGroups">Per glyph: distinct vertex positions in text-local space (the space of Meshes composed with Transformations), made for HullsFromPointGroups (Async) from VL.Stride.BepuPhysics. For per-glyph bodies set the ConvexHullCollider's Position Local to the negated glyph translation (or subtract it from the points). Empty unless Compute Points is enabled.</param>
+    /// <param name="inProgress">True while the meshes are being computed in the background.</param>
     /// <param name="text">The string to render.</param>
     /// <param name="font">The name of the font family.</param>
     /// <param name="fontSize">The logical size of the font in DIP units (1 DIP = 1/96 inch).</param>
@@ -318,8 +318,8 @@ public class Text3dMeshesAsync : IDisposable
     /// <param name="textureScale">Surface distance covered by one texture repeat; only used by ContourDepthTiled.</param>
     /// <param name="weldVertices">Welds identical vertices into indexed meshes: visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle lists).</param>
     /// <param name="computePoints">Also extracts the distinct vertex positions per glyph as collider points (see Point Groups). Off by default so the extra pass costs nothing; toggling it triggers one background recomputation whose adoption also rebuilds the mesh outputs.</param>
-    public unsafe void Update(out Spread<Mesh> meshes, out Spread<Matrix> transformations, out bool inProgress,
-        out Spread<Spread<Vector3>> pointGroups,
+    public unsafe void Update(out Spread<Mesh> meshes, out Spread<Matrix> transformations,
+        out Spread<Spread<Vector3>> pointGroups, out bool inProgress,
         string text = "hello world", FontList? font = null, int fontSize = 32,
         TextAlignment textAlignment = TextAlignment.Leading,
         ParagraphAlignment paragraphAlignment = ParagraphAlignment.Near,
@@ -423,8 +423,8 @@ public class Text3dMeshesAdvancedAsync : IDisposable
 
     /// <param name="meshes">One mesh per visible glyph, in draw order (the last completed set while a computation is in progress).</param>
     /// <param name="transformations">Per glyph: the translation placing the mesh at its position in the text.</param>
-    /// <param name="inProgress">True while the meshes are being computed in the background.</param>
     /// <param name="pointGroups">Per glyph: distinct vertex positions in text-local space (the space of Meshes composed with Transformations), made for HullsFromPointGroups (Async) from VL.Stride.BepuPhysics. For per-glyph bodies set the ConvexHullCollider's Position Local to the negated glyph translation (or subtract it from the points). Empty unless Compute Points is enabled.</param>
+    /// <param name="inProgress">True while the meshes are being computed in the background.</param>
     /// <param name="fontAndParagraph">The FontAndParagraph providing the text layout to render.</param>
     /// <param name="extrudeAmount">The depth of the extrusion along Z.</param>
     /// <param name="extrudeOrigin">Where the extruded meshes sit relative to Z = 0.</param>
@@ -437,8 +437,8 @@ public class Text3dMeshesAdvancedAsync : IDisposable
     /// <param name="textureScale">Surface distance covered by one texture repeat; only used by ContourDepthTiled.</param>
     /// <param name="weldVertices">Welds identical vertices into indexed meshes: visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle lists).</param>
     /// <param name="computePoints">Also extracts the distinct vertex positions per glyph as collider points (see Point Groups). Off by default so the extra pass costs nothing; toggling it triggers one background recomputation whose adoption also rebuilds the mesh outputs.</param>
-    public unsafe void Update(out Spread<Mesh> meshes, out Spread<Matrix> transformations, out bool inProgress,
-        out Spread<Spread<Vector3>> pointGroups,
+    public unsafe void Update(out Spread<Mesh> meshes, out Spread<Matrix> transformations,
+        out Spread<Spread<Vector3>> pointGroups, out bool inProgress,
         FontAndParagraph? fontAndParagraph = null, float extrudeAmount = 1f,
         ExtrudeOrigin extrudeOrigin = ExtrudeOrigin.Center,
         float flatteningTolerance = Core.Extruder.DefaultFlatteningTolerance,
