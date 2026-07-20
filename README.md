@@ -35,6 +35,38 @@ For 2021.4
 Try it with vvvv, the visual live-programming environment for .NET
 Download: http://visualprogramming.net
 
+## Physics for 3d text
+
+Together with [VL.Stride.BepuPhysics](https://github.com/bj-rn/VL.Stride.BepuPhysics)
+(0.12.0 or newer) typed text becomes a physics collider without stalling the frame:
+enable `Compute Points` on `Text3dMeshes (Async)` and connect its `Point Groups`
+output to `HullsFromPointGroups (Async)`, then `ConvexHullCollider` into a `Static` or
+`Body` on the text entity. Every glyph gets its own convex hull, baked on a background
+thread from the same data as the rendered meshes, so meshes and colliders can never
+desync; `In Progress` reports background activity, the last completed result stays
+active meanwhile. The packages connect purely at the patch level (plain
+`Spread<Vector3>` point data), neither depends on the other's assembly. See
+`help/HowTo Physical 3d Text.vl` for the complete patch: spheres raining onto typed
+text.
+
+Notes:
+- Hulls are convex per glyph, so counters (the holes in e, o, a, ...) are filled in,
+  by design.
+- `Extrude Amount` must be non zero: coplanar points cannot form a hull volume and
+  yield no collider.
+- The whole-mesh nodes (`Text3dMesh (Async)` variants) offer a `Points` output for a
+  single hull around all of the text via `HullFromPoints (Async)`.
+
+What runs where:
+
+| Work | Thread |
+|---|---|
+| Text geometry extraction | background (existing async nodes) |
+| Point dedup + glyph translation | background (same bake as the meshes) |
+| Convex hull computation | background (VL.Stride.BepuPhysics) |
+| GPU mesh buffers for rendering | main (graphics device) |
+| Engine hull build at collider attach | main, unavoidable; trivial with reduced hull points |
+
 ## Changes in 2.4
 
 - New optional `Compute Points` pin on the four async mesh nodes: when enabled, the
@@ -139,6 +171,9 @@ suite. Two things to preserve when touching the interop:
 - The vertex-output regression fixtures in `tests/baselines` are font/machine-dependent
   (DirectWrite output varies with installed font versions). After moving to a new
   machine, regenerate them once with `REGENERATE_BASELINES=1 dotnet test`.
+- The `HelpPhysical3dTextCompiles` test needs VL.Stride.BepuPhysics resolvable: a
+  sibling checkout next to this repo works out of the box, otherwise install the nuget
+  (the test setup also searches `%LOCALAPPDATA%\vvvv\gamma\nugets`).
 
 ### Possible future direction
 
