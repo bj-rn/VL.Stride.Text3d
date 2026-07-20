@@ -184,6 +184,9 @@
             <Pin Id="H2BUXL6DdYUNt1w8NoCWTG" Name="Extrude Origin" Kind="InputPin" />
             <Pin Id="AieUVhJR7VeMPjD0CTJPE1" Name="Flattening Tolerance" Kind="InputPin" />
             <Pin Id="RgZc0ApgfZ1PBq2n39Y5yv" Name="Smoothing Angle" Kind="InputPin" />
+            <Pin Id="QGYnKoBclGOLRyFI0BFdQk" Name="Side UVMapping" Kind="InputPin" />
+            <Pin Id="PevoWJMHjHcMzc0fbqNEnb" Name="Texture Scale" Kind="InputPin" />
+            <Pin Id="FG5SBDSkeg3OVfJYjMro02" Name="Weld Vertices" Kind="InputPin" />
           </Node>
           <Pad Id="SEomjTejlSwM2DpDdJiZTO" Comment="Font" Bounds="399,106,179,20" ShowValueBox="true" isIOBox="true" Value="Comic Sans MS">
             <p:TypeAnnotation LastCategoryFullName="Text" LastDependency="CoreLibBasics.vl">
@@ -444,6 +447,9 @@
             <Pin Id="TePE7z2hg13NULYeySqE6W" Name="Smoothing Angle" Kind="InputPin" />
             <Pin Id="LF2p4DbS1A4OM9qrPwijKz" Name="Meshes" Kind="OutputPin" />
             <Pin Id="RbVHsSVUDy3MmPTKy2jCHr" Name="Transformations" Kind="OutputPin" />
+            <Pin Id="RDNcJ8c8jllNHUgTbS7y4s" Name="Side UVMapping" Kind="InputPin" />
+            <Pin Id="JqqSUgIRLp5OL6B32Vfs5F" Name="Texture Scale" Kind="InputPin" />
+            <Pin Id="LNX4SRVh5sUNERM1XVkNa2" Name="Weld Vertices" Kind="InputPin" />
           </Node>
           <Node Bounds="734,255,465,19" Id="I7ytzyaKIswNUd15vJUcTH">
             <p:NodeReference LastCategoryFullName="VL.Stride.Text3d" LastDependency="VL.Stride.Text3d.vl">
@@ -565,7 +571,12 @@
             <Pin Id="NqLo4MowGHBOtXZNUptNK3" Name="Smoothing Angle" Kind="InputPin" />
             <Pin Id="AYmbEr8SXv4O5TVM9IqFar" Name="Meshes" Kind="OutputPin" />
             <Pin Id="RQpJPJny2m7NnctK0CJm7F" Name="Transformations" Kind="OutputPin" />
+            <Pin Id="NM3FarcUBOgMgswzb7etta" Name="Point Groups" Kind="OutputPin" IsHidden="true" />
             <Pin Id="T469USKYhwCLcgRsIuFaBU" Name="In Progress" Kind="OutputPin" />
+            <Pin Id="PsYxDI2wuKBN13cjktp9UA" Name="Side UVMapping" Kind="InputPin" />
+            <Pin Id="QOPF7VYjkTUOk4p3D6q2ny" Name="Texture Scale" Kind="InputPin" />
+            <Pin Id="CcHISH3DOpjLFBRqpBVULr" Name="Weld Vertices" Kind="InputPin" />
+            <Pin Id="EJHtolG6h7JLKyFTeqHBV4" Name="Compute Points" Kind="InputPin" IsHidden="true" />
           </Node>
           <Pad Id="DbGAa7dwTvtM1aXNsXHw4x" Bounds="924,438,92,40" ShowValueBox="true" isIOBox="true" Value="also available as async">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
@@ -599,9 +610,14 @@
             <Pin Id="IX5lHiiTEXiLJCrBzfF1EM" Name="Smoothing Angle" Kind="InputPin" />
             <Pin Id="HntktpLnRvQOX4c5kwDzxY" Name="Meshes" Kind="OutputPin" />
             <Pin Id="JBnf7qbKRTCPIcGhGjRB3s" Name="Transformations" Kind="OutputPin" />
+            <Pin Id="MD9hmnGnO4yPMv1DcbaKhp" Name="Point Groups" Kind="OutputPin" IsHidden="true" />
             <Pin Id="Cwyf6ET61KsO1ejmAbjwvD" Name="In Progress" Kind="OutputPin" />
+            <Pin Id="Emrnoch1HDEOh45sutXR57" Name="Side UVMapping" Kind="InputPin" />
+            <Pin Id="Su23chFQNs1Pe1hLrf6Ej3" Name="Texture Scale" Kind="InputPin" />
+            <Pin Id="DrFQBKERWZpOAcXvhowOAl" Name="Weld Vertices" Kind="InputPin" />
+            <Pin Id="O2cFGCBAZMtNH7ixwLSZM6" Name="Compute Points" Kind="InputPin" IsHidden="true" />
           </Node>
-          <Pad Id="FpvzlK5k6WaMIJWrmh3eEO" Comment="In Progress" Bounds="1020,460,35,35" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="FpvzlK5k6WaMIJWrmh3eEO" Comment="In Progress" Bounds="1080,451,35,35" ShowValueBox="true" isIOBox="true" />
           <Pad Id="Hl9mZhmD2IeLE2LNePf6Tm" Bounds="45,442,100,40" ShowValueBox="true" isIOBox="true" Value="also available as async">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
@@ -611,7 +627,7 @@
               <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
             </p:ValueBoxSettings>
           </Pad>
-          <Pad Id="FmaWRnaZaCyOpDN9TtqrjX" Comment="In Progress" Bounds="213,460,35,35" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="FmaWRnaZaCyOpDN9TtqrjX" Comment="In Progress" Bounds="273,451,35,35" ShowValueBox="true" isIOBox="true" />
         </Canvas>
         <Patch Id="FpIAzhgLcOkOcjkyNB7vxJ" Name="Create" />
         <Patch Id="QusIcL1uz5vPQSYaEBWheY" Name="Update" />
