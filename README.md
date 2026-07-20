@@ -87,6 +87,10 @@ README.
 - Fixes the `TextLayoutMetrics` node's `Height Including Trailing Whitespace` pin
   always outputting 0: Silk.NET does not bind the IDWriteTextLayout2 metrics
   overload that fills this field, the node now calls the native method directly.
+- Fixes all consumers of a `FontAndParagraph` throwing DWRITE_E_FLOWDIRECTIONCONFLICTS
+  when `Reading Direction` or `Flow Direction` was changed to a value parallel to the
+  other (only one pin can change at a time): the reading direction now takes
+  precedence and a parallel flow direction is replaced by the perpendicular fallback.
 
 ## Changes in 2.2
 

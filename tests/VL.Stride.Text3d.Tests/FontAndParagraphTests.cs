@@ -138,6 +138,40 @@ public class FontAndParagraphTests
         Assert.That(verticalWidthIncl, Is.EqualTo(verticalWidth).Within(0.001f));
     }
 
+    // Regression: DirectWrite rejects a reading/flow direction pair that is parallel,
+    // but only lazily on Draw/GetMetrics (DWRITE_E_FLOWDIRECTIONCONFLICTS), so every
+    // consumer threw when one of the two pins was changed on its own. The layout now
+    // derives a perpendicular fallback flow from the authoritative reading direction.
+    [Test]
+    public void ParallelReadingAndFlowDirectionsAreResolved()
+    {
+        var layoutMetrics = new TextLayoutMetrics();
+
+        foreach (var reading in new[] { Enums.ReadingDirection.TopToBottom, Enums.ReadingDirection.BottomToTop })
+        {
+            using var fap = new FontAndParagraph();
+            fap.SetText("hello world");
+            fap.SetReadingDirection(reading); // flow stays at its now-parallel default TopToBottom
+
+            Assert.That(() => layoutMetrics.Update(out _, out _, out _, out _, out _, out _, out _, out _, out _, out _, fap),
+                Throws.Nothing, reading.ToString());
+            layoutMetrics.Update(out _, out _, out float width, out float height,
+                out _, out _, out _, out _, out _, out _, fap);
+            // glyphs stack vertically, so the layout really is vertical
+            Assert.That(height, Is.GreaterThan(width), reading.ToString());
+        }
+
+        foreach (var flow in new[] { Enums.FlowDirection.LeftToRight, Enums.FlowDirection.RightToLeft })
+        {
+            using var fap = new FontAndParagraph();
+            fap.SetText("hello world");
+            fap.SetFlowDirection(flow); // reading stays at its now-parallel default LeftToRight
+
+            Assert.That(() => layoutMetrics.Update(out _, out _, out _, out _, out _, out _, out _, out _, out _, out _, fap),
+                Throws.Nothing, flow.ToString());
+        }
+    }
+
     [Test]
     public void TrimmingWithEllipsisSignBuilds()
     {

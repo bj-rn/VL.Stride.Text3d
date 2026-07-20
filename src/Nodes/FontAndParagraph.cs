@@ -139,12 +139,12 @@ public sealed unsafe class FontAndParagraph : IDisposable
     }
 
     /// <summary>Sets the direction reading progresses in.</summary>
-    /// <param name="readingDirection">The text reading direction (for example right-to-left) set for the paragraph.</param>
+    /// <param name="readingDirection">The text reading direction (for example right-to-left) set for the paragraph. Takes precedence over Flow Direction: while the configured flow direction is parallel to it, the layout uses a perpendicular fallback flow instead (see Flow Direction).</param>
     public void SetReadingDirection(ReadingDirection readingDirection = ReadingDirection.LeftToRight)
         => Set(ref this.readingDirection, readingDirection);
 
     /// <summary>Sets the direction lines are placed in.</summary>
-    /// <param name="flowDirection">The direction in which lines of text are placed relative to one another.</param>
+    /// <param name="flowDirection">The direction in which lines of text are placed relative to one another. Must be perpendicular to the reading direction. A parallel value is overridden with the perpendicular fallback instead of raising an error (TopToBottom while reading horizontally, LeftToRight while reading vertically), so the two pins can be changed one at a time in any order. Once the value is perpendicular again it applies as set, for example RightToLeft for traditional CJK columns read top to bottom.</param>
     public void SetFlowDirection(FlowDirection flowDirection = FlowDirection.TopToBottom)
         => Set(ref this.flowDirection, flowDirection);
 
@@ -266,7 +266,17 @@ public sealed unsafe class FontAndParagraph : IDisposable
         ThrowOnFailure(layout->SetParagraphAlignment((SilkParagraphAlignment)paragraphAlignment));
         ThrowOnFailure(layout->SetWordWrapping((SilkWordWrapping)wordWrapping));
         ThrowOnFailure(layout->SetReadingDirection((SilkReadingDirection)readingDirection));
-        ThrowOnFailure(layout->SetFlowDirection((SilkFlowDirection)flowDirection));
+        // DirectWrite requires reading and flow direction to be perpendicular; a parallel
+        // pair fails lazily (DWRITE_E_FLOWDIRECTIONCONFLICTS on Draw/GetMetrics), turning
+        // every consumer pink with a cryptic HRESULT. Only one pin can change at a time
+        // in the editor, so a conflicting flow is replaced by the perpendicular fallback:
+        // the reading direction is authoritative.
+        var effectiveFlow = flowDirection;
+        bool readingVertical = readingDirection is ReadingDirection.TopToBottom or ReadingDirection.BottomToTop;
+        bool flowVertical = effectiveFlow is FlowDirection.TopToBottom or FlowDirection.BottomToTop;
+        if (readingVertical == flowVertical)
+            effectiveFlow = readingVertical ? FlowDirection.LeftToRight : FlowDirection.TopToBottom;
+        ThrowOnFailure(layout->SetFlowDirection((SilkFlowDirection)effectiveFlow));
         ThrowOnFailure(layout->SetLineSpacing((SilkLineSpacingMethod)lineSpacingMethod, lineSpacing, baseline));
 
         // Trimming (optionally with an ellipsis sign built from the format)
