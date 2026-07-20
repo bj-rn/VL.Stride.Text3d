@@ -106,18 +106,33 @@ public class FontAndParagraphTests
 
     // Regression: Silk.NET does not bind IDWriteTextLayout2::GetMetrics(TextMetrics1*),
     // so the pin read 0 until the node started calling the vtable slot directly.
+    // Per the DWRITE_TEXT_METRICS1 docs the field is "pertinent for vertical text":
+    // for horizontal reading directions trailing whitespace extends the width and the
+    // two heights coincide; for vertical reading directions lines flow as columns and
+    // the trailing whitespace extends the height.
     [Test]
     public void HeightIncludingTrailingWhitespaceIsRead()
     {
-        using var fap = new FontAndParagraph();
-        fap.SetText("hello\nworld\n\n");
+        using var horizontal = new FontAndParagraph();
+        horizontal.SetText("hello   \nworld   ");
 
         var layoutMetrics = new TextLayoutMetrics();
-        layoutMetrics.Update(out _, out _, out _, out float height,
-            out float heightIncludingTrailingWhitespace, out _, out _, out _, out _, out _, fap);
+        layoutMetrics.Update(out _, out _, out float width, out float height,
+            out float heightIncl, out float widthIncl, out _, out _, out _, out _, horizontal);
 
-        Assert.That(heightIncludingTrailingWhitespace, Is.GreaterThan(0));
-        Assert.That(heightIncludingTrailingWhitespace, Is.GreaterThanOrEqualTo(height));
+        Assert.That(heightIncl, Is.GreaterThan(0));
+        Assert.That(heightIncl, Is.EqualTo(height).Within(0.001f));
+        Assert.That(widthIncl, Is.GreaterThan(width));
+
+        using var vertical = new FontAndParagraph();
+        vertical.SetText("hello   \nworld   ");
+        vertical.SetReadingDirection(Enums.ReadingDirection.TopToBottom);
+        vertical.SetFlowDirection(Enums.FlowDirection.LeftToRight);
+
+        layoutMetrics.Update(out _, out _, out _, out float verticalHeight,
+            out float verticalHeightIncl, out _, out _, out _, out _, out _, vertical);
+
+        Assert.That(verticalHeightIncl, Is.GreaterThan(verticalHeight));
     }
 
     [Test]
