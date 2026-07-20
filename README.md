@@ -35,6 +35,18 @@ For 2021.4
 Try it with vvvv, the visual live-programming environment for .NET
 Download: http://visualprogramming.net
 
+## Changes in 2.4
+
+- New optional `Compute Points` pin on the four async mesh nodes: when enabled, the
+  background computation also extracts the distinct vertex positions as collider
+  points, made for convex hull baking with the async hull nodes of
+  [VL.Stride.BepuPhysics](https://github.com/bj-rn/VL.Stride.BepuPhysics). The
+  whole-mesh nodes gain a `Points` output (mesh-local space), the per-glyph nodes a
+  `Point Groups` output (one group per glyph, in text-local space, ready for
+  `HullsFromPointGroups (Async)`). Off by default, the outputs are then empty and the
+  extra pass is skipped entirely. Note that toggling the pin recomputes in the
+  background and also refreshes the mesh outputs on adoption.
+
 ## Changes in 2.2
 
 - A sample triplanar material shader ships with the package: connect the
