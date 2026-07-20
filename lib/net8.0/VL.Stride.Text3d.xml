@@ -70,8 +70,14 @@
         <member name="M:VL.Stride.Text3d.Core.OutlineRenderer.GetGeometry">
             <summary>Accumulated geometry (null for empty text). The caller takes ownership.</summary>
         </member>
-        <member name="M:VL.Stride.Text3d.Core.OutlineRenderer.AddTransformedGeometry(Silk.NET.Direct2D.ID2D1PathGeometry*,System.Single,System.Single)">
-            <summary>Wraps pg in translate(baseline) x scale(1,-1), releases pg, accumulates.</summary>
+        <member name="M:VL.Stride.Text3d.Core.OutlineRenderer.AddTransformedGeometry(Silk.NET.Direct2D.ID2D1PathGeometry*,System.Single,System.Single,Silk.NET.Maths.Matrix3X2{System.Single})">
+            <summary>
+            Wraps pg in rotate(orientation) x translate(baseline) x scale(1,-1), releases pg,
+            accumulates. The orientation is the per-run glyph orientation rotation (identity
+            for horizontal text), applied about the baseline origin in DIP space BEFORE the
+            original translate/flip; with identity this reduces exactly to the original
+            matrix [1 0; 0 -1; bx -by] (row-vector convention).
+            </summary>
         </member>
         <member name="T:VL.Stride.Text3d.Core.TextOutlineExtractor">
             <summary>The whole-text extraction pipeline (outline union -> extrusion), usable from any thread.</summary>
@@ -386,6 +392,14 @@
             <summary>
             Returns a native COM interface pointer (AddRef'd) for the given managed object and
             interface IID. Caller must release it via <see cref="M:System.Runtime.InteropServices.Marshal.Release(System.IntPtr)"/>.
+            </summary>
+        </member>
+        <member name="M:VL.Stride.Text3d.Interop.Native.GetGlyphOrientationTransform(System.Int32,System.Boolean)">
+            <summary>
+            The rotation DirectWrite prescribes for drawing a glyph run with the given
+            orientation angle (DWRITE_GLYPH_ORIENTATION_ANGLE, 0..3) and sideways state,
+            as a row-vector 2x2 matrix to apply about the baseline origin in DIP space.
+            Identity for horizontal text (angle 0, not sideways).
             </summary>
         </member>
         <member name="M:VL.Stride.Text3d.Interop.Native.CreateTextFormat(System.String,System.Single,Silk.NET.DirectWrite.FontWeight,Silk.NET.DirectWrite.FontStyle,Silk.NET.DirectWrite.FontStretch)">
