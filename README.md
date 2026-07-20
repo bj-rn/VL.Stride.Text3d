@@ -47,7 +47,8 @@ desync; `In Progress` reports background activity, the last completed result sta
 active meanwhile. The packages connect purely at the patch level (plain
 `Spread<Vector3>` point data), neither depends on the other's assembly. See the
 `help/HowTo Physical 3d Text.vl` patch shipped with VL.Stride.BepuPhysics for the
-complete pipeline: spheres raining onto typed text.
+complete pipeline: the glyphs of one sentence raining down onto typed text, each a
+dynamic Body with its own baked hull.
 
 Notes:
 - Hulls are convex per glyph, so counters (the holes in e, o, a, ...) are filled in,
