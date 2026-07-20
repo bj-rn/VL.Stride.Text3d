@@ -436,11 +436,11 @@
         </member>
         <member name="M:VL.Stride.Text3d.Nodes.FontAndParagraph.SetReadingDirection(VL.Stride.Text3d.Enums.ReadingDirection)">
             <summary>Sets the direction reading progresses in.</summary>
-            <param name="readingDirection">The text reading direction (for example right-to-left) set for the paragraph.</param>
+            <param name="readingDirection">The text reading direction (for example right-to-left) set for the paragraph. Takes precedence over Flow Direction: while the configured flow direction is parallel to it, the layout uses a perpendicular fallback flow instead (see Flow Direction).</param>
         </member>
         <member name="M:VL.Stride.Text3d.Nodes.FontAndParagraph.SetFlowDirection(VL.Stride.Text3d.Enums.FlowDirection)">
             <summary>Sets the direction lines are placed in.</summary>
-            <param name="flowDirection">The direction in which lines of text are placed relative to one another.</param>
+            <param name="flowDirection">The direction in which lines of text are placed relative to one another. Must be perpendicular to the reading direction. A parallel value is overridden with the perpendicular fallback instead of raising an error (TopToBottom while reading horizontally, LeftToRight while reading vertically), so the two pins can be changed one at a time in any order. Once the value is perpendicular again it applies as set, for example RightToLeft for traditional CJK columns read top to bottom.</param>
         </member>
         <member name="M:VL.Stride.Text3d.Nodes.FontAndParagraph.SetText(System.String)">
             <summary>Sets the text of the layout.</summary>
