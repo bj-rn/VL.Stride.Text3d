@@ -45,9 +45,9 @@ output to `HullsFromPointGroups (Async)`, then `ConvexHullCollider` into a `Stat
 thread from the same data as the rendered meshes, so meshes and colliders can never
 desync; `In Progress` reports background activity, the last completed result stays
 active meanwhile. The packages connect purely at the patch level (plain
-`Spread<Vector3>` point data), neither depends on the other's assembly. See
-`help/HowTo Physical 3d Text.vl` for the complete patch: spheres raining onto typed
-text.
+`Spread<Vector3>` point data), neither depends on the other's assembly. See the
+`help/HowTo Physical 3d Text.vl` patch shipped with VL.Stride.BepuPhysics for the
+complete pipeline: spheres raining onto typed text.
 
 Notes:
 - Hulls are convex per glyph, so counters (the holes in e, o, a, ...) are filled in,
@@ -176,9 +176,6 @@ suite. Two things to preserve when touching the interop:
 - The vertex-output regression fixtures in `tests/baselines` are font/machine-dependent
   (DirectWrite output varies with installed font versions). After moving to a new
   machine, regenerate them once with `REGENERATE_BASELINES=1 dotnet test`.
-- The `HelpPhysical3dTextCompiles` test needs VL.Stride.BepuPhysics resolvable: a
-  sibling checkout next to this repo works out of the box, otherwise install the nuget
-  (the test setup also searches `%LOCALAPPDATA%\vvvv\gamma\nugets`).
 - `src/Core/BackgroundComputation.cs` (the poll based helper behind the async nodes)
   is intentionally duplicated in
   [VL.Stride.BepuPhysics](https://github.com/bj-rn/VL.Stride.BepuPhysics) as

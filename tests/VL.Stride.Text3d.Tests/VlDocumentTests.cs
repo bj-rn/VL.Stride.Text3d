@@ -28,17 +28,10 @@ public class VlDocumentTests
     public void Setup()
     {
         // Search paths act like vvvv's --package-repositories directories.
-        var searchPaths = new List<string>
+        var searchPaths = new[]
         {
             Path.GetDirectoryName(TestData.RepoRoot)!, // D:\_dev\_vl-libs (contains this package)
         };
-        // The Physical 3d Text help patch depends on VL.Stride.BepuPhysics; its runtime
-        // packages (Stride.BepuPhysics, BepuPhysics, BepuUtilities) live in the user
-        // nugets folder on machines where the package is installed rather than checked
-        // out next to this repo.
-        var userNugets = Environment.ExpandEnvironmentVariables(@"%LOCALAPPDATA%\vvvv\gamma\nugets");
-        if (Directory.Exists(userNugets))
-            searchPaths.Add(userNugets);
         testEnvironment = TestEnvironmentLoader.Load(Path.Combine(VvvvDir, "vvvv.exe"), searchPaths, preCompilePackages: true);
     }
 
@@ -65,14 +58,5 @@ public class VlDocumentTests
     public async Task HelpTextStylesCompiles()
     {
         await testEnvironment!.LoadAndTestAsync(Path.Combine(TestData.RepoRoot, "help", "Explanation Overview TextStyles.vl"));
-    }
-
-    // Needs VL.Stride.BepuPhysics resolvable (sibling checkout or installed nuget, see
-    // Setup); if that proves fragile on a machine, ignore this one test rather than
-    // removing the patch.
-    [Test]
-    public async Task HelpPhysical3dTextCompiles()
-    {
-        await testEnvironment!.LoadAndTestAsync(Path.Combine(TestData.RepoRoot, "help", "HowTo Physical 3d Text.vl"));
     }
 }
