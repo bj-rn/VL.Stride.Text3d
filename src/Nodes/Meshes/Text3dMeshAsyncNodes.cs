@@ -16,6 +16,7 @@ using VL.Core;
 using VL.Core.Import;
 using VL.Lib.Collections;
 using VL.Lib.Text;
+using VL.Model;
 using VL.Stride.Text3d.Core;
 using VL.Stride.Text3d.Nodes.Models;
 using ExtrudeOrigin = VL.Stride.Text3d.Enums.ExtrudeOrigin;
@@ -26,15 +27,27 @@ using TextAlignment = VL.Stride.Text3d.Enums.TextAlignment;
 
 namespace VL.Stride.Text3d.Nodes.Meshes;
 
+// Background task results: mesh data plus the optional collider points from the same
+// run, so mesh and points can never desync. Points are Spread.Empty while Compute
+// Points is off.
+internal sealed record MeshResult(VertexPositionNormalTexture[] Vertices, Spread<Vector3> Points);
+internal sealed record GlyphsResult(GlyphList Glyphs, Spread<Spread<Vector3>> PointGroups);
+
 /// <summary>Like Text3dMesh, but generates the mesh on a background thread; the last completed mesh is output while a new one is computed.</summary>
 [ProcessNode(Name = "Text3dMesh (Async)")]
 public class Text3dMeshAsync : IDisposable
 {
     private readonly GameServices services;
     private readonly PrebuiltMeshModel model = new();
-    private readonly BackgroundComputation<VertexPositionNormalTexture[]> computation = new();
+    private readonly BackgroundComputation<MeshResult> computation = new();
     private Mesh? mesh;
+    private Spread<Vector3> points = Spread<Vector3>.Empty;
     private bool lastWeld;
+
+    // Scratch for point extraction, reused across bakes without locks:
+    // BackgroundComputation runs at most one task at a time (latest-wins).
+    private readonly HashSet<Vector3> pointSeen = new();
+    private readonly SpreadBuilder<Vector3> pointBuilder = new();
 
     public Text3dMeshAsync(NodeContext nodeContext)
     {
@@ -43,6 +56,7 @@ public class Text3dMeshAsync : IDisposable
 
     /// <param name="output">The generated text mesh (the last completed one while a computation is in progress).</param>
     /// <param name="inProgress">True while a mesh is being computed in the background.</param>
+    /// <param name="points">Distinct vertex positions of the mesh (mesh-local space), made for convex hull baking with HullFromPoints (Async) from VL.Stride.BepuPhysics. Empty unless Compute Points is enabled.</param>
     /// <param name="text">The string to render.</param>
     /// <param name="font">The name of the font family.</param>
     /// <param name="fontSize">The logical size of the font in DIP units (1 DIP = 1/96 inch).</param>
@@ -58,7 +72,8 @@ public class Text3dMeshAsync : IDisposable
     /// ContourDepthTiled uses the same unrolling but with absolute surface distances divided by Texture Scale, applied to the caps as well, so a pattern tiles at the same physical size everywhere; coordinates exceed 1 on larger surfaces, so set the texture addressing to wrap; use it for seamless materials such as noise or fabric. Every contour (outline or hole) is mapped independently.</param>
     /// <param name="textureScale">Surface distance covered by one texture repeat; only used by ContourDepthTiled.</param>
     /// <param name="weldVertices">Welds identical vertices into an indexed mesh: visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle list).</param>
-    public unsafe void Update(out Mesh? output, out bool inProgress,
+    /// <param name="computePoints">Also extracts the distinct vertex positions as collider points (see Points). Off by default so the extra pass costs nothing; toggling it triggers one background recomputation whose adoption also rebuilds the mesh output.</param>
+    public unsafe void Update(out Mesh? output, out bool inProgress, out Spread<Vector3> points,
         string text = "hello world", FontList? font = null, int fontSize = 32,
         TextAlignment textAlignment = TextAlignment.Leading,
         ParagraphAlignment paragraphAlignment = ParagraphAlignment.Near,
@@ -67,7 +82,8 @@ public class Text3dMeshAsync : IDisposable
         float smoothingAngle = Core.Extruder.DefaultSmoothingAngle,
         SideUVMapping sideUVMapping = SideUVMapping.Silhouette,
         float textureScale = Core.Extruder.DefaultTextureScale,
-        bool weldVertices = false)
+        bool weldVertices = false,
+        [Pin(Visibility = PinVisibility.Optional)] bool computePoints = false)
     {
         var hashCode = new HashCode();
         hashCode.Add(text); hashCode.Add(font?.Value); hashCode.Add(fontSize);
@@ -75,9 +91,10 @@ public class Text3dMeshAsync : IDisposable
         hashCode.Add(extrudeAmount); hashCode.Add(extrudeOrigin);
         hashCode.Add(flatteningTolerance); hashCode.Add(smoothingAngle);
         hashCode.Add(sideUVMapping); hashCode.Add(textureScale);
+        hashCode.Add(computePoints);
         int hash = hashCode.ToHashCode();
 
-        bool adopted = computation.Poll(hash, out var vertices, out bool needsStart, out inProgress);
+        bool adopted = computation.Poll(hash, out var result, out bool needsStart, out inProgress);
         if (needsStart)
         {
             var t = text ?? "";
@@ -91,25 +108,30 @@ public class Text3dMeshAsync : IDisposable
             var sa = smoothingAngle;
             var uv = sideUVMapping;
             var ts = textureScale;
-            computation.Start(hash, () => ComputeVertices(t, f, size, ta, pa, ea, eo, ft, sa, uv, ts));
+            var cp = computePoints;
+            computation.Start(hash, () => ComputeVertices(t, f, size, ta, pa, ea, eo, ft, sa, uv, ts, cp, pointSeen, pointBuilder));
             inProgress = true;
         }
         // Welding is a main-thread post-process: toggling it re-welds the cached
         // vertices without re-running the background extraction.
-        if ((adopted || weldVertices != lastWeld) && vertices != null)
+        if ((adopted || weldVertices != lastWeld) && result != null)
         {
             model.WeldVertices = weldVertices;
-            mesh = GlyphMeshNodeHelper.BuildMesh(services.Game, model, vertices);
+            mesh = GlyphMeshNodeHelper.BuildMesh(services.Game, model, result.Vertices);
             lastWeld = weldVertices;
         }
+        if (adopted && result != null)
+            this.points = result.Points;
 
         output = mesh;
+        points = this.points;
     }
 
-    private static unsafe VertexPositionNormalTexture[] ComputeVertices(
+    private static unsafe MeshResult ComputeVertices(
         string text, string font, int fontSize, TextAlignment textAlignment,
         ParagraphAlignment paragraphAlignment, float extrudeAmount, ExtrudeOrigin extrudeOrigin,
-        float flatteningTolerance, float smoothingAngle, SideUVMapping sideUVMapping, float textureScale)
+        float flatteningTolerance, float smoothingAngle, SideUVMapping sideUVMapping, float textureScale,
+        bool computePoints, HashSet<Vector3> pointSeen, SpreadBuilder<Vector3> pointBuilder)
     {
         var layout = GlyphMeshNodeHelper.CreateSimpleLayout(text, font, fontSize, textAlignment, paragraphAlignment);
         try
@@ -117,7 +139,11 @@ public class Text3dMeshAsync : IDisposable
             var vertices = new List<VertexPositionNormalTexture>(1024);
             TextOutlineExtractor.ExtractVertices(layout, vertices, extrudeAmount, extrudeOrigin,
                 flatteningTolerance, smoothingAngle, sideUVMapping, textureScale);
-            return vertices.ToArray();
+            var array = vertices.ToArray();
+            var points = computePoints
+                ? ColliderPoints.DistinctPositions(array, pointSeen, pointBuilder)
+                : Spread<Vector3>.Empty;
+            return new MeshResult(array, points);
         }
         finally
         {
@@ -134,9 +160,15 @@ public class Text3dMeshAdvancedAsync : IDisposable
 {
     private readonly GameServices services;
     private readonly PrebuiltMeshModel model = new();
-    private readonly BackgroundComputation<VertexPositionNormalTexture[]> computation = new();
+    private readonly BackgroundComputation<MeshResult> computation = new();
     private Mesh? mesh;
+    private Spread<Vector3> points = Spread<Vector3>.Empty;
     private bool lastWeld;
+
+    // Scratch for point extraction, reused across bakes without locks:
+    // BackgroundComputation runs at most one task at a time (latest-wins).
+    private readonly HashSet<Vector3> pointSeen = new();
+    private readonly SpreadBuilder<Vector3> pointBuilder = new();
 
     public Text3dMeshAdvancedAsync(NodeContext nodeContext)
     {
@@ -145,6 +177,7 @@ public class Text3dMeshAdvancedAsync : IDisposable
 
     /// <param name="output">The generated text mesh (the last completed one while a computation is in progress).</param>
     /// <param name="inProgress">True while a mesh is being computed in the background.</param>
+    /// <param name="points">Distinct vertex positions of the mesh (mesh-local space), made for convex hull baking with HullFromPoints (Async) from VL.Stride.BepuPhysics. Empty unless Compute Points is enabled.</param>
     /// <param name="fontAndParagraph">The FontAndParagraph providing the text layout to render.</param>
     /// <param name="extrudeAmount">The depth of the extrusion along Z.</param>
     /// <param name="extrudeOrigin">Where the extruded mesh sits relative to Z = 0.</param>
@@ -156,21 +189,25 @@ public class Text3dMeshAdvancedAsync : IDisposable
     /// ContourDepthTiled uses the same unrolling but with absolute surface distances divided by Texture Scale, applied to the caps as well, so a pattern tiles at the same physical size everywhere; coordinates exceed 1 on larger surfaces, so set the texture addressing to wrap; use it for seamless materials such as noise or fabric. Every contour (outline or hole) is mapped independently.</param>
     /// <param name="textureScale">Surface distance covered by one texture repeat; only used by ContourDepthTiled.</param>
     /// <param name="weldVertices">Welds identical vertices into an indexed mesh: visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle list).</param>
-    public unsafe void Update(out Mesh? output, out bool inProgress,
+    /// <param name="computePoints">Also extracts the distinct vertex positions as collider points (see Points). Off by default so the extra pass costs nothing; toggling it triggers one background recomputation whose adoption also rebuilds the mesh output.</param>
+    public unsafe void Update(out Mesh? output, out bool inProgress, out Spread<Vector3> points,
         FontAndParagraph? fontAndParagraph = null, float extrudeAmount = 1f,
         ExtrudeOrigin extrudeOrigin = ExtrudeOrigin.Center,
         float flatteningTolerance = Core.Extruder.DefaultFlatteningTolerance,
         float smoothingAngle = Core.Extruder.DefaultSmoothingAngle,
         SideUVMapping sideUVMapping = SideUVMapping.Silhouette,
         float textureScale = Core.Extruder.DefaultTextureScale,
-        bool weldVertices = false)
+        bool weldVertices = false,
+        [Pin(Visibility = PinVisibility.Optional)] bool computePoints = false)
     {
         var layout = fontAndParagraph?.GetTextLayout();
         if (layout == null)
         {
             mesh = null;
+            this.points = Spread<Vector3>.Empty;
             inProgress = false;
             output = null;
+            points = this.points;
             return;
         }
 
@@ -179,9 +216,10 @@ public class Text3dMeshAdvancedAsync : IDisposable
         hashCode.Add(extrudeAmount); hashCode.Add(extrudeOrigin);
         hashCode.Add(flatteningTolerance); hashCode.Add(smoothingAngle);
         hashCode.Add(sideUVMapping); hashCode.Add(textureScale);
+        hashCode.Add(computePoints);
         int hash = hashCode.ToHashCode();
 
-        bool adopted = computation.Poll(hash, out var vertices, out bool needsStart, out inProgress);
+        bool adopted = computation.Poll(hash, out var result, out bool needsStart, out inProgress);
         if (needsStart)
         {
             // Keep the layout alive for the task's lifetime (see file header).
@@ -193,24 +231,29 @@ public class Text3dMeshAdvancedAsync : IDisposable
             var sa = smoothingAngle;
             var uv = sideUVMapping;
             var ts = textureScale;
-            computation.Start(hash, () => ComputeVertices(layoutPtr, ea, eo, ft, sa, uv, ts));
+            var cp = computePoints;
+            computation.Start(hash, () => ComputeVertices(layoutPtr, ea, eo, ft, sa, uv, ts, cp, pointSeen, pointBuilder));
             inProgress = true;
         }
         // Welding is a main-thread post-process: toggling it re-welds the cached
         // vertices without re-running the background extraction.
-        if ((adopted || weldVertices != lastWeld) && vertices != null)
+        if ((adopted || weldVertices != lastWeld) && result != null)
         {
             model.WeldVertices = weldVertices;
-            mesh = GlyphMeshNodeHelper.BuildMesh(services.Game, model, vertices);
+            mesh = GlyphMeshNodeHelper.BuildMesh(services.Game, model, result.Vertices);
             lastWeld = weldVertices;
         }
+        if (adopted && result != null)
+            this.points = result.Points;
 
         output = mesh;
+        points = this.points;
     }
 
-    private static unsafe VertexPositionNormalTexture[] ComputeVertices(nint layoutPtr,
+    private static unsafe MeshResult ComputeVertices(nint layoutPtr,
         float extrudeAmount, ExtrudeOrigin extrudeOrigin, float flatteningTolerance, float smoothingAngle,
-        SideUVMapping sideUVMapping, float textureScale)
+        SideUVMapping sideUVMapping, float textureScale,
+        bool computePoints, HashSet<Vector3> pointSeen, SpreadBuilder<Vector3> pointBuilder)
     {
         try
         {
@@ -218,7 +261,11 @@ public class Text3dMeshAdvancedAsync : IDisposable
             TextOutlineExtractor.ExtractVertices((Silk.NET.DirectWrite.IDWriteTextLayout*)layoutPtr,
                 vertices, extrudeAmount, extrudeOrigin, flatteningTolerance, smoothingAngle,
                 sideUVMapping, textureScale);
-            return vertices.ToArray();
+            var array = vertices.ToArray();
+            var points = computePoints
+                ? ColliderPoints.DistinctPositions(array, pointSeen, pointBuilder)
+                : Spread<Vector3>.Empty;
+            return new MeshResult(array, points);
         }
         finally
         {
@@ -234,10 +281,17 @@ public class Text3dMeshAdvancedAsync : IDisposable
 public class Text3dMeshesAsync : IDisposable
 {
     private readonly GameServices services;
-    private readonly BackgroundComputation<GlyphList> computation = new();
+    private readonly BackgroundComputation<GlyphsResult> computation = new();
     private Spread<Mesh> meshes = Spread<Mesh>.Empty;
     private Spread<Matrix> transformations = Spread<Matrix>.Empty;
+    private Spread<Spread<Vector3>> pointGroups = Spread<Spread<Vector3>>.Empty;
     private bool lastWeld;
+
+    // Scratch for point extraction, reused across bakes without locks:
+    // BackgroundComputation runs at most one task at a time (latest-wins).
+    private readonly HashSet<Vector3> pointSeen = new();
+    private readonly SpreadBuilder<Vector3> pointBuilder = new();
+    private readonly SpreadBuilder<Spread<Vector3>> groupBuilder = new();
 
     public Text3dMeshesAsync(NodeContext nodeContext)
     {
@@ -247,6 +301,7 @@ public class Text3dMeshesAsync : IDisposable
     /// <param name="meshes">One mesh per visible glyph, in draw order (the last completed set while a computation is in progress).</param>
     /// <param name="transformations">Per glyph: the translation placing the mesh at its position in the text.</param>
     /// <param name="inProgress">True while the meshes are being computed in the background.</param>
+    /// <param name="pointGroups">Per glyph: distinct vertex positions in text-local space (the space of Meshes composed with Transformations), made for HullsFromPointGroups (Async) from VL.Stride.BepuPhysics. For per-glyph bodies subtract the Transformations translation. Empty unless Compute Points is enabled.</param>
     /// <param name="text">The string to render.</param>
     /// <param name="font">The name of the font family.</param>
     /// <param name="fontSize">The logical size of the font in DIP units (1 DIP = 1/96 inch).</param>
@@ -262,7 +317,9 @@ public class Text3dMeshesAsync : IDisposable
     /// ContourDepthTiled uses the same unrolling but with absolute surface distances divided by Texture Scale, applied to the caps as well, so a pattern tiles at the same physical size everywhere; coordinates exceed 1 on larger surfaces, so set the texture addressing to wrap; use it for seamless materials such as noise or fabric. Every contour (outline or hole) is mapped independently.</param>
     /// <param name="textureScale">Surface distance covered by one texture repeat; only used by ContourDepthTiled.</param>
     /// <param name="weldVertices">Welds identical vertices into indexed meshes: visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle lists).</param>
+    /// <param name="computePoints">Also extracts the distinct vertex positions per glyph as collider points (see Point Groups). Off by default so the extra pass costs nothing; toggling it triggers one background recomputation whose adoption also rebuilds the mesh outputs.</param>
     public unsafe void Update(out Spread<Mesh> meshes, out Spread<Matrix> transformations, out bool inProgress,
+        out Spread<Spread<Vector3>> pointGroups,
         string text = "hello world", FontList? font = null, int fontSize = 32,
         TextAlignment textAlignment = TextAlignment.Leading,
         ParagraphAlignment paragraphAlignment = ParagraphAlignment.Near,
@@ -271,7 +328,8 @@ public class Text3dMeshesAsync : IDisposable
         float smoothingAngle = Core.Extruder.DefaultSmoothingAngle,
         SideUVMapping sideUVMapping = SideUVMapping.Silhouette,
         float textureScale = Core.Extruder.DefaultTextureScale,
-        bool weldVertices = false)
+        bool weldVertices = false,
+        [Pin(Visibility = PinVisibility.Optional)] bool computePoints = false)
     {
         var hashCode = new HashCode();
         hashCode.Add(text); hashCode.Add(font?.Value); hashCode.Add(fontSize);
@@ -279,9 +337,10 @@ public class Text3dMeshesAsync : IDisposable
         hashCode.Add(extrudeAmount); hashCode.Add(extrudeOrigin);
         hashCode.Add(flatteningTolerance); hashCode.Add(smoothingAngle);
         hashCode.Add(sideUVMapping); hashCode.Add(textureScale);
+        hashCode.Add(computePoints);
         int hash = hashCode.ToHashCode();
 
-        bool adopted = computation.Poll(hash, out var glyphs, out bool needsStart, out inProgress);
+        bool adopted = computation.Poll(hash, out var result, out bool needsStart, out inProgress);
         if (needsStart)
         {
             var t = text ?? "";
@@ -295,31 +354,41 @@ public class Text3dMeshesAsync : IDisposable
             var sa = smoothingAngle;
             var uv = sideUVMapping;
             var ts = textureScale;
-            computation.Start(hash, () => ComputeGlyphs(t, f, size, ta, pa, ea, eo, ft, sa, uv, ts));
+            var cp = computePoints;
+            computation.Start(hash, () => ComputeGlyphs(t, f, size, ta, pa, ea, eo, ft, sa, uv, ts, cp, pointSeen, pointBuilder, groupBuilder));
             inProgress = true;
         }
         // Welding is a main-thread post-process: toggling it re-welds the cached
         // vertices without re-running the background extraction.
-        if ((adopted || weldVertices != lastWeld) && glyphs != null)
+        if ((adopted || weldVertices != lastWeld) && result != null)
         {
-            GlyphMeshNodeHelper.BuildMeshes(services.Game, glyphs, weldVertices, out this.meshes, out this.transformations);
+            GlyphMeshNodeHelper.BuildMeshes(services.Game, result.Glyphs, weldVertices, out this.meshes, out this.transformations);
             lastWeld = weldVertices;
         }
+        if (adopted && result != null)
+            this.pointGroups = result.PointGroups;
 
         meshes = this.meshes;
         transformations = this.transformations;
+        pointGroups = this.pointGroups;
     }
 
-    private static unsafe GlyphList ComputeGlyphs(
+    private static unsafe GlyphsResult ComputeGlyphs(
         string text, string font, int fontSize, TextAlignment textAlignment,
         ParagraphAlignment paragraphAlignment, float extrudeAmount, ExtrudeOrigin extrudeOrigin,
-        float flatteningTolerance, float smoothingAngle, SideUVMapping sideUVMapping, float textureScale)
+        float flatteningTolerance, float smoothingAngle, SideUVMapping sideUVMapping, float textureScale,
+        bool computePoints, HashSet<Vector3> pointSeen, SpreadBuilder<Vector3> pointBuilder,
+        SpreadBuilder<Spread<Vector3>> groupBuilder)
     {
         var layout = GlyphMeshNodeHelper.CreateSimpleLayout(text, font, fontSize, textAlignment, paragraphAlignment);
         try
         {
-            return GlyphMeshBuilder.ExtractGlyphVertices(layout, extrudeAmount, extrudeOrigin,
+            var glyphs = GlyphMeshBuilder.ExtractGlyphVertices(layout, extrudeAmount, extrudeOrigin,
                 flatteningTolerance, smoothingAngle, sideUVMapping, textureScale);
+            var pointGroups = computePoints
+                ? ColliderPoints.DistinctPositionsPerGlyph(glyphs, pointSeen, pointBuilder, groupBuilder)
+                : Spread<Spread<Vector3>>.Empty;
+            return new GlyphsResult(glyphs, pointGroups);
         }
         finally
         {
@@ -335,10 +404,17 @@ public class Text3dMeshesAsync : IDisposable
 public class Text3dMeshesAdvancedAsync : IDisposable
 {
     private readonly GameServices services;
-    private readonly BackgroundComputation<GlyphList> computation = new();
+    private readonly BackgroundComputation<GlyphsResult> computation = new();
     private Spread<Mesh> meshes = Spread<Mesh>.Empty;
     private Spread<Matrix> transformations = Spread<Matrix>.Empty;
+    private Spread<Spread<Vector3>> pointGroups = Spread<Spread<Vector3>>.Empty;
     private bool lastWeld;
+
+    // Scratch for point extraction, reused across bakes without locks:
+    // BackgroundComputation runs at most one task at a time (latest-wins).
+    private readonly HashSet<Vector3> pointSeen = new();
+    private readonly SpreadBuilder<Vector3> pointBuilder = new();
+    private readonly SpreadBuilder<Spread<Vector3>> groupBuilder = new();
 
     public Text3dMeshesAdvancedAsync(NodeContext nodeContext)
     {
@@ -348,6 +424,7 @@ public class Text3dMeshesAdvancedAsync : IDisposable
     /// <param name="meshes">One mesh per visible glyph, in draw order (the last completed set while a computation is in progress).</param>
     /// <param name="transformations">Per glyph: the translation placing the mesh at its position in the text.</param>
     /// <param name="inProgress">True while the meshes are being computed in the background.</param>
+    /// <param name="pointGroups">Per glyph: distinct vertex positions in text-local space (the space of Meshes composed with Transformations), made for HullsFromPointGroups (Async) from VL.Stride.BepuPhysics. For per-glyph bodies subtract the Transformations translation. Empty unless Compute Points is enabled.</param>
     /// <param name="fontAndParagraph">The FontAndParagraph providing the text layout to render.</param>
     /// <param name="extrudeAmount">The depth of the extrusion along Z.</param>
     /// <param name="extrudeOrigin">Where the extruded meshes sit relative to Z = 0.</param>
@@ -359,23 +436,28 @@ public class Text3dMeshesAdvancedAsync : IDisposable
     /// ContourDepthTiled uses the same unrolling but with absolute surface distances divided by Texture Scale, applied to the caps as well, so a pattern tiles at the same physical size everywhere; coordinates exceed 1 on larger surfaces, so set the texture addressing to wrap; use it for seamless materials such as noise or fabric. Every contour (outline or hole) is mapped independently.</param>
     /// <param name="textureScale">Surface distance covered by one texture repeat; only used by ContourDepthTiled.</param>
     /// <param name="weldVertices">Welds identical vertices into indexed meshes: visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle lists).</param>
+    /// <param name="computePoints">Also extracts the distinct vertex positions per glyph as collider points (see Point Groups). Off by default so the extra pass costs nothing; toggling it triggers one background recomputation whose adoption also rebuilds the mesh outputs.</param>
     public unsafe void Update(out Spread<Mesh> meshes, out Spread<Matrix> transformations, out bool inProgress,
+        out Spread<Spread<Vector3>> pointGroups,
         FontAndParagraph? fontAndParagraph = null, float extrudeAmount = 1f,
         ExtrudeOrigin extrudeOrigin = ExtrudeOrigin.Center,
         float flatteningTolerance = Core.Extruder.DefaultFlatteningTolerance,
         float smoothingAngle = Core.Extruder.DefaultSmoothingAngle,
         SideUVMapping sideUVMapping = SideUVMapping.Silhouette,
         float textureScale = Core.Extruder.DefaultTextureScale,
-        bool weldVertices = false)
+        bool weldVertices = false,
+        [Pin(Visibility = PinVisibility.Optional)] bool computePoints = false)
     {
         var layout = fontAndParagraph?.GetTextLayout();
         if (layout == null)
         {
             this.meshes = Spread<Mesh>.Empty;
             this.transformations = Spread<Matrix>.Empty;
+            this.pointGroups = Spread<Spread<Vector3>>.Empty;
             inProgress = false;
             meshes = this.meshes;
             transformations = this.transformations;
+            pointGroups = this.pointGroups;
             return;
         }
 
@@ -384,9 +466,10 @@ public class Text3dMeshesAdvancedAsync : IDisposable
         hashCode.Add(extrudeAmount); hashCode.Add(extrudeOrigin);
         hashCode.Add(flatteningTolerance); hashCode.Add(smoothingAngle);
         hashCode.Add(sideUVMapping); hashCode.Add(textureScale);
+        hashCode.Add(computePoints);
         int hash = hashCode.ToHashCode();
 
-        bool adopted = computation.Poll(hash, out var glyphs, out bool needsStart, out inProgress);
+        bool adopted = computation.Poll(hash, out var result, out bool needsStart, out inProgress);
         if (needsStart)
         {
             // Keep the layout alive for the task's lifetime (see file header).
@@ -398,30 +481,40 @@ public class Text3dMeshesAdvancedAsync : IDisposable
             var sa = smoothingAngle;
             var uv = sideUVMapping;
             var ts = textureScale;
-            computation.Start(hash, () => ComputeGlyphs(layoutPtr, ea, eo, ft, sa, uv, ts));
+            var cp = computePoints;
+            computation.Start(hash, () => ComputeGlyphs(layoutPtr, ea, eo, ft, sa, uv, ts, cp, pointSeen, pointBuilder, groupBuilder));
             inProgress = true;
         }
         // Welding is a main-thread post-process: toggling it re-welds the cached
         // vertices without re-running the background extraction.
-        if ((adopted || weldVertices != lastWeld) && glyphs != null)
+        if ((adopted || weldVertices != lastWeld) && result != null)
         {
-            GlyphMeshNodeHelper.BuildMeshes(services.Game, glyphs, weldVertices, out this.meshes, out this.transformations);
+            GlyphMeshNodeHelper.BuildMeshes(services.Game, result.Glyphs, weldVertices, out this.meshes, out this.transformations);
             lastWeld = weldVertices;
         }
+        if (adopted && result != null)
+            this.pointGroups = result.PointGroups;
 
         meshes = this.meshes;
         transformations = this.transformations;
+        pointGroups = this.pointGroups;
     }
 
-    private static unsafe GlyphList ComputeGlyphs(nint layoutPtr,
+    private static unsafe GlyphsResult ComputeGlyphs(nint layoutPtr,
         float extrudeAmount, ExtrudeOrigin extrudeOrigin, float flatteningTolerance, float smoothingAngle,
-        SideUVMapping sideUVMapping, float textureScale)
+        SideUVMapping sideUVMapping, float textureScale,
+        bool computePoints, HashSet<Vector3> pointSeen, SpreadBuilder<Vector3> pointBuilder,
+        SpreadBuilder<Spread<Vector3>> groupBuilder)
     {
         try
         {
-            return GlyphMeshBuilder.ExtractGlyphVertices((Silk.NET.DirectWrite.IDWriteTextLayout*)layoutPtr,
+            var glyphs = GlyphMeshBuilder.ExtractGlyphVertices((Silk.NET.DirectWrite.IDWriteTextLayout*)layoutPtr,
                 extrudeAmount, extrudeOrigin, flatteningTolerance, smoothingAngle,
                 sideUVMapping, textureScale);
+            var pointGroups = computePoints
+                ? ColliderPoints.DistinctPositionsPerGlyph(glyphs, pointSeen, pointBuilder, groupBuilder)
+                : Spread<Spread<Vector3>>.Empty;
+            return new GlyphsResult(glyphs, pointGroups);
         }
         finally
         {
