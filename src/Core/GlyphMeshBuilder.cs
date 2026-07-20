@@ -7,7 +7,9 @@
 // Notes/limitations (documented on the nodes):
 //  - Underline/strikethrough decorations are not part of the per-glyph output.
 //  - Glyphs, not characters: ligatures merge characters, spaces produce no mesh.
-//  - Placement assumes horizontal baselines (vertical reading directions unsupported).
+//  - Vertical reading directions are supported via IDWriteTextRenderer1: the per-run
+//    glyph orientation transform rotates each glyph's geometry and maps the pen
+//    advance onto the oriented baseline (vertical for 90/270 degree runs).
 
 using System.Runtime.InteropServices;
 using Silk.NET.Direct2D;
@@ -27,7 +29,7 @@ namespace VL.Stride.Text3d.Core;
 
 /// <summary>Collects one outline geometry per glyph (local coordinates) plus its baseline pen position.</summary>
 [System.Runtime.InteropServices.Marshalling.GeneratedComClass]
-public sealed unsafe partial class GlyphOutlineCollector : IDWriteTextRendererCallback
+public sealed unsafe partial class GlyphOutlineCollector : IDWriteTextRenderer1Callback
 {
     public struct GlyphOutline
     {
@@ -48,6 +50,18 @@ public sealed unsafe partial class GlyphOutlineCollector : IDWriteTextRendererCa
 
     public int DrawGlyphRun(void* clientDrawingContext, float baselineOriginX, float baselineOriginY,
         int measuringMode, GlyphRun* glyphRun, void* glyphRunDescription, void* clientDrawingEffect)
+        => DrawGlyphRunCore(baselineOriginX, baselineOriginY, Matrix3X2<float>.Identity, glyphRun);
+
+    // IDWriteTextRenderer1: DirectWrite draws vertical layouts through these
+    // orientation-angle callbacks (and refuses to Draw them through the base
+    // interface, DWRITE_E_TEXTRENDERERINCOMPATIBLE).
+    public int DrawGlyphRun(void* clientDrawingContext, float baselineOriginX, float baselineOriginY,
+        int orientationAngle, int measuringMode, GlyphRun* glyphRun, void* glyphRunDescription, void* clientDrawingEffect)
+        => DrawGlyphRunCore(baselineOriginX, baselineOriginY,
+            Native.GetGlyphOrientationTransform(orientationAngle, (bool)glyphRun->IsSideways), glyphRun);
+
+    private int DrawGlyphRunCore(float baselineOriginX, float baselineOriginY,
+        Matrix3X2<float> orientation, GlyphRun* glyphRun)
     {
         if (glyphRun->GlyphCount == 0)
             return S_OK;
@@ -58,7 +72,7 @@ public sealed unsafe partial class GlyphOutlineCollector : IDWriteTextRendererCa
         {
             // Without advances the pen positions are unknown; degrade gracefully to one
             // entry for the whole run at the run origin.
-            AddGlyph(glyphRun, 0, glyphRun->GlyphCount, isRtl, baselineOriginX, baselineOriginY);
+            AddGlyph(glyphRun, 0, glyphRun->GlyphCount, isRtl, baselineOriginX, baselineOriginY, orientation);
             return S_OK;
         }
 
@@ -69,18 +83,29 @@ public sealed unsafe partial class GlyphOutlineCollector : IDWriteTextRendererCa
             // LTR runs advance rightwards from the run origin. RTL runs are drawn
             // leftwards from it, and a single RTL glyph's outline already extends into
             // negative X from its pen position (validated empirically against the
-            // whole-text mesh by GlyphMeshTests).
-            float originX = isRtl
-                ? baselineOriginX - pen
-                : baselineOriginX + pen;
-            AddGlyph(glyphRun, i, 1, isRtl, originX, baselineOriginY);
+            // whole-text mesh by GlyphMeshTests). The horizontal pen offset is mapped
+            // through the run's orientation transform, so oriented runs advance along
+            // their (for vertical text: vertical) baseline.
+            float penOffset = isRtl ? -pen : pen;
+            float originX = baselineOriginX + penOffset * orientation.M11;
+            float originY = baselineOriginY + penOffset * orientation.M12;
+            AddGlyph(glyphRun, i, 1, isRtl, originX, originY, orientation);
             pen += advance;
         }
         return S_OK;
     }
 
+    public int DrawUnderline(void* clientDrawingContext, float baselineOriginX, float baselineOriginY,
+        int orientationAngle, Silk.NET.DirectWrite.Underline* underline, void* clientDrawingEffect) => S_OK;
+
+    public int DrawStrikethrough(void* clientDrawingContext, float baselineOriginX, float baselineOriginY,
+        int orientationAngle, Silk.NET.DirectWrite.Strikethrough* strikethrough, void* clientDrawingEffect) => S_OK;
+
+    public int DrawInlineObject(void* clientDrawingContext, float originX, float originY,
+        int orientationAngle, void* inlineObject, int isSideways, int isRightToLeft, void* clientDrawingEffect) => E_NOTIMPL;
+
     private void AddGlyph(GlyphRun* glyphRun, uint index, uint count, bool isRtl,
-        float originX, float baselineOriginY)
+        float originX, float baselineOriginY, Matrix3X2<float> orientation)
     {
         ID2D1PathGeometry* pg = null;
         ThrowOnFailure(factory->CreatePathGeometry(&pg));
@@ -99,8 +124,12 @@ public sealed unsafe partial class GlyphOutlineCollector : IDWriteTextRendererCa
         ThrowOnFailure(sink->Close());
         sink->Release();
 
-        // Local geometry is only Y-flipped; placement is delivered as the offset.
-        var mat = new Matrix3X2<float>(1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f);
+        // Local geometry is orientation-rotated (identity for horizontal text) and
+        // Y-flipped; placement is delivered as the offset.
+        var mat = new Matrix3X2<float>(
+            orientation.M11, -orientation.M12,
+            orientation.M21, -orientation.M22,
+            0.0f, 0.0f);
         ID2D1TransformedGeometry* tg = null;
         ThrowOnFailure(factory->CreateTransformedGeometry((ID2D1Geometry*)pg, &mat, &tg));
         pg->Release();

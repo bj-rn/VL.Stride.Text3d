@@ -91,6 +91,11 @@ README.
   when `Reading Direction` or `Flow Direction` was changed to a value parallel to the
   other (only one pin can change at a time): the reading direction now takes
   precedence and a parallel flow direction is replaced by the perpendicular fallback.
+- Vertical reading directions no longer fail mesh extraction with
+  DWRITE_E_TEXTRENDERERINCOMPATIBLE: the outline renderers implement
+  IDWriteTextRenderer1 and apply the per run glyph orientation transform, so vertical
+  text extrudes correctly in the whole mesh nodes and places glyphs down the column
+  in the per glyph nodes.
 
 ## Changes in 2.2
 

@@ -2,6 +2,8 @@
 // .NET 8 source-generated COM interop. These mirror the native vtables exactly:
 //  - IDWritePixelSnapping        slots 3-5
 //  - IDWriteTextRenderer         slots 6-9 (inherits IDWritePixelSnapping)
+//  - IDWriteTextRenderer1        slots 10-13 (inherits IDWriteTextRenderer; the
+//    orientation-angle Draw callbacks DirectWrite requires for vertical text)
 //  - ID2D1SimplifiedGeometrySink slots 3-9
 //  - ID2D1TessellationSink       slots 3-4
 // All methods are [PreserveSig] and use blittable signatures only. Parameters the
@@ -56,6 +58,29 @@ public unsafe partial interface IDWriteTextRendererCallback : IDWritePixelSnappi
     [PreserveSig]
     int DrawInlineObject(void* clientDrawingContext, float originX, float originY,
         void* inlineObject, int isSideways, int isRightToLeft, void* clientDrawingEffect);
+}
+
+[GeneratedComInterface]
+[Guid("d3e0e934-22a0-427e-aae4-7d9574b59db1")]
+public unsafe partial interface IDWriteTextRenderer1Callback : IDWriteTextRendererCallback
+{
+    // Method order and parameter placement per dwrite_2.h; orientationAngle is
+    // DWRITE_GLYPH_ORIENTATION_ANGLE (0/90/180/270 degrees as 0..3).
+    [PreserveSig]
+    int DrawGlyphRun(void* clientDrawingContext, float baselineOriginX, float baselineOriginY,
+        int orientationAngle, int measuringMode, GlyphRun* glyphRun, void* glyphRunDescription, void* clientDrawingEffect);
+
+    [PreserveSig]
+    int DrawUnderline(void* clientDrawingContext, float baselineOriginX, float baselineOriginY,
+        int orientationAngle, Underline* underline, void* clientDrawingEffect);
+
+    [PreserveSig]
+    int DrawStrikethrough(void* clientDrawingContext, float baselineOriginX, float baselineOriginY,
+        int orientationAngle, Strikethrough* strikethrough, void* clientDrawingEffect);
+
+    [PreserveSig]
+    int DrawInlineObject(void* clientDrawingContext, float originX, float originY,
+        int orientationAngle, void* inlineObject, int isSideways, int isRightToLeft, void* clientDrawingEffect);
 }
 
 [GeneratedComInterface]

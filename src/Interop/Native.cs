@@ -21,13 +21,15 @@ namespace VL.Stride.Text3d.Interop;
 
 public static unsafe class Native
 {
-    // Canonical IIDs from d2d1.h / dwrite.h
+    // Canonical IIDs from d2d1.h / dwrite.h / dwrite_1.h
     private static readonly Guid IID_ID2D1Factory = new("06152247-6f50-465a-9245-118bfd3b6007");
     private static readonly Guid IID_IDWriteFactory = new("b859ee5a-d838-4b5b-a2e8-1adc7d93db48");
+    private static readonly Guid IID_IDWriteTextAnalyzer1 = new("80dad800-e21f-4e83-96ce-bfcce500db7c");
 
     private static readonly object InitLock = new();
     private static ID2D1Factory* d2dFactory;
     private static IDWriteFactory* dwriteFactory;
+    private static IDWriteTextAnalyzer1* textAnalyzer1;
 
     public static ID2D1Factory* D2DFactory
     {
@@ -63,9 +65,34 @@ public static unsafe class Native
             fixed (Guid* iid = &IID_IDWriteFactory)
                 ThrowOnFailure(dwApi.DWriteCreateFactory(DWriteFactoryType.Shared, iid, &dw));
 
+            // Text analyzer for GetGlyphOrientationTransform (vertical text drawing).
+            // IDWriteTextAnalyzer is a stateless, thread-safe service object.
+            IDWriteTextAnalyzer* analyzer = null;
+            ThrowOnFailure(((IDWriteFactory*)dw)->CreateTextAnalyzer(&analyzer));
+            IDWriteTextAnalyzer1* analyzer1 = null;
+            fixed (Guid* iid = &IID_IDWriteTextAnalyzer1)
+                ThrowOnFailure(analyzer->QueryInterface(iid, (void**)&analyzer1));
+            analyzer->Release();
+
+            textAnalyzer1 = analyzer1;
             dwriteFactory = (IDWriteFactory*)dw;
             d2dFactory = (ID2D1Factory*)d2d;
         }
+    }
+
+    /// <summary>
+    /// The rotation DirectWrite prescribes for drawing a glyph run with the given
+    /// orientation angle (DWRITE_GLYPH_ORIENTATION_ANGLE, 0..3) and sideways state,
+    /// as a row-vector 2x2 matrix to apply about the baseline origin in DIP space.
+    /// Identity for horizontal text (angle 0, not sideways).
+    /// </summary>
+    public static Silk.NET.Maths.Matrix3X2<float> GetGlyphOrientationTransform(int orientationAngle, bool isSideways)
+    {
+        EnsureFactories();
+        Matrix m = default;
+        ThrowOnFailure(textAnalyzer1->GetGlyphOrientationTransform(
+            (GlyphOrientationAngle)orientationAngle, isSideways, &m));
+        return new Silk.NET.Maths.Matrix3X2<float>(m.M11, m.M12, m.M21, m.M22, 0f, 0f);
     }
 
     /// <summary>

@@ -172,6 +172,67 @@ public class FontAndParagraphTests
         }
     }
 
+    // Regression: DirectWrite draws vertical layouts only through IDWriteTextRenderer1;
+    // with the plain IDWriteTextRenderer the outline renderers previously failed with
+    // DWRITE_E_TEXTRENDERERINCOMPATIBLE (0x8898500A).
+    [Test]
+    public void VerticalLayoutsExtractMeshes()
+    {
+        foreach (var reading in new[] { Enums.ReadingDirection.TopToBottom, Enums.ReadingDirection.BottomToTop })
+        {
+            using var fap = new FontAndParagraph();
+            fap.SetText("hello world");
+            fap.SetReadingDirection(reading);
+
+            var model = new Text3dAdvancedModel { TextLayout = fap.GetTextLayout(), ExtrudeAmount = 1f };
+            var vertices = TestData.CreateMeshVertices(model);
+
+            Assert.That(vertices, Is.Not.Empty, reading.ToString());
+            // glyphs stack along Y, so the mesh must be taller than wide
+            float minX = float.MaxValue, maxX = float.MinValue, minY = float.MaxValue, maxY = float.MinValue;
+            foreach (var v in vertices)
+            {
+                minX = Math.Min(minX, v.Position.X);
+                maxX = Math.Max(maxX, v.Position.X);
+                minY = Math.Min(minY, v.Position.Y);
+                maxY = Math.Max(maxY, v.Position.Y);
+            }
+            Assert.That(maxY - minY, Is.GreaterThan(maxX - minX), reading.ToString());
+        }
+    }
+
+    [Test]
+    public void VerticalLayoutWithDecorationsExtracts()
+    {
+        using var fap = new FontAndParagraph();
+        fap.SetText("hello world");
+        fap.SetReadingDirection(Enums.ReadingDirection.TopToBottom);
+        fap.ApplyStyles(new ITextStyle[]
+        {
+            new TextStyles.Underline().Update(0, 5),
+            new TextStyles.StrikeThrough().Update(6, 5),
+        });
+
+        var model = new Text3dAdvancedModel { TextLayout = fap.GetTextLayout(), ExtrudeAmount = 1f };
+        Assert.That(TestData.CreateMeshVertices(model), Is.Not.Empty);
+    }
+
+    [Test]
+    public unsafe void VerticalLayoutsExtractGlyphMeshes()
+    {
+        using var fap = new FontAndParagraph();
+        fap.SetText("abc");
+        fap.SetReadingDirection(Enums.ReadingDirection.TopToBottom);
+
+        var glyphs = GlyphMeshBuilder.ExtractGlyphVertices(fap.GetTextLayout()!.Pointer, extrudeAmount: 1f);
+
+        Assert.That(glyphs.Count, Is.EqualTo(3));
+        // pen positions progress along the vertical baseline, not the horizontal one
+        var xs = glyphs.Select(g => g.Position.X).ToArray();
+        var ys = glyphs.Select(g => g.Position.Y).ToArray();
+        Assert.That(ys.Max() - ys.Min(), Is.GreaterThan(xs.Max() - xs.Min()));
+    }
+
     [Test]
     public void TrimmingWithEllipsisSignBuilds()
     {
