@@ -52,10 +52,15 @@ public sealed unsafe class TextLayoutMetrics
             {
                 try
                 {
-                    // Native IDWriteTextLayout2::GetMetrics writes a DWRITE_TEXT_METRICS1;
-                    // the Silk binding types the parameter as the base TextMetrics.
+                    // Silk.NET 2.22 does not bind IDWriteTextLayout2::GetMetrics(DWRITE_TEXT_METRICS1*):
+                    // its name collides with the inherited GetMetrics and the generator dropped it, so
+                    // the struct's GetMetrics dispatches vtable slot 60 (the base method), which never
+                    // writes HeightIncludingTrailingWhitespace. The dropped method's slot 71 is unused
+                    // in the binding (GetCharacterSpacing = 70, SetVerticalGlyphOrientation = 72);
+                    // call it directly. Recheck when upgrading Silk.NET.
+                    var l2 = (IDWriteTextLayout2*)l2ptr;
                     TextMetrics1 m = default;
-                    ThrowOnFailure(((IDWriteTextLayout2*)l2ptr)->GetMetrics((Silk.NET.DirectWrite.TextMetrics*)&m));
+                    ThrowOnFailure(((delegate* unmanaged[Stdcall]<IDWriteTextLayout2*, TextMetrics1*, int>)l2->LpVtbl[71])(l2, &m));
                     metrics = m;
                 }
                 finally

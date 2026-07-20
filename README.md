@@ -84,6 +84,9 @@ README.
   `HullsFromPointGroups (Async)`). Off by default, the outputs are then empty and the
   extra pass is skipped entirely. Note that toggling the pin recomputes in the
   background and also refreshes the mesh outputs on adoption.
+- Fixes the `TextLayoutMetrics` node's `Height Including Trailing Whitespace` pin
+  always outputting 0: Silk.NET does not bind the IDWriteTextLayout2 metrics
+  overload that fills this field, the node now calls the native method directly.
 
 ## Changes in 2.2
 

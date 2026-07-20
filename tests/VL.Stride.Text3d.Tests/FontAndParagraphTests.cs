@@ -104,6 +104,22 @@ public class FontAndParagraphTests
         Assert.That(baseline[0], Is.GreaterThan(0));
     }
 
+    // Regression: Silk.NET does not bind IDWriteTextLayout2::GetMetrics(TextMetrics1*),
+    // so the pin read 0 until the node started calling the vtable slot directly.
+    [Test]
+    public void HeightIncludingTrailingWhitespaceIsRead()
+    {
+        using var fap = new FontAndParagraph();
+        fap.SetText("hello\nworld\n\n");
+
+        var layoutMetrics = new TextLayoutMetrics();
+        layoutMetrics.Update(out _, out _, out _, out float height,
+            out float heightIncludingTrailingWhitespace, out _, out _, out _, out _, out _, fap);
+
+        Assert.That(heightIncludingTrailingWhitespace, Is.GreaterThan(0));
+        Assert.That(heightIncludingTrailingWhitespace, Is.GreaterThanOrEqualTo(height));
+    }
+
     [Test]
     public void TrimmingWithEllipsisSignBuilds()
     {
