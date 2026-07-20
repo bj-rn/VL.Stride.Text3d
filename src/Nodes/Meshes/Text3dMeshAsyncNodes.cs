@@ -73,7 +73,8 @@ public class Text3dMeshAsync : IDisposable
     /// <param name="textureScale">Surface distance covered by one texture repeat; only used by ContourDepthTiled.</param>
     /// <param name="weldVertices">Welds identical vertices into an indexed mesh: visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle list).</param>
     /// <param name="computePoints">Also extracts the distinct vertex positions as collider points (see Points). Off by default so the extra pass costs nothing; toggling it triggers one background recomputation whose adoption also rebuilds the mesh output.</param>
-    public unsafe void Update(out Mesh? output, out Spread<Vector3> points, out bool inProgress,
+    public unsafe void Update(out Mesh? output,
+        [Pin(Visibility = PinVisibility.Optional)] out Spread<Vector3> points, out bool inProgress,
         string text = "hello world", FontList? font = null, int fontSize = 32,
         TextAlignment textAlignment = TextAlignment.Leading,
         ParagraphAlignment paragraphAlignment = ParagraphAlignment.Near,
@@ -190,7 +191,8 @@ public class Text3dMeshAdvancedAsync : IDisposable
     /// <param name="textureScale">Surface distance covered by one texture repeat; only used by ContourDepthTiled.</param>
     /// <param name="weldVertices">Welds identical vertices into an indexed mesh: visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle list).</param>
     /// <param name="computePoints">Also extracts the distinct vertex positions as collider points (see Points). Off by default so the extra pass costs nothing; toggling it triggers one background recomputation whose adoption also rebuilds the mesh output.</param>
-    public unsafe void Update(out Mesh? output, out Spread<Vector3> points, out bool inProgress,
+    public unsafe void Update(out Mesh? output,
+        [Pin(Visibility = PinVisibility.Optional)] out Spread<Vector3> points, out bool inProgress,
         FontAndParagraph? fontAndParagraph = null, float extrudeAmount = 1f,
         ExtrudeOrigin extrudeOrigin = ExtrudeOrigin.Center,
         float flatteningTolerance = Core.Extruder.DefaultFlatteningTolerance,
@@ -319,7 +321,7 @@ public class Text3dMeshesAsync : IDisposable
     /// <param name="weldVertices">Welds identical vertices into indexed meshes: visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle lists).</param>
     /// <param name="computePoints">Also extracts the distinct vertex positions per glyph as collider points (see Point Groups). Off by default so the extra pass costs nothing; toggling it triggers one background recomputation whose adoption also rebuilds the mesh outputs.</param>
     public unsafe void Update(out Spread<Mesh> meshes, out Spread<Matrix> transformations,
-        out Spread<Spread<Vector3>> pointGroups, out bool inProgress,
+        [Pin(Visibility = PinVisibility.Optional)] out Spread<Spread<Vector3>> pointGroups, out bool inProgress,
         string text = "hello world", FontList? font = null, int fontSize = 32,
         TextAlignment textAlignment = TextAlignment.Leading,
         ParagraphAlignment paragraphAlignment = ParagraphAlignment.Near,
@@ -438,7 +440,7 @@ public class Text3dMeshesAdvancedAsync : IDisposable
     /// <param name="weldVertices">Welds identical vertices into indexed meshes: visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle lists).</param>
     /// <param name="computePoints">Also extracts the distinct vertex positions per glyph as collider points (see Point Groups). Off by default so the extra pass costs nothing; toggling it triggers one background recomputation whose adoption also rebuilds the mesh outputs.</param>
     public unsafe void Update(out Spread<Mesh> meshes, out Spread<Matrix> transformations,
-        out Spread<Spread<Vector3>> pointGroups, out bool inProgress,
+        [Pin(Visibility = PinVisibility.Optional)] out Spread<Spread<Vector3>> pointGroups, out bool inProgress,
         FontAndParagraph? fontAndParagraph = null, float extrudeAmount = 1f,
         ExtrudeOrigin extrudeOrigin = ExtrudeOrigin.Center,
         float flatteningTolerance = Core.Extruder.DefaultFlatteningTolerance,
