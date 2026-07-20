@@ -67,6 +67,11 @@ What runs where:
 | GPU mesh buffers for rendering | main (graphics device) |
 | Engine hull build at collider attach | main, unavoidable; trivial with reduced hull points |
 
+For measured attach costs (with 42 glyphs: 0.15 ms for one reduced whole-text hull,
+5.8 ms for 42 per-glyph hulls, vs 4.3 ms for a raw whole-text hull and 14.9 ms for
+raw per-glyph hulls) see the "Async hull baking" section of the VL.Stride.BepuPhysics
+README.
+
 ## Changes in 2.4
 
 - New optional `Compute Points` pin on the four async mesh nodes: when enabled, the
