@@ -16,6 +16,16 @@
         <member name="M:VL.Stride.Text3d.Core.BackgroundComputation`1.Start(System.Int32,System.Func{`0})">
             <summary>Starts the background work for the given input hash.</summary>
         </member>
+        <member name="M:VL.Stride.Text3d.Core.ColliderPoints.DistinctPositions(Stride.Graphics.VertexPositionNormalTexture[],System.Collections.Generic.HashSet{Stride.Core.Mathematics.Vector3},VL.Lib.Collections.SpreadBuilder{Stride.Core.Mathematics.Vector3})">
+            <summary>Distinct vertex positions of a mesh, in mesh-local space.</summary>
+        </member>
+        <member name="M:VL.Stride.Text3d.Core.ColliderPoints.DistinctPositionsPerGlyph(System.Collections.Generic.List{System.ValueTuple{Stride.Graphics.VertexPositionNormalTexture[],Stride.Core.Mathematics.Vector2}},System.Collections.Generic.HashSet{Stride.Core.Mathematics.Vector3},VL.Lib.Collections.SpreadBuilder{Stride.Core.Mathematics.Vector3},VL.Lib.Collections.SpreadBuilder{VL.Lib.Collections.Spread{Stride.Core.Mathematics.Vector3}})">
+            <summary>
+            Per glyph: distinct vertex positions with the glyph translation added, so all
+            groups live in text-local space (the space of the composed Meshes plus
+            Transformations outputs).
+            </summary>
+        </member>
         <member name="F:VL.Stride.Text3d.Core.Extruder.DefaultFlatteningTolerance">
             <summary>Default outline flattening tolerance (as the original implementation).</summary>
         </member>
@@ -478,9 +488,10 @@
         <member name="T:VL.Stride.Text3d.Nodes.Meshes.Text3dMeshAsync">
             <summary>Like Text3dMesh, but generates the mesh on a background thread; the last completed mesh is output while a new one is computed.</summary>
         </member>
-        <member name="M:VL.Stride.Text3d.Nodes.Meshes.Text3dMeshAsync.Update(Stride.Rendering.Mesh@,System.Boolean@,System.String,VL.Lib.Text.FontList,System.Int32,VL.Stride.Text3d.Enums.TextAlignment,VL.Stride.Text3d.Enums.ParagraphAlignment,System.Single,VL.Stride.Text3d.Enums.ExtrudeOrigin,System.Single,System.Single,VL.Stride.Text3d.Enums.SideUVMapping,System.Single,System.Boolean)">
+        <member name="M:VL.Stride.Text3d.Nodes.Meshes.Text3dMeshAsync.Update(Stride.Rendering.Mesh@,System.Boolean@,VL.Lib.Collections.Spread{Stride.Core.Mathematics.Vector3}@,System.String,VL.Lib.Text.FontList,System.Int32,VL.Stride.Text3d.Enums.TextAlignment,VL.Stride.Text3d.Enums.ParagraphAlignment,System.Single,VL.Stride.Text3d.Enums.ExtrudeOrigin,System.Single,System.Single,VL.Stride.Text3d.Enums.SideUVMapping,System.Single,System.Boolean,System.Boolean)">
             <param name="output">The generated text mesh (the last completed one while a computation is in progress).</param>
             <param name="inProgress">True while a mesh is being computed in the background.</param>
+            <param name="points">Distinct vertex positions of the mesh (mesh-local space), made for convex hull baking with HullFromPoints (Async) from VL.Stride.BepuPhysics. Empty unless Compute Points is enabled.</param>
             <param name="text">The string to render.</param>
             <param name="font">The name of the font family.</param>
             <param name="fontSize">The logical size of the font in DIP units (1 DIP = 1/96 inch).</param>
@@ -496,13 +507,15 @@
             ContourDepthTiled uses the same unrolling but with absolute surface distances divided by Texture Scale, applied to the caps as well, so a pattern tiles at the same physical size everywhere; coordinates exceed 1 on larger surfaces, so set the texture addressing to wrap; use it for seamless materials such as noise or fabric. Every contour (outline or hole) is mapped independently.</param>
             <param name="textureScale">Surface distance covered by one texture repeat; only used by ContourDepthTiled.</param>
             <param name="weldVertices">Welds identical vertices into an indexed mesh: visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle list).</param>
+            <param name="computePoints">Also extracts the distinct vertex positions as collider points (see Points). Off by default so the extra pass costs nothing; toggling it triggers one background recomputation whose adoption also rebuilds the mesh output.</param>
         </member>
         <member name="T:VL.Stride.Text3d.Nodes.Meshes.Text3dMeshAdvancedAsync">
             <summary>Like Text3dMesh (Advanced), but generates the mesh on a background thread; the last completed mesh is output while a new one is computed.</summary>
         </member>
-        <member name="M:VL.Stride.Text3d.Nodes.Meshes.Text3dMeshAdvancedAsync.Update(Stride.Rendering.Mesh@,System.Boolean@,VL.Stride.Text3d.Nodes.FontAndParagraph,System.Single,VL.Stride.Text3d.Enums.ExtrudeOrigin,System.Single,System.Single,VL.Stride.Text3d.Enums.SideUVMapping,System.Single,System.Boolean)">
+        <member name="M:VL.Stride.Text3d.Nodes.Meshes.Text3dMeshAdvancedAsync.Update(Stride.Rendering.Mesh@,System.Boolean@,VL.Lib.Collections.Spread{Stride.Core.Mathematics.Vector3}@,VL.Stride.Text3d.Nodes.FontAndParagraph,System.Single,VL.Stride.Text3d.Enums.ExtrudeOrigin,System.Single,System.Single,VL.Stride.Text3d.Enums.SideUVMapping,System.Single,System.Boolean,System.Boolean)">
             <param name="output">The generated text mesh (the last completed one while a computation is in progress).</param>
             <param name="inProgress">True while a mesh is being computed in the background.</param>
+            <param name="points">Distinct vertex positions of the mesh (mesh-local space), made for convex hull baking with HullFromPoints (Async) from VL.Stride.BepuPhysics. Empty unless Compute Points is enabled.</param>
             <param name="fontAndParagraph">The FontAndParagraph providing the text layout to render.</param>
             <param name="extrudeAmount">The depth of the extrusion along Z.</param>
             <param name="extrudeOrigin">Where the extruded mesh sits relative to Z = 0.</param>
@@ -514,14 +527,16 @@
             ContourDepthTiled uses the same unrolling but with absolute surface distances divided by Texture Scale, applied to the caps as well, so a pattern tiles at the same physical size everywhere; coordinates exceed 1 on larger surfaces, so set the texture addressing to wrap; use it for seamless materials such as noise or fabric. Every contour (outline or hole) is mapped independently.</param>
             <param name="textureScale">Surface distance covered by one texture repeat; only used by ContourDepthTiled.</param>
             <param name="weldVertices">Welds identical vertices into an indexed mesh: visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle list).</param>
+            <param name="computePoints">Also extracts the distinct vertex positions as collider points (see Points). Off by default so the extra pass costs nothing; toggling it triggers one background recomputation whose adoption also rebuilds the mesh output.</param>
         </member>
         <member name="T:VL.Stride.Text3d.Nodes.Meshes.Text3dMeshesAsync">
             <summary>Like Text3dMeshes, but generates the per-glyph meshes on a background thread; the last completed set is output while a new one is computed.</summary>
         </member>
-        <member name="M:VL.Stride.Text3d.Nodes.Meshes.Text3dMeshesAsync.Update(VL.Lib.Collections.Spread{Stride.Rendering.Mesh}@,VL.Lib.Collections.Spread{Stride.Core.Mathematics.Matrix}@,System.Boolean@,System.String,VL.Lib.Text.FontList,System.Int32,VL.Stride.Text3d.Enums.TextAlignment,VL.Stride.Text3d.Enums.ParagraphAlignment,System.Single,VL.Stride.Text3d.Enums.ExtrudeOrigin,System.Single,System.Single,VL.Stride.Text3d.Enums.SideUVMapping,System.Single,System.Boolean)">
+        <member name="M:VL.Stride.Text3d.Nodes.Meshes.Text3dMeshesAsync.Update(VL.Lib.Collections.Spread{Stride.Rendering.Mesh}@,VL.Lib.Collections.Spread{Stride.Core.Mathematics.Matrix}@,System.Boolean@,VL.Lib.Collections.Spread{VL.Lib.Collections.Spread{Stride.Core.Mathematics.Vector3}}@,System.String,VL.Lib.Text.FontList,System.Int32,VL.Stride.Text3d.Enums.TextAlignment,VL.Stride.Text3d.Enums.ParagraphAlignment,System.Single,VL.Stride.Text3d.Enums.ExtrudeOrigin,System.Single,System.Single,VL.Stride.Text3d.Enums.SideUVMapping,System.Single,System.Boolean,System.Boolean)">
             <param name="meshes">One mesh per visible glyph, in draw order (the last completed set while a computation is in progress).</param>
             <param name="transformations">Per glyph: the translation placing the mesh at its position in the text.</param>
             <param name="inProgress">True while the meshes are being computed in the background.</param>
+            <param name="pointGroups">Per glyph: distinct vertex positions in text-local space (the space of Meshes composed with Transformations), made for HullsFromPointGroups (Async) from VL.Stride.BepuPhysics. For per-glyph bodies subtract the Transformations translation. Empty unless Compute Points is enabled.</param>
             <param name="text">The string to render.</param>
             <param name="font">The name of the font family.</param>
             <param name="fontSize">The logical size of the font in DIP units (1 DIP = 1/96 inch).</param>
@@ -537,14 +552,16 @@
             ContourDepthTiled uses the same unrolling but with absolute surface distances divided by Texture Scale, applied to the caps as well, so a pattern tiles at the same physical size everywhere; coordinates exceed 1 on larger surfaces, so set the texture addressing to wrap; use it for seamless materials such as noise or fabric. Every contour (outline or hole) is mapped independently.</param>
             <param name="textureScale">Surface distance covered by one texture repeat; only used by ContourDepthTiled.</param>
             <param name="weldVertices">Welds identical vertices into indexed meshes: visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle lists).</param>
+            <param name="computePoints">Also extracts the distinct vertex positions per glyph as collider points (see Point Groups). Off by default so the extra pass costs nothing; toggling it triggers one background recomputation whose adoption also rebuilds the mesh outputs.</param>
         </member>
         <member name="T:VL.Stride.Text3d.Nodes.Meshes.Text3dMeshesAdvancedAsync">
             <summary>Like Text3dMeshes (Advanced), but generates the per-glyph meshes on a background thread; the last completed set is output while a new one is computed.</summary>
         </member>
-        <member name="M:VL.Stride.Text3d.Nodes.Meshes.Text3dMeshesAdvancedAsync.Update(VL.Lib.Collections.Spread{Stride.Rendering.Mesh}@,VL.Lib.Collections.Spread{Stride.Core.Mathematics.Matrix}@,System.Boolean@,VL.Stride.Text3d.Nodes.FontAndParagraph,System.Single,VL.Stride.Text3d.Enums.ExtrudeOrigin,System.Single,System.Single,VL.Stride.Text3d.Enums.SideUVMapping,System.Single,System.Boolean)">
+        <member name="M:VL.Stride.Text3d.Nodes.Meshes.Text3dMeshesAdvancedAsync.Update(VL.Lib.Collections.Spread{Stride.Rendering.Mesh}@,VL.Lib.Collections.Spread{Stride.Core.Mathematics.Matrix}@,System.Boolean@,VL.Lib.Collections.Spread{VL.Lib.Collections.Spread{Stride.Core.Mathematics.Vector3}}@,VL.Stride.Text3d.Nodes.FontAndParagraph,System.Single,VL.Stride.Text3d.Enums.ExtrudeOrigin,System.Single,System.Single,VL.Stride.Text3d.Enums.SideUVMapping,System.Single,System.Boolean,System.Boolean)">
             <param name="meshes">One mesh per visible glyph, in draw order (the last completed set while a computation is in progress).</param>
             <param name="transformations">Per glyph: the translation placing the mesh at its position in the text.</param>
             <param name="inProgress">True while the meshes are being computed in the background.</param>
+            <param name="pointGroups">Per glyph: distinct vertex positions in text-local space (the space of Meshes composed with Transformations), made for HullsFromPointGroups (Async) from VL.Stride.BepuPhysics. For per-glyph bodies subtract the Transformations translation. Empty unless Compute Points is enabled.</param>
             <param name="fontAndParagraph">The FontAndParagraph providing the text layout to render.</param>
             <param name="extrudeAmount">The depth of the extrusion along Z.</param>
             <param name="extrudeOrigin">Where the extruded meshes sit relative to Z = 0.</param>
@@ -556,6 +573,7 @@
             ContourDepthTiled uses the same unrolling but with absolute surface distances divided by Texture Scale, applied to the caps as well, so a pattern tiles at the same physical size everywhere; coordinates exceed 1 on larger surfaces, so set the texture addressing to wrap; use it for seamless materials such as noise or fabric. Every contour (outline or hole) is mapped independently.</param>
             <param name="textureScale">Surface distance covered by one texture repeat; only used by ContourDepthTiled.</param>
             <param name="weldVertices">Welds identical vertices into indexed meshes: visually lossless with smaller buffers, but changes the mesh topology (off keeps the plain triangle lists).</param>
+            <param name="computePoints">Also extracts the distinct vertex positions per glyph as collider points (see Point Groups). Off by default so the extra pass costs nothing; toggling it triggers one background recomputation whose adoption also rebuilds the mesh outputs.</param>
         </member>
         <member name="M:VL.Stride.Text3d.Nodes.Meshes.GlyphMeshNodeHelper.Build(Stride.Engine.Game,Silk.NET.DirectWrite.IDWriteTextLayout*,System.Single,VL.Stride.Text3d.Enums.ExtrudeOrigin,System.Single,System.Single,VL.Stride.Text3d.Enums.SideUVMapping,System.Single,System.Boolean,VL.Lib.Collections.Spread{Stride.Rendering.Mesh}@,VL.Lib.Collections.Spread{Stride.Core.Mathematics.Matrix}@)">
             <summary>Builds one Stride mesh per visible glyph plus its translation matrix.</summary>

@@ -6,7 +6,7 @@
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v8.0": {
-      "VL.Stride.Text3d/2.3.0": {
+      "VL.Stride.Text3d/2.4.0": {
         "dependencies": {
           "Silk.NET.Direct2D": "2.22.0",
           "Stride.Core.Mathematics": "4.2.1.2487",
@@ -1798,7 +1798,7 @@
     }
   },
   "libraries": {
-    "VL.Stride.Text3d/2.3.0": {
+    "VL.Stride.Text3d/2.4.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
